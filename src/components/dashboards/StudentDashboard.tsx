@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { 
   User, 
   MessageSquare, 
@@ -17,8 +17,26 @@ import {
   Calendar,
   Plus
 } from 'lucide-react';
+import ChatModal from '../modals/ChatModal';
+import NotificationsModal from '../modals/NotificationsModal';
+import ProfileModal from '../modals/ProfileModal';
+import GroupJoinModal from '../modals/GroupJoinModal';
+import MentorshipModal from '../modals/MentorshipModal';
 
 const StudentDashboard = () => {
+  const { toast } = useToast();
+  const [chatModal, setChatModal] = useState({ isOpen: false, recipientName: '', recipientRole: '' });
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [groupJoinOpen, setGroupJoinOpen] = useState(false);
+  const [mentorshipModal, setMentorshipModal] = useState({ 
+    isOpen: false, 
+    mentorName: '', 
+    mentorField: '', 
+    mentorUniversity: '',
+    mentorRating: 0
+  });
+
   const [user] = useState({
     name: 'John Doe',
     role: 'student',
@@ -72,6 +90,34 @@ const StudentDashboard = () => {
     { id: 3, name: 'Dr. Lisa Wang', field: 'Data Science', university: 'Berkeley', rating: 4.7, sessions: 95 }
   ];
 
+  const handleStartChat = (name: string, role: string) => {
+    setChatModal({ isOpen: true, recipientName: name, recipientRole: role });
+  };
+
+  const handleConnectMentor = (mentor: any) => {
+    setMentorshipModal({
+      isOpen: true,
+      mentorName: mentor.name,
+      mentorField: mentor.field,
+      mentorUniversity: mentor.university,
+      mentorRating: mentor.rating
+    });
+  };
+
+  const handleJoinGroup = (groupName: string) => {
+    toast({
+      title: "Joined Group",
+      description: `You've successfully joined ${groupName}!`,
+    });
+  };
+
+  const handleSaveProgram = (programName: string) => {
+    toast({
+      title: "Program Saved",
+      description: `${programName} has been saved to your favorites.`,
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid lg:grid-cols-4 gap-8">
@@ -82,12 +128,12 @@ const StudentDashboard = () => {
             <CardHeader className="text-center">
               <Avatar className="h-20 w-20 mx-auto mb-4">
                 <AvatarFallback className="text-2xl bg-blue-100 text-blue-600">
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                  JD
                 </AvatarFallback>
               </Avatar>
               <CardTitle className="flex items-center justify-center gap-2">
                 <User className="h-5 w-5 text-blue-600" />
-                {user.name}
+                John Doe
               </CardTitle>
               <CardDescription>
                 <Badge className="bg-blue-100 text-blue-700">
@@ -96,10 +142,14 @@ const StudentDashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-2">
-              <p className="text-sm font-medium text-gray-900">{user.major}</p>
-              <p className="text-sm text-gray-600">{user.country}</p>
-              <p className="text-sm text-gray-700">{user.bio}</p>
-              <Button variant="outline" className="w-full mt-4">
+              <p className="text-sm font-medium text-gray-900">Computer Science</p>
+              <p className="text-sm text-gray-600">United States</p>
+              <p className="text-sm text-gray-700">Passionate about AI and machine learning</p>
+              <Button 
+                variant="outline" 
+                className="w-full mt-4"
+                onClick={() => setProfileOpen(true)}
+              >
                 Edit Profile
               </Button>
             </CardContent>
@@ -156,17 +206,27 @@ const StudentDashboard = () => {
           {/* Welcome Message */}
           <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
             <CardHeader>
-              <CardTitle>Welcome back, {user.name.split(' ')[0]}!</CardTitle>
+              <CardTitle>Welcome back, John!</CardTitle>
               <CardDescription className="text-blue-100">
                 You have 3 new messages and 2 group updates waiting.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex gap-3">
-                <Button variant="secondary" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  onClick={() => setNotificationsOpen(true)}
+                >
                   View Messages
                 </Button>
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-white/30 text-white hover:bg-white/10"
+                  onClick={() => setGroupJoinOpen(true)}
+                >
                   Join New Group
                 </Button>
               </div>
@@ -178,14 +238,22 @@ const StudentDashboard = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg">Your Academic Groups</CardTitle>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setGroupJoinOpen(true)}
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Join More
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {activeGroups.map((group) => (
+              {[
+                { id: 1, name: 'Computer Science', members: 3200, unread: 5, icon: '💻' },
+                { id: 2, name: 'AI & Machine Learning', members: 1850, unread: 2, icon: '🤖' },
+                { id: 3, name: 'Data Science', members: 2100, unread: 0, icon: '📊' }
+              ].map((group) => (
                 <div key={group.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
                   <div className="flex items-center space-x-3">
                     <div className="text-2xl">{group.icon}</div>
@@ -200,7 +268,11 @@ const StudentDashboard = () => {
                         {group.unread}
                       </Badge>
                     )}
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleJoinGroup(group.name)}
+                    >
                       View
                     </Button>
                   </div>
@@ -214,12 +286,26 @@ const StudentDashboard = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg">Recent Messages</CardTitle>
-                <Button variant="ghost" size="sm">View All</Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setNotificationsOpen(true)}
+                >
+                  View All
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {recentMessages.map((message) => (
-                <div key={message.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+              {[
+                { id: 1, sender: 'Dr. Sarah Wilson', message: 'Great question about neural networks...', time: '2h ago', type: 'professor' },
+                { id: 2, sender: 'Mike Chen', message: 'Are you joining the study group tomorrow?', time: '4h ago', type: 'student' },
+                { id: 3, sender: 'Engineering Group', message: 'New discussion: Career prospects in...', time: '1d ago', type: 'group' }
+              ].map((message) => (
+                <div 
+                  key={message.id} 
+                  className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                  onClick={() => handleStartChat(message.sender, message.type)}
+                >
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-green-100 text-green-600">
                       {message.sender.split(' ').map(n => n[0]).join('')}
@@ -249,7 +335,26 @@ const StudentDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {trendingPrograms.map((program) => (
+              {[
+                {
+                  id: 1,
+                  university: "MIT",
+                  program: "Advanced AI Certificate",
+                  type: "Certificate",
+                  deadline: "Dec 15, 2025",
+                  location: "Cambridge, MA",
+                  rating: 4.9
+                },
+                {
+                  id: 2,
+                  university: "Stanford",
+                  program: "Machine Learning Bootcamp",
+                  type: "Bootcamp",
+                  deadline: "Jan 10, 2026",
+                  location: "Online",
+                  rating: 4.8
+                }
+              ].map((program) => (
                 <div key={program.id} className="border rounded-lg p-3 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-2">
                     <Building2 className="h-6 w-6 text-orange-600 mt-1" />
@@ -267,7 +372,11 @@ const StudentDashboard = () => {
                       {program.deadline}
                     </div>
                   </div>
-                  <Button size="sm" className="w-full mt-2">
+                  <Button 
+                    size="sm" 
+                    className="w-full mt-2"
+                    onClick={() => handleSaveProgram(program.program)}
+                  >
                     Learn More
                   </Button>
                 </div>
@@ -282,7 +391,11 @@ const StudentDashboard = () => {
               <CardDescription>Connect with professors for guidance</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {mentors.map((mentor) => (
+              {[
+                { id: 1, name: 'Dr. Sarah Johnson', field: 'AI Research', university: 'MIT', rating: 4.9, sessions: 120 },
+                { id: 2, name: 'Prof. Michael Brown', field: 'Software Engineering', university: 'Stanford', rating: 4.8, sessions: 85 },
+                { id: 3, name: 'Dr. Lisa Wang', field: 'Data Science', university: 'Berkeley', rating: 4.7, sessions: 95 }
+              ].map((mentor) => (
                 <div key={mentor.id} className="border rounded-lg p-3">
                   <div className="flex items-center space-x-3 mb-2">
                     <Avatar className="h-8 w-8">
@@ -302,7 +415,12 @@ const StudentDashboard = () => {
                       {mentor.rating}
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" className="w-full">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleConnectMentor(mentor)}
+                  >
                     Connect
                   </Button>
                 </div>
@@ -336,6 +454,39 @@ const StudentDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <ChatModal
+        isOpen={chatModal.isOpen}
+        onClose={() => setChatModal({ isOpen: false, recipientName: '', recipientRole: '' })}
+        recipientName={chatModal.recipientName}
+        recipientRole={chatModal.recipientRole}
+      />
+
+      <NotificationsModal
+        isOpen={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+      />
+
+      <ProfileModal
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        userRole="student"
+      />
+
+      <GroupJoinModal
+        isOpen={groupJoinOpen}
+        onClose={() => setGroupJoinOpen(false)}
+      />
+
+      <MentorshipModal
+        isOpen={mentorshipModal.isOpen}
+        onClose={() => setMentorshipModal({ isOpen: false, mentorName: '', mentorField: '', mentorUniversity: '', mentorRating: 0 })}
+        mentorName={mentorshipModal.mentorName}
+        mentorField={mentorshipModal.mentorField}
+        mentorUniversity={mentorshipModal.mentorUniversity}
+        mentorRating={mentorshipModal.mentorRating}
+      />
     </div>
   );
 };

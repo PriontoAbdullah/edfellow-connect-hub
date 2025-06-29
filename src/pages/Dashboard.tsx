@@ -10,12 +10,18 @@ import {
   Settings
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import ProfessorDashboard from '@/components/dashboards/ProfessorDashboard';
 import UniversityDashboard from '@/components/dashboards/UniversityDashboard';
+import NotificationsModal from '@/components/modals/NotificationsModal';
+import ProfileModal from '@/components/modals/ProfileModal';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   
   // Mock user data - in real app this would come from authentication
   const [user] = useState({
@@ -26,7 +32,10 @@ const Dashboard = () => {
   });
 
   const handleLogout = () => {
-    // In real app, clear auth state
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
     navigate('/');
   };
 
@@ -67,18 +76,30 @@ const Dashboard = () => {
               <Button variant="ghost" size="icon">
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={() => setNotificationsOpen(true)}
+              >
                 <Bell className="h-5 w-5" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   3
                 </span>
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setProfileOpen(true)}
+              >
                 <Settings className="h-5 w-5" />
               </Button>
               
               {/* User Menu */}
-              <div className="flex items-center space-x-3">
+              <div 
+                className="flex items-center space-x-3 cursor-pointer"
+                onClick={() => setProfileOpen(true)}
+              >
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className={`${getRoleColor(user.role)} bg-opacity-10`}>
                     {user.name.split(' ').map(n => n[0]).join('')}
@@ -100,6 +121,18 @@ const Dashboard = () => {
 
       {/* Dashboard Content */}
       {renderDashboard()}
+
+      {/* Global Modals */}
+      <NotificationsModal
+        isOpen={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+      />
+
+      <ProfileModal
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        userRole={user.role}
+      />
     </div>
   );
 };
