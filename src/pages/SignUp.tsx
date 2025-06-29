@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GraduationCap, User, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState('');
   const [formData, setFormData] = useState({
@@ -64,9 +65,21 @@ const SignUp = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Sign up data:', { ...formData, role: selectedRole });
-    // Here you would typically send data to backend
-    navigate('/dashboard');
+    
+    const userData = { 
+      ...formData, 
+      role: selectedRole 
+    };
+    
+    console.log('Sign up data:', userData);
+    
+    toast({
+      title: "Account Created!",
+      description: `Welcome to Edfellow as a ${selectedRole}!`,
+    });
+    
+    // Navigate to dashboard with user data
+    navigate('/dashboard', { state: { user: userData } });
   };
 
   return (

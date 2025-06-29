@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
@@ -9,29 +9,47 @@ import {
   LogOut,
   Settings
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import ProfessorDashboard from '@/components/dashboards/ProfessorDashboard';
 import UniversityDashboard from '@/components/dashboards/UniversityDashboard';
 import NotificationsModal from '@/components/modals/NotificationsModal';
 import ProfileModal from '@/components/modals/ProfileModal';
+import SearchModal from '@/components/modals/SearchModal';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   
-  // Mock user data - in real app this would come from authentication
-  const [user] = useState({
-    name: 'John Doe',
-    role: 'student', // This would be determined by auth
-    major: 'Computer Science',
-    country: 'United States'
+  // Get user data from navigation state or localStorage
+  const [user, setUser] = useState(() => {
+    const locationState = location.state as any;
+    const storedUser = localStorage.getItem('edfellow_user');
+    
+    if (locationState?.user) {
+      // Save to localStorage for persistence
+      localStorage.setItem('edfellow_user', JSON.stringify(locationState.user));
+      return locationState.user;
+    } else if (storedUser) {
+      return JSON.parse(storedUser);
+    } else {
+      // Default fallback
+      return {
+        name: 'John Doe',
+        role: 'student',
+        major: 'Computer Science',
+        country: 'United States'
+      };
+    }
   });
 
   const handleLogout = () => {
+    localStorage.removeItem('edfellow_user');
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out.",
@@ -45,6 +63,15 @@ const Dashboard = () => {
       case 'professor': return 'text-green-600';
       case 'university': return 'text-orange-600';
       default: return 'text-gray-600';
+    }
+  };
+
+  const getRoleBackground = (role: string) => {
+    switch (role) {
+      case 'student': return 'bg-blue-50';
+      case 'professor': return 'bg-green-50';
+      case 'university': return 'bg-orange-50';
+      default: return 'bg-gray-50';
     }
   };
 
@@ -62,24 +89,32 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${getRoleBackground(user.role)}`}>
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-blue-600" />
+              <GraduationCap className={`h-8 w-8 ${getRoleColor(user.role)}`} />
               <span className="text-2xl font-bold text-gray-900">Edfellow</span>
+              <span className={`text-sm px-2 py-1 rounded-full ${getRoleColor(user.role)} bg-opacity-10 capitalize font-medium`}>
+                {user.role}
+              </span>
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover:bg-gray-100"
+                onClick={() => setSearchOpen(true)}
+              >
                 <Search className="h-5 w-5" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative"
+                className="relative hover:bg-gray-100"
                 onClick={() => setNotificationsOpen(true)}
               >
                 <Bell className="h-5 w-5" />
@@ -90,6 +125,7 @@ const Dashboard = () => {
               <Button 
                 variant="ghost" 
                 size="icon"
+                className="hover:bg-gray-100"
                 onClick={() => setProfileOpen(true)}
               >
                 <Settings className="h-5 w-5" />
@@ -97,7 +133,7 @@ const Dashboard = () => {
               
               {/* User Menu */}
               <div 
-                className="flex items-center space-x-3 cursor-pointer"
+                className="flex items-center space-x-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition-colors"
                 onClick={() => setProfileOpen(true)}
               >
                 <Avatar className="h-8 w-8">
@@ -111,7 +147,12 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleLogout}
+                className="hover:bg-red-50 hover:text-red-600"
+              >
                 <LogOut className="h-5 w-5" />
               </Button>
             </div>
@@ -131,6 +172,12 @@ const Dashboard = () => {
       <ProfileModal
         isOpen={profileOpen}
         onClose={() => setProfileOpen(false)}
+        userRole={user.role}
+      />
+
+      <SearchModal
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
         userRole={user.role}
       />
     </div>
