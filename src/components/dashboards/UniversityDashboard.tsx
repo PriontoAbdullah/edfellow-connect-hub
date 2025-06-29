@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Building2, 
   Plus, 
@@ -17,10 +19,30 @@ import {
   Eye,
   Edit,
   Trash2,
-  BarChart3
+  BarChart3,
+  Send,
+  CheckCircle,
+  DollarSign
 } from 'lucide-react';
+import ChatModal from '../modals/ChatModal';
+import NotificationsModal from '../modals/NotificationsModal';
+import ProfileModal from '../modals/ProfileModal';
 
 const UniversityDashboard = () => {
+  const { toast } = useToast();
+  const [chatModal, setChatModal] = useState({ isOpen: false, recipientName: '', recipientRole: '' });
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [showAddProgram, setShowAddProgram] = useState(false);
+  const [programForm, setProgramForm] = useState({
+    name: '',
+    type: '',
+    deadline: '',
+    location: '',
+    description: '',
+    tuition: ''
+  });
+
   const [user] = useState({
     name: 'Harvard University',
     role: 'university',
@@ -29,9 +51,7 @@ const UniversityDashboard = () => {
     bio: 'One of the world\'s leading research universities, dedicated to excellence in education, learning, and research.'
   });
 
-  const [showAddProgram, setShowAddProgram] = useState(false);
-
-  const submittedPrograms = [
+  const [submittedPrograms, setSubmittedPrograms] = useState([
     {
       id: 1,
       name: 'Business Analytics Certificate',
@@ -65,7 +85,7 @@ const UniversityDashboard = () => {
       applications: 0,
       featured: false
     }
-  ];
+  ]);
 
   const analytics = {
     totalViews: 2130,
@@ -80,13 +100,76 @@ const UniversityDashboard = () => {
     { id: 3, student: 'Mike Rodriguez', program: 'Executive MBA Program', message: 'Can you provide more information about the curriculum?', time: '1d ago' }
   ];
 
+  const handleStartChat = (name: string, role: string) => {
+    setChatModal({ isOpen: true, recipientName: name, recipientRole: role });
+  };
+
+  const handleSubmitProgram = (asDraft = false) => {
+    if (!programForm.name || !programForm.type || !programForm.deadline || !programForm.location) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newProgram = {
+      id: submittedPrograms.length + 1,
+      name: programForm.name,
+      type: programForm.type,
+      deadline: programForm.deadline,
+      location: programForm.location,
+      status: asDraft ? 'draft' : 'active',
+      views: 0,
+      applications: 0,
+      featured: false
+    };
+
+    setSubmittedPrograms([...submittedPrograms, newProgram]);
+    setProgramForm({ name: '', type: '', deadline: '', location: '', description: '', tuition: '' });
+    setShowAddProgram(false);
+
+    toast({
+      title: asDraft ? "Program Saved as Draft" : "Program Published",
+      description: asDraft ? 
+        "Your program has been saved as a draft." : 
+        "Your program is now live and visible to students!",
+    });
+  };
+
+  const handleDeleteProgram = (programId: number, programName: string) => {
+    setSubmittedPrograms(submittedPrograms.filter(p => p.id !== programId));
+    toast({
+      title: "Program Deleted",
+      description: `${programName} has been removed.`,
+    });
+  };
+
+  const handleFeatureProgram = (programId: number, programName: string) => {
+    setSubmittedPrograms(submittedPrograms.map(p => 
+      p.id === programId ? { ...p, featured: !p.featured } : p
+    ));
+    toast({
+      title: "Program Updated",
+      description: `${programName} has been ${submittedPrograms.find(p => p.id === programId)?.featured ? 'unfeatured' : 'featured'}.`,
+    });
+  };
+
+  const handleReplyToInquiry = (inquiryId: number, studentName: string) => {
+    toast({
+      title: "Reply Sent",
+      description: `Your response has been sent to ${studentName}.`,
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid lg:grid-cols-4 gap-8">
         {/* Left Sidebar - Profile */}
         <div className="lg:col-span-1 space-y-6">
           {/* University Profile */}
-          <Card>
+          <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
             <CardHeader className="text-center">
               <Avatar className="h-20 w-20 mx-auto mb-4">
                 <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
@@ -110,7 +193,11 @@ const UniversityDashboard = () => {
                 {user.location}
               </p>
               <p className="text-sm text-gray-700">{user.bio}</p>
-              <Button variant="outline" className="w-full mt-4">
+              <Button 
+                variant="outline" 
+                className="w-full mt-4"
+                onClick={() => setProfileOpen(true)}
+              >
                 Edit Profile
               </Button>
             </CardContent>
@@ -158,7 +245,12 @@ const UniversityDashboard = () => {
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Program
               </Button>
-              <Button className="w-full justify-start" variant="outline" size="sm">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline" 
+                size="sm"
+                onClick={() => setNotificationsOpen(true)}
+              >
                 <BarChart3 className="h-4 w-4 mr-2" />
                 View Analytics
               </Button>
@@ -182,10 +274,20 @@ const UniversityDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="flex gap-3">
-                <Button variant="secondary" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  onClick={() => setNotificationsOpen(true)}
+                >
                   View Performance
                 </Button>
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-white/30 text-white hover:bg-white/10"
+                  onClick={() => setShowAddProgram(true)}
+                >
                   Promote Programs
                 </Button>
               </div>
@@ -194,7 +296,7 @@ const UniversityDashboard = () => {
 
           {/* Add Program Form */}
           {showAddProgram && (
-            <Card>
+            <Card className="border-orange-200">
               <CardHeader>
                 <CardTitle className="text-lg">Add New Program</CardTitle>
                 <CardDescription>Create a new program listing to attract students</CardDescription>
@@ -202,12 +304,22 @@ const UniversityDashboard = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="program-name">Program Name</Label>
-                    <Input id="program-name" placeholder="e.g., Master of Data Science" />
+                    <Label htmlFor="program-name">Program Name *</Label>
+                    <Input 
+                      id="program-name" 
+                      placeholder="e.g., Master of Data Science"
+                      value={programForm.name}
+                      onChange={(e) => setProgramForm({...programForm, name: e.target.value})}
+                    />
                   </div>
                   <div>
-                    <Label htmlFor="program-type">Program Type</Label>
-                    <select id="program-type" className="w-full p-2 border rounded-md">
+                    <Label htmlFor="program-type">Program Type *</Label>
+                    <select 
+                      id="program-type" 
+                      className="w-full p-2 border rounded-md"
+                      value={programForm.type}
+                      onChange={(e) => setProgramForm({...programForm, type: e.target.value})}
+                    >
                       <option value="">Select Type</option>
                       <option value="bachelors">Bachelor's</option>
                       <option value="masters">Master's</option>
@@ -219,20 +331,41 @@ const UniversityDashboard = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="deadline">Application Deadline</Label>
-                    <Input id="deadline" type="date" />
+                    <Label htmlFor="deadline">Application Deadline *</Label>
+                    <Input 
+                      id="deadline" 
+                      type="date"
+                      value={programForm.deadline}
+                      onChange={(e) => setProgramForm({...programForm, deadline: e.target.value})}
+                    />
                   </div>
                   <div>
-                    <Label htmlFor="location">Location</Label>
-                    <Input id="location" placeholder="e.g., Boston, MA or Online" />
+                    <Label htmlFor="location">Location *</Label>
+                    <Input 
+                      id="location" 
+                      placeholder="e.g., Boston, MA or Online"
+                      value={programForm.location}
+                      onChange={(e) => setProgramForm({...programForm, location: e.target.value})}
+                    />
                   </div>
                 </div>
                 <div>
+                  <Label htmlFor="tuition">Tuition (Optional)</Label>
+                  <Input 
+                    id="tuition" 
+                    placeholder="e.g., $50,000/year"
+                    value={programForm.tuition}
+                    onChange={(e) => setProgramForm({...programForm, tuition: e.target.value})}
+                  />
+                </div>
+                <div>
                   <Label htmlFor="description">Program Description</Label>
-                  <textarea 
+                  <Textarea 
                     id="description" 
-                    className="w-full p-2 border rounded-md h-20"
+                    className="h-20"
                     placeholder="Brief description of the program..."
+                    value={programForm.description}
+                    onChange={(e) => setProgramForm({...programForm, description: e.target.value})}
                   />
                 </div>
                 <div className="flex justify-between">
@@ -240,10 +373,14 @@ const UniversityDashboard = () => {
                     Cancel
                   </Button>
                   <div className="flex gap-2">
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => handleSubmitProgram(true)}>
                       Save as Draft
                     </Button>
-                    <Button className="bg-orange-600 hover:bg-orange-700">
+                    <Button 
+                      className="bg-orange-600 hover:bg-orange-700"
+                      onClick={() => handleSubmitProgram(false)}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
                       Publish Program
                     </Button>
                   </div>
@@ -313,17 +450,30 @@ const UniversityDashboard = () => {
                       {program.status === 'active' && (
                         <div className="flex items-center text-green-600">
                           <TrendingUp className="h-4 w-4 mr-1" />
-                          Trending
+                          Live
                         </div>
                       )}
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleFeatureProgram(program.id, program.name)}
+                      >
+                        <Star className="h-4 w-4 mr-1" />
+                        {program.featured ? 'Unfeature' : 'Feature'}
+                      </Button>
                       <Button variant="outline" size="sm">
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
-                      <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => handleDeleteProgram(program.id, program.name)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -344,7 +494,7 @@ const UniversityDashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {recentInquiries.map((inquiry) => (
-                <div key={inquiry.id} className="border rounded-lg p-3">
+                <div key={inquiry.id} className="border rounded-lg p-3 bg-blue-50">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
@@ -360,9 +510,24 @@ const UniversityDashboard = () => {
                     <span className="text-xs text-gray-500">{inquiry.time}</span>
                   </div>
                   <p className="text-sm text-gray-700 mb-3">{inquiry.message}</p>
-                  <Button size="sm" variant="outline" className="w-full">
-                    Reply
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => handleReplyToInquiry(inquiry.id, inquiry.student)}
+                    >
+                      <Send className="h-3 w-3 mr-1" />
+                      Reply
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => handleStartChat(inquiry.student, 'student')}
+                    >
+                      Chat
+                    </Button>
+                  </div>
                 </div>
               ))}
             </CardContent>
@@ -422,6 +587,10 @@ const UniversityDashboard = () => {
                   <Users className="h-4 w-4 text-orange-600" />
                   <span className="text-sm">Alumni network tools</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-orange-600" />
+                  <span className="text-sm">Priority support</span>
+                </div>
                 <Button className="w-full mt-3 bg-orange-600 hover:bg-orange-700">
                   Upgrade Now
                 </Button>
@@ -430,6 +599,25 @@ const UniversityDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <ChatModal
+        isOpen={chatModal.isOpen}
+        onClose={() => setChatModal({ isOpen: false, recipientName: '', recipientRole: '' })}
+        recipientName={chatModal.recipientName}
+        recipientRole={chatModal.recipientRole}
+      />
+
+      <NotificationsModal
+        isOpen={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+      />
+
+      <ProfileModal
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        userRole="university"
+      />
     </div>
   );
 };

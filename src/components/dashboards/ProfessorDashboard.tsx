@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 import { 
   GraduationCap, 
   MessageSquare, 
@@ -12,10 +13,23 @@ import {
   Star,
   Plus,
   Calendar,
-  FileText
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
+import ChatModal from '../modals/ChatModal';
+import NotificationsModal from '../modals/NotificationsModal';
+import ProfileModal from '../modals/ProfileModal';
+import GroupJoinModal from '../modals/GroupJoinModal';
 
 const ProfessorDashboard = () => {
+  const { toast } = useToast();
+  const [chatModal, setChatModal] = useState({ isOpen: false, recipientName: '', recipientRole: '' });
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [groupJoinOpen, setGroupJoinOpen] = useState(false);
+
   const [user] = useState({
     name: 'Dr. Sarah Wilson',
     role: 'professor',
@@ -48,13 +62,45 @@ const ProfessorDashboard = () => {
     { id: 3, student: 'Carol Johnson', topic: 'Career Guidance', time: 'Dec 30 3:00 PM', duration: '1 hour' }
   ];
 
+  const handleStartChat = (name: string, role: string) => {
+    setChatModal({ isOpen: true, recipientName: name, recipientRole: role });
+  };
+
+  const handleAcceptMentorship = (requestId: number, studentName: string) => {
+    toast({
+      title: "Mentorship Request Accepted",
+      description: `You've accepted ${studentName}'s mentorship request. They will be notified.`,
+    });
+  };
+
+  const handleDeclineMentorship = (requestId: number, studentName: string) => {
+    toast({
+      title: "Mentorship Request Declined",
+      description: `You've declined ${studentName}'s mentorship request.`,
+    });
+  };
+
+  const handleJoinGroup = (groupName: string) => {
+    toast({
+      title: "Joined Group",
+      description: `You've successfully joined ${groupName}!`,
+    });
+  };
+
+  const handleCreatePost = () => {
+    toast({
+      title: "Post Created",
+      description: "Your forum post has been published successfully.",
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid lg:grid-cols-4 gap-8">
         {/* Left Sidebar - Profile & Stats */}
         <div className="lg:col-span-1 space-y-6">
           {/* Profile Card */}
-          <Card>
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
             <CardHeader className="text-center">
               <Avatar className="h-20 w-20 mx-auto mb-4">
                 <AvatarFallback className="text-2xl bg-green-100 text-green-600">
@@ -75,7 +121,11 @@ const ProfessorDashboard = () => {
               <p className="text-sm font-medium text-gray-900">{user.field}</p>
               <p className="text-sm text-gray-600">{user.university}</p>
               <p className="text-sm text-gray-700">{user.bio}</p>
-              <Button variant="outline" className="w-full mt-4">
+              <Button 
+                variant="outline" 
+                className="w-full mt-4"
+                onClick={() => setProfileOpen(true)}
+              >
                 Edit Profile
               </Button>
             </CardContent>
@@ -115,15 +165,29 @@ const ProfessorDashboard = () => {
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start bg-green-600 hover:bg-green-700" size="sm">
+              <Button 
+                className="w-full justify-start bg-green-600 hover:bg-green-700" 
+                size="sm"
+                onClick={handleCreatePost}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Forum Post
               </Button>
-              <Button className="w-full justify-start" variant="outline" size="sm">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline" 
+                size="sm"
+                onClick={() => setNotificationsOpen(true)}
+              >
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Message Students
               </Button>
-              <Button className="w-full justify-start" variant="outline" size="sm">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline" 
+                size="sm"
+                onClick={() => setGroupJoinOpen(true)}
+              >
                 <Users className="h-4 w-4 mr-2" />
                 Join New Groups
               </Button>
@@ -150,7 +214,12 @@ const ProfessorDashboard = () => {
                 <Button variant="secondary" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
                   View Requests
                 </Button>
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-white/30 text-white hover:bg-white/10"
+                  onClick={() => setGroupJoinOpen(true)}
+                >
                   Visit Groups
                 </Button>
               </div>
@@ -194,13 +263,28 @@ const ProfessorDashboard = () => {
                   <p className="text-sm text-gray-700 mb-3">{request.message}</p>
                   {request.status === 'pending' && (
                     <div className="flex gap-2">
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                      <Button 
+                        size="sm" 
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => handleAcceptMentorship(request.id, request.student)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
                         Accept
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleDeclineMentorship(request.id, request.student)}
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
                         Decline
                       </Button>
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => handleStartChat(request.student, 'student')}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-1" />
                         Message
                       </Button>
                     </div>
@@ -215,7 +299,11 @@ const ProfessorDashboard = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg">Your Academic Groups</CardTitle>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setGroupJoinOpen(true)}
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Join More
                 </Button>
@@ -249,12 +337,22 @@ const ProfessorDashboard = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg">Recent Messages</CardTitle>
-                <Button variant="ghost" size="sm">View All</Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setNotificationsOpen(true)}
+                >
+                  View All
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {recentMessages.map((message) => (
-                <div key={message.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+                <div 
+                  key={message.id} 
+                  className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                  onClick={() => handleStartChat(message.sender, message.type)}
+                >
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-blue-100 text-blue-600">
                       {message.sender.split(' ').map(n => n[0]).join('')}
@@ -295,9 +393,10 @@ const ProfessorDashboard = () => {
                       {session.duration}
                     </Badge>
                   </div>
-                  <p className="text-sm text-green-700 font-medium">{session.time}</p>
-                  <div className="flex gap-2 mt-2">
+                  <p className="text-sm text-green-700 font-medium mb-2">{session.time}</p>
+                  <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="flex-1">
+                      <Clock className="h-3 w-3 mr-1" />
                       Reschedule
                     </Button>
                     <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700">
@@ -309,7 +408,7 @@ const ProfessorDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Course Preparation (Future Feature) */}
+          {/* Course Creator Preview */}
           <Card className="border-dashed border-2 border-gray-300">
             <CardHeader>
               <CardTitle className="text-lg text-gray-600">Course Creator</CardTitle>
@@ -342,6 +441,7 @@ const ProfessorDashboard = () => {
                   <FileText className="h-8 w-8 mx-auto mb-2 text-gray-400" />
                   <p className="text-sm">No publications added yet</p>
                   <Button variant="outline" size="sm" className="mt-2">
+                    <Plus className="h-4 w-4 mr-1" />
                     Add Publication
                   </Button>
                 </div>
@@ -350,6 +450,30 @@ const ProfessorDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <ChatModal
+        isOpen={chatModal.isOpen}
+        onClose={() => setChatModal({ isOpen: false, recipientName: '', recipientRole: '' })}
+        recipientName={chatModal.recipientName}
+        recipientRole={chatModal.recipientRole}
+      />
+
+      <NotificationsModal
+        isOpen={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+      />
+
+      <ProfileModal
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        userRole="professor"
+      />
+
+      <GroupJoinModal
+        isOpen={groupJoinOpen}
+        onClose={() => setGroupJoinOpen(false)}
+      />
     </div>
   );
 };
