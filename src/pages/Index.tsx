@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, GraduationCap, Building2, MessageSquare, Users, Zap, Star, MapPin, Calendar } from 'lucide-react';
+import { User, GraduationCap, Building2, MessageSquare, Users, Zap, Star, MapPin, Calendar, Globe, BookOpen, Heart, Target, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
@@ -21,7 +21,7 @@ const Index = () => {
     },
     {
       id: 2,
-      university: "Stanford University",
+      university: "Stanford University", 
       program: "Data Science PhD",
       location: "Stanford, CA",
       deadline: "Jan 20, 2026",
@@ -32,7 +32,7 @@ const Index = () => {
       id: 3,
       university: "Harvard University",
       program: "Business Analytics",
-      location: "Boston, MA",
+      location: "Boston, MA", 
       deadline: "Nov 30, 2025",
       type: "Certificate",
       rating: 4.7
@@ -51,21 +51,21 @@ const Index = () => {
       id: 1,
       name: "Sarah Chen",
       role: "MIT Graduate Student",
-      content: "Edfellow helped me connect with professors in my field and find amazing research opportunities.",
+      content: "Edfellow helped me connect with professors in my field and find amazing research opportunities globally.",
       avatar: "SC"
     },
     {
       id: 2,
-      name: "Dr. James Wilson",
+      name: "Dr. James Wilson", 
       role: "Stanford Professor",
-      content: "A fantastic platform to mentor students and share knowledge with the global academic community.",
+      content: "A fantastic platform to mentor students worldwide and share knowledge with the global academic community.",
       avatar: "JW"
     },
     {
       id: 3,
       name: "Maria Rodriguez",
-      role: "Harvard Undergraduate",
-      content: "I found my study group and academic mentors through Edfellow. It's been a game-changer for my education.",
+      role: "Harvard Undergraduate", 
+      content: "I found my global study group and international mentors through Edfellow. It's been transformative for my education.",
       avatar: "MR"
     }
   ];
@@ -73,18 +73,41 @@ const Index = () => {
   const howItWorksSteps = [
     {
       icon: User,
-      title: "Build Your Profile",
-      description: "Create a comprehensive academic profile showcasing your expertise, interests, and educational background."
+      title: "Build Your Global Profile",
+      description: "Create a comprehensive verified profile showcasing your expertise, interests, and educational background to connect worldwide."
     },
     {
-      icon: Users,
-      title: "Join Academic Groups",
-      description: "Connect with peers in your field through specialized groups and participate in meaningful discussions."
+      icon: Globe,
+      title: "Join Global Academic Communities", 
+      description: "Connect with peers and experts in your field through specialized international groups and participate in meaningful global discussions."
     },
     {
       icon: MessageSquare,
-      title: "Message & Collaborate",
-      description: "Directly message professors, students, and professionals to build your academic network."
+      title: "Collaborate & Learn Globally",
+      description: "Message, video call, and collaborate with professors, students, and professionals across continents to advance your academic journey."
+    }
+  ];
+
+  const features = [
+    {
+      icon: Target,
+      title: "Smart Match System",
+      description: "Connect instantly with students, professors, and universities aligned with your interests and goals."
+    },
+    {
+      icon: Globe,
+      title: "Global Community Hub", 
+      description: "Join discussions, ask questions, and collaborate across borders in your field of study."
+    },
+    {
+      icon: Award,
+      title: "Verified Profiles & Ratings",
+      description: "Trust the quality of mentorship, courses, and institutional programs with verified users and transparent reviews."
+    },
+    {
+      icon: MessageSquare,
+      title: "Virtual Collaboration Tools",
+      description: "Message, video call, share resources, and manage group projects—all in one place."
     }
   ];
 
@@ -97,6 +120,9 @@ const Index = () => {
             <div className="flex items-center space-x-2">
               <GraduationCap className="h-8 w-8 text-blue-600" />
               <span className="text-2xl font-bold text-gray-900">Edfellow</span>
+              <Badge variant="outline" className="text-xs font-medium">
+                Global Education Network
+              </Badge>
             </div>
             <div className="flex items-center space-x-4">
               <Button 
@@ -118,45 +144,120 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            A place where <span className="text-blue-600">education connects</span>
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="mb-6">
+            <Badge className="bg-blue-100 text-blue-700 mb-4">
+              Where Education Meets the World
+            </Badge>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+            Unlock Knowledge, <span className="text-blue-600">Opportunity</span>, and <span className="text-purple-600">Connection</span>—Globally
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join the global academic community. Connect with students, professors, and universities worldwide. 
-            Build your network, share knowledge, and advance your educational journey.
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Edfellow is a global educational network that brings students, professors, and universities together. 
+            Learn, mentor, collaborate, and grow beyond borders in a truly interconnected academic ecosystem.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <Button 
               size="lg" 
               onClick={() => navigate('/signup')}
-              className="bg-blue-600 hover:bg-blue-700 px-8 py-3 text-lg"
+              className="bg-blue-600 hover:bg-blue-700 px-8 py-4 text-lg"
             >
-              Join as Student
+              👨‍🎓 Connect Globally. Learn Locally. Lead Universally.
             </Button>
             <Button 
               size="lg" 
               variant="outline"
               onClick={() => navigate('/signup')}
-              className="px-8 py-3 text-lg border-green-600 text-green-600 hover:bg-green-50"
+              className="px-8 py-4 text-lg border-green-600 text-green-600 hover:bg-green-50"
             >
-              Join as Professor
+              👩‍🏫 Teach Globally. Mentor Personally. Inspire Endlessly.
             </Button>
           </div>
+          <Button 
+            size="lg" 
+            variant="outline"
+            onClick={() => navigate('/signup')}
+            className="px-8 py-4 text-lg border-orange-600 text-orange-600 hover:bg-orange-50"
+          >
+            🏛️ Expand Your Campus. Reach the World
+          </Button>
           <div className="mt-12 text-sm text-gray-500">
-            Trusted by students and professors from 50+ countries
+            Trusted by students, professors, and universities from 50+ countries
+          </div>
+        </div>
+      </section>
+
+      {/* Vision & Mission */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12">
+            <div>
+              <div className="flex items-center mb-4">
+                <Target className="h-8 w-8 mr-3" />
+                <h2 className="text-3xl font-bold">Our Vision</h2>
+              </div>
+              <p className="text-lg opacity-90 leading-relaxed">
+                To create a borderless global education ecosystem where students, professors, and universities 
+                collaborate seamlessly—unlocking knowledge, expanding opportunities, and shaping the future of 
+                learning and careers worldwide.
+              </p>
+            </div>
+            <div>
+              <div className="flex items-center mb-4">
+                <Heart className="h-8 w-8 mr-3" />
+                <h2 className="text-3xl font-bold">Our Mission</h2>
+              </div>
+              <p className="text-lg opacity-90 leading-relaxed">
+                Edfellow empowers learners and educators by connecting them across continents through mentorship, 
+                shared knowledge, and accessible academic opportunities. We facilitate meaningful collaborations 
+                that enrich education, foster career growth, and build a diverse, global academic community.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Key Features */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
+            Global Education Features
+          </h2>
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+            Discover powerful tools designed to connect and empower the global academic community
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                      <IconComponent className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
             How Edfellow Works
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Connect, learn, and grow with our simple three-step process
+            Connect with the global academic community through our simple three-step process
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             {howItWorksSteps.map((step, index) => {
@@ -177,6 +278,31 @@ const Index = () => {
                 </Card>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* About Edfellow */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">About Edfellow</h2>
+          <div className="space-y-6 text-lg text-gray-700 leading-relaxed">
+            <p>
+              Edfellow is a global education platform designed to connect students, professors, and universities 
+              in a meaningful and collaborative way. At its heart, Edfellow breaks down geographic and institutional 
+              barriers to make education more accessible, personalized, and globally connected.
+            </p>
+            <p>
+              Whether you're a student seeking to deepen your knowledge, a professor ready to share your expertise 
+              across borders, or a university aiming to reach a wider international audience—Edfellow brings the 
+              academic world together through mentorship, shared knowledge, and international academic opportunity.
+            </p>
+            <p>
+              Imagine discussing your major with a student halfway across the world and discovering how your field 
+              is taught, applied, and valued in a completely different cultural and educational context. This kind 
+              of global exchange enriches your academic journey, challenges your thinking, and prepares you for 
+              success in an interconnected world.
+            </p>
           </div>
         </div>
       </section>
@@ -286,10 +412,10 @@ const Index = () => {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Ready to Connect with the World of Education?
+            Ready to Join the Global Academic Community?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of students, professors, and universities already building their academic networks.
+            Connect with thousands of students, professors, and universities already building their global academic networks.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -297,7 +423,7 @@ const Index = () => {
               onClick={() => navigate('/signup')}
               className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3"
             >
-              Start Your Journey
+              Start Your Global Journey
             </Button>
             <Button 
               size="lg" 
@@ -321,7 +447,7 @@ const Index = () => {
                 <span className="text-2xl font-bold">Edfellow</span>
               </div>
               <p className="text-gray-400">
-                A place where education connects. Building bridges between students, professors, and universities worldwide.
+                Where Education Meets the World. Building bridges between students, professors, and universities globally.
               </p>
             </div>
             <div>
@@ -330,16 +456,16 @@ const Index = () => {
                 <li><a href="#" className="hover:text-white">For Students</a></li>
                 <li><a href="#" className="hover:text-white">For Professors</a></li>
                 <li><a href="#" className="hover:text-white">For Universities</a></li>
-                <li><a href="#" className="hover:text-white">Academic Groups</a></li>
+                <li><a href="#" className="hover:text-white">Global Groups</a></li>
               </ul>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4">Resources</h3>
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#" className="hover:text-white">Help Center</a></li>
-                <li><a href="#" className="hover:text-white">Community Guidelines</a></li>
+                <li><a href="#" className="hover:text-white">Global Guidelines</a></li>
                 <li><a href="#" className="hover:text-white">Success Stories</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Global Blog</a></li>
               </ul>
             </div>
             <div>
@@ -348,18 +474,18 @@ const Index = () => {
                 <li><a href="#" className="hover:text-white">About Us</a></li>
                 <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
                 <li><a href="#" className="hover:text-white">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white">Contact</a></li>
+                <li><a href="#" className="hover:text-white">Global Contact</a></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-center md:text-left">
-              © 2025 Edfellow. All rights reserved. A place where education connects.
+              © 2025 Edfellow. All rights reserved. Where Education Meets the World.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-white">Privacy</a>
               <a href="#" className="text-gray-400 hover:text-white">Terms</a>
-              <a href="#" className="text-gray-400 hover:text-white">Support</a>
+              <a href="#" className="text-gray-400 hover:text-white">Global Support</a>
             </div>
           </div>
         </div>
