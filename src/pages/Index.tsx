@@ -1,13 +1,162 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, GraduationCap, Building2, MessageSquare, Users, Zap, Star, MapPin, Calendar, Globe, BookOpen, Heart, Target, Award } from 'lucide-react';
+import { 
+  User, 
+  GraduationCap, 
+  Building2, 
+  MessageSquare, 
+  Users, 
+  Zap, 
+  Star, 
+  MapPin, 
+  Calendar, 
+  Globe, 
+  BookOpen, 
+  Heart, 
+  Target, 
+  Award,
+  Search,
+  Shield,
+  Video,
+  Languages,
+  UserCheck,
+  BrainCircuit,
+  Briefcase,
+  Trophy,
+  Network,
+  Presentation,
+  Camera,
+  TrendingUp,
+  Mail
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const navigate = useNavigate();
+
+  const generalFeatures = [
+    {
+      icon: BrainCircuit,
+      title: "Smart Match System",
+      description: "Connect instantly with students, professors, and universities aligned with your interests and goals."
+    },
+    {
+      icon: Globe,
+      title: "Global Community Hub", 
+      description: "Join discussions, ask questions, and collaborate across borders in your field of study."
+    },
+    {
+      icon: Languages,
+      title: "Multilingual Support",
+      description: "Access content and communicate in your native language or choose from multiple supported languages."
+    },
+    {
+      icon: Shield,
+      title: "Verified Profiles & Ratings",
+      description: "Trust the quality of mentorship, courses, and institutional programs with verified users and transparent reviews."
+    },
+    {
+      icon: Video,
+      title: "Virtual Collaboration Tools",
+      description: "Message, video call, share resources, and manage group projects—all in one place."
+    },
+    {
+      icon: Calendar,
+      title: "Integrated Calendar & Booking",
+      description: "Easily schedule mentorship sessions, interviews, and live events."
+    }
+  ];
+
+  const studentFeatures = [
+    {
+      icon: Users,
+      title: "Field-Based Global Peer Groups",
+      description: "Join study groups by major or interest area—collaborate, share resources, and learn together."
+    },
+    {
+      icon: UserCheck,
+      title: "Mentor Marketplace",
+      description: "Find and book expert professors for guidance, academic help, or admission support."
+    },
+    {
+      icon: Briefcase,
+      title: "Career Exploration Center",
+      description: "Learn what it takes to succeed in your field—skills, job markets, pathways."
+    },
+    {
+      icon: Camera,
+      title: "Digital Portfolio Builder",
+      description: "Showcase your work, research, and achievements to professors and universities worldwide."
+    },
+    {
+      icon: Trophy,
+      title: "Global Scholarship & Internship Board",
+      description: "Access curated opportunities across countries, tailored to your interests."
+    }
+  ];
+
+  const professorFeatures = [
+    {
+      icon: TrendingUp,
+      title: "Mentorship Dashboard",
+      description: "Track student bookings, sessions, feedback, and income in one clean interface."
+    },
+    {
+      icon: BookOpen,
+      title: "Global Course Builder",
+      description: "Design and deliver your own online courses to students anywhere in the world."
+    },
+    {
+      icon: Search,
+      title: "Research Assistant Portal",
+      description: "Post assistantship openings and build virtual research teams."
+    },
+    {
+      icon: GraduationCap,
+      title: "Admission & Academic Advisory Tools",
+      description: "Offer admission guidance and structured counseling packages."
+    },
+    {
+      icon: Award,
+      title: "Professional Profile & Promotion Tools",
+      description: "Build visibility with a public profile, course ratings, and featured listings."
+    }
+  ];
+
+  const universityFeatures = [
+    {
+      icon: TrendingUp,
+      title: "Institution Dashboard",
+      description: "Track applications, leads, student engagement, and alumni activity."
+    },
+    {
+      icon: Presentation,
+      title: "Program Promotion Tools",
+      description: "Create immersive profiles for degrees, certificates, and study-abroad programs."
+    },
+    {
+      icon: Target,
+      title: "Student Recruitment Suite",
+      description: "Target and communicate with potential students worldwide based on interests and qualifications."
+    },
+    {
+      icon: Users,
+      title: "Professor Recruitment",
+      description: "Find and recruit top academic talent from around the world."
+    },
+    {
+      icon: Network,
+      title: "Alumni Engagement Network",
+      description: "Visual alumni map, communication tools, and engagement metrics."
+    },
+    {
+      icon: Video,
+      title: "Live Info Sessions & Webinars",
+      description: "Host live virtual sessions to promote programs and answer student questions."
+    }
+  ];
 
   const trendingPrograms = [
     {
@@ -88,29 +237,6 @@ const Index = () => {
     }
   ];
 
-  const features = [
-    {
-      icon: Target,
-      title: "Smart Match System",
-      description: "Connect instantly with students, professors, and universities aligned with your interests and goals."
-    },
-    {
-      icon: Globe,
-      title: "Global Community Hub", 
-      description: "Join discussions, ask questions, and collaborate across borders in your field of study."
-    },
-    {
-      icon: Award,
-      title: "Verified Profiles & Ratings",
-      description: "Trust the quality of mentorship, courses, and institutional programs with verified users and transparent reviews."
-    },
-    {
-      icon: MessageSquare,
-      title: "Virtual Collaboration Tools",
-      description: "Message, video call, share resources, and manage group projects—all in one place."
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
@@ -121,7 +247,7 @@ const Index = () => {
               <GraduationCap className="h-8 w-8 text-blue-600" />
               <span className="text-2xl font-bold text-gray-900">Edfellow</span>
               <Badge variant="outline" className="text-xs font-medium">
-                Global Education Network
+                Where Education Meets the World
               </Badge>
             </div>
             <div className="flex items-center space-x-4">
@@ -218,17 +344,17 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Key Features */}
+      {/* General Features */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-            Global Education Features
+            Core Platform Features
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Discover powerful tools designed to connect and empower the global academic community
+            Powerful tools designed to connect and empower the global academic community
           </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {generalFeatures.map((feature, index) => {
               const IconComponent = feature.icon;
               return (
                 <Card key={index} className="text-center hover:shadow-lg transition-shadow">
@@ -237,6 +363,117 @@ const Index = () => {
                       <IconComponent className="h-8 w-8 text-blue-600" />
                     </div>
                     <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Student Features */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-blue-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-full mb-4">
+              <GraduationCap className="h-6 w-6 mr-2" />
+              <span className="font-semibold">For Students</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Connect Globally. Learn Locally. Lead Universally.
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {studentFeatures.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <Card key={index} className="hover:shadow-lg transition-shadow border-l-4 border-l-blue-500">
+                  <CardHeader>
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <IconComponent className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Professor Features */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-green-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center bg-green-600 text-white px-6 py-3 rounded-full mb-4">
+              <BookOpen className="h-6 w-6 mr-2" />
+              <span className="font-semibold">For Professors</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Teach Globally. Mentor Personally. Inspire Endlessly.
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {professorFeatures.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <Card key={index} className="hover:shadow-lg transition-shadow border-l-4 border-l-green-500">
+                  <CardHeader>
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                        <IconComponent className="h-6 w-6 text-green-600" />
+                      </div>
+                      <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* University Features */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-orange-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center bg-orange-600 text-white px-6 py-3 rounded-full mb-4">
+              <Building2 className="h-6 w-6 mr-2" />
+              <span className="font-semibold">For Universities</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Expand Your Campus. Reach the World
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {universityFeatures.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <Card key={index} className="hover:shadow-lg transition-shadow border-l-4 border-l-orange-500">
+                  <CardHeader>
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                        <IconComponent className="h-6 w-6 text-orange-600" />
+                      </div>
+                      <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 text-sm">
