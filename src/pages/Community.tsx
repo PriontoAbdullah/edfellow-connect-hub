@@ -14,7 +14,8 @@ import {
   Heart,
   Star,
   MapPin,
-  Calendar
+  Calendar,
+  CheckCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -103,7 +104,7 @@ const Community = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50/20 via-blue-50/10 to-purple-50/20">
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/95 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -168,7 +169,7 @@ const Community = () => {
       </section>
 
       {/* Community Stats */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white/30 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
             <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Our Growing Community</h3>
@@ -223,7 +224,7 @@ const Community = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white/30 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
             <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">What Our Community Says</h3>
@@ -285,6 +286,53 @@ const Community = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
+            <div className="col-span-1 sm:col-span-2">
+              <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+                <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
+                  <GraduationCap className="h-6 sm:h-8 w-6 sm:w-8 text-white" />
+                </div>
+                <div>
+                  <span className="text-xl sm:text-2xl font-bold">Edfellow</span>
+                  <p className="text-xs text-gray-400">Where Education Meets the World</p>
+                </div>
+              </div>
+              <p className="text-gray-400 leading-relaxed mb-4 sm:mb-6 max-w-md text-sm sm:text-base">
+                Building bridges between students, professors, and universities globally. 
+                Empowering education through meaningful connections.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">Platform</h4>
+              <ul className="space-y-2 sm:space-y-3 text-gray-400 text-sm sm:text-base">
+                <li><a href="#" className="hover:text-white transition-colors">For Students</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">For Professors</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">For Universities</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">Company</h4>
+              <ul className="space-y-2 sm:space-y-3 text-gray-400 text-sm sm:text-base">
+                <li><a href="#" onClick={() => navigate('/about')} className="hover:text-white transition-colors">About</a></li>
+                <li><a href="#" onClick={() => navigate('/features')} className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#" onClick={() => navigate('/community')} className="hover:text-white transition-colors">Community</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 pt-6 sm:pt-8 text-center">
+            <p className="text-gray-400 text-sm sm:text-base">
+              © 2025 Edfellow. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
