@@ -86,7 +86,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-slate-50/30">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0 z-50">
+      <nav className="bg-[#0B1B4D] border-b border-blue-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -95,18 +95,18 @@ const Index = () => {
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold text-slate-900">Edfellow</span>
-                <p className="text-xs text-blue-600 font-medium">Where Education Meets the World</p>
+                <span className="text-xl font-bold text-white">Edfellow</span>
+                <p className="text-xs text-blue-300 font-medium">Where Education Meets the World</p>
               </div>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/about" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">About</Link>
-              <Link to="/features" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Features</Link>
-              <Link to="/community" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Community</Link>
+              <Link to="/about" className="text-blue-300 hover:text-white font-medium transition-colors">About</Link>
+              <Link to="/features" className="text-blue-300 hover:text-white font-medium transition-colors">Features</Link>
+              <Link to="/community" className="text-blue-300 hover:text-white font-medium transition-colors">Community</Link>
               <Link to="/login">
-                <Button variant="ghost" className="text-slate-700 hover:text-blue-600 hover:bg-blue-50">
+                <Button variant="ghost" className="text-blue-300 hover:text-white hover:bg-blue-700">
                   Sign In
                 </Button>
               </Link>
@@ -123,7 +123,7 @@ const Index = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-slate-700 hover:text-blue-600 hover:bg-blue-50"
+                className="text-blue-300 hover:text-white hover:bg-blue-700"
               >
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
@@ -132,13 +132,13 @@ const Index = () => {
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-blue-100">
+            <div className="md:hidden py-4 border-t border-blue-800">
               <div className="flex flex-col space-y-4">
-                <Link to="/about" className="text-slate-700 hover:text-blue-600 font-medium">About</Link>
-                <Link to="/features" className="text-slate-700 hover:text-blue-600 font-medium">Features</Link>
-                <Link to="/community" className="text-slate-700 hover:text-blue-600 font-medium">Community</Link>
+                <Link to="/about" className="text-blue-300 hover:text-white font-medium">About</Link>
+                <Link to="/features" className="text-blue-300 hover:text-white font-medium">Features</Link>
+                <Link to="/community" className="text-blue-300 hover:text-white font-medium">Community</Link>
                 <Link to="/login">
-                  <Button variant="outline" className="w-full border-blue-200 text-slate-700 hover:bg-blue-50">
+                  <Button variant="outline" className="w-full border-blue-300 text-blue-300 hover:bg-blue-700 hover:text-white">
                     Sign In
                   </Button>
                 </Link>
@@ -154,15 +154,15 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-16 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
               <div className="space-y-4">
                 <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
                   🌍 Global Education Platform
                 </Badge>
-                <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
+                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
                   Connect with the 
                   <span className="text-blue-600"> World's</span> 
                   <br />Academic Community
@@ -173,52 +173,52 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Link to="/signup">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-8">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-6">
                     Start Your Journey
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/features">
-                  <Button size="lg" variant="outline" className="border-blue-200 text-slate-700 hover:bg-blue-50 px-8">
+                  <Button size="lg" variant="outline" className="border-blue-200 text-slate-700 hover:bg-blue-50 px-6">
                     Explore Features
                   </Button>
                 </Link>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8">
+              <div className="grid grid-cols-3 gap-4 pt-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">50k+</div>
+                  <div className="text-xl font-bold text-slate-900">50k+</div>
                   <div className="text-sm text-slate-600">Active Students</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">2k+</div>
+                  <div className="text-xl font-bold text-slate-900">2k+</div>
                   <div className="text-sm text-slate-600">Expert Mentors</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">100+</div>
+                  <div className="text-xl font-bold text-slate-900">100+</div>
                   <div className="text-sm text-slate-600">Universities</div>
                 </div>
               </div>
             </div>
 
-            {/* Globe Illustration */}
+            {/* Globe Animation */}
             <div className="relative flex justify-center">
               <div className="relative">
-                <div className="w-96 h-96 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full shadow-2xl flex items-center justify-center">
-                  <Globe className="h-48 w-48 text-white opacity-90" />
+                <div className="w-80 h-80 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full shadow-2xl flex items-center justify-center animate-pulse">
+                  <Globe className="h-40 w-40 text-white opacity-90 animate-spin" style={{ animationDuration: '20s' }} />
                 </div>
                 {/* Floating elements */}
-                <div className="absolute -top-4 -right-4 p-3 bg-white rounded-xl shadow-lg">
-                  <Users className="h-6 w-6 text-blue-600" />
+                <div className="absolute -top-4 -right-4 p-3 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '0s' }}>
+                  <Users className="h-5 w-5 text-blue-600" />
                 </div>
-                <div className="absolute -bottom-4 -left-4 p-3 bg-white rounded-xl shadow-lg">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
+                <div className="absolute -bottom-4 -left-4 p-3 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '1s' }}>
+                  <BookOpen className="h-5 w-5 text-blue-600" />
                 </div>
-                <div className="absolute top-1/2 -left-8 p-3 bg-white rounded-xl shadow-lg">
-                  <MessageSquare className="h-6 w-6 text-blue-600" />
+                <div className="absolute top-1/2 -left-8 p-3 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '2s' }}>
+                  <MessageSquare className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
             </div>

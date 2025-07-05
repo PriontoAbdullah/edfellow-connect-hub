@@ -11,11 +11,51 @@ import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import ProfessorDashboard from '@/components/dashboards/ProfessorDashboard';
 import UniversityDashboard from '@/components/dashboards/UniversityDashboard';
+
+// Student Components
 import StudentGroups from '@/components/dashboards/student/StudentGroups';
 import StudentChat from '@/components/dashboards/student/StudentChat';
+import StudentMentorship from '@/components/dashboards/student/StudentMentorship';
+import StudentExplore from '@/components/dashboards/student/StudentExplore';
+import StudentProfile from '@/components/dashboards/student/StudentProfile';
+
+// Professor Components
+import ProfessorGroups from '@/components/dashboards/professor/ProfessorGroups';
+import ProfessorChat from '@/components/dashboards/professor/ProfessorChat';
+import ProfessorMentorship from '@/components/dashboards/professor/ProfessorMentorship';
+import ProfessorProfile from '@/components/dashboards/professor/ProfessorProfile';
+
+// University Components (placeholder for now)
+const UniversitySubmitProgram = () => (
+  <div className="p-6">
+    <h1 className="text-2xl font-bold mb-4">Submit Program</h1>
+    <p>University program submission interface coming soon...</p>
+  </div>
+);
+
+const UniversityPrograms = () => (
+  <div className="p-6">
+    <h1 className="text-2xl font-bold mb-4">My Programs</h1>
+    <p>University programs management interface coming soon...</p>
+  </div>
+);
+
+const UniversityMessages = () => (
+  <div className="p-6">
+    <h1 className="text-2xl font-bold mb-4">Messages</h1>
+    <p>University messaging interface coming soon...</p>
+  </div>
+);
+
+const UniversityProfile = () => (
+  <div className="p-6">
+    <h1 className="text-2xl font-bold mb-4">University Profile</h1>
+    <p>University profile management interface coming soon...</p>
+  </div>
+);
 
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
   const location = useLocation();
   const { toast } = useToast();
   
@@ -49,9 +89,9 @@ const Dashboard = () => {
   };
 
   const getDashboardTitle = (pathname: string) => {
-    if (pathname.includes('/groups')) return 'My Groups';
+    if (pathname.includes('/groups')) return user.role === 'professor' ? 'Subject Groups' : 'My Groups';
     if (pathname.includes('/chat')) return 'Messages';
-    if (pathname.includes('/mentorship')) return 'Mentorship';
+    if (pathname.includes('/mentorship')) return user.role === 'professor' ? 'Mentorship Requests' : 'Find Mentors';
     if (pathname.includes('/explore')) return 'Explore Programs';
     if (pathname.includes('/profile')) return 'My Profile';
     if (pathname.includes('/submit-program')) return 'Submit Program';
@@ -71,9 +111,9 @@ const Dashboard = () => {
   };
 
   const getDashboardSubtitle = (pathname: string) => {
-    if (pathname.includes('/groups')) return 'Connect with global academic groups';
+    if (pathname.includes('/groups')) return user.role === 'professor' ? 'Connect with faculty and researchers' : 'Connect with global academic groups';
     if (pathname.includes('/chat')) return 'Chat with mentors and peers';
-    if (pathname.includes('/mentorship')) return 'Find and connect with mentors';
+    if (pathname.includes('/mentorship')) return user.role === 'professor' ? 'Manage student mentorship requests' : 'Find and connect with mentors';
     if (pathname.includes('/explore')) return 'Discover educational opportunities';
     if (pathname.includes('/profile')) return 'Manage your profile';
     if (pathname.includes('/submit-program')) return 'Add your educational program';
@@ -106,19 +146,34 @@ const Dashboard = () => {
           
           <main className="flex-1">
             <Routes>
+              {/* Default Dashboard Routes */}
               <Route path="/" element={
                 user.role === 'student' ? <StudentDashboard /> :
                 user.role === 'professor' ? <ProfessorDashboard /> :
                 <UniversityDashboard />
               } />
+              
+              {/* Student Routes */}
               <Route path="/groups" element={<StudentGroups />} />
               <Route path="/chat" element={<StudentChat />} />
-              <Route path="/mentorship" element={<div className="p-6"><h1 className="text-2xl font-bold">Mentorship - Coming Soon</h1></div>} />
-              <Route path="/explore" element={<div className="p-6"><h1 className="text-2xl font-bold">Explore Programs - Coming Soon</h1></div>} />
-              <Route path="/profile" element={<div className="p-6"><h1 className="text-2xl font-bold">Profile - Coming Soon</h1></div>} />
-              <Route path="/submit-program" element={<div className="p-6"><h1 className="text-2xl font-bold">Submit Program - Coming Soon</h1></div>} />
-              <Route path="/programs" element={<div className="p-6"><h1 className="text-2xl font-bold">My Programs - Coming Soon</h1></div>} />
-              <Route path="/messages" element={<div className="p-6"><h1 className="text-2xl font-bold">Messages - Coming Soon</h1></div>} />
+              <Route path="/mentorship" element={
+                user.role === 'professor' ? <ProfessorMentorship /> : <StudentMentorship />
+              } />
+              <Route path="/explore" element={<StudentExplore />} />
+              <Route path="/profile" element={
+                user.role === 'student' ? <StudentProfile /> :
+                user.role === 'professor' ? <ProfessorProfile /> :
+                <UniversityProfile />
+              } />
+              
+              {/* Professor Routes */}
+              <Route path="/subject-groups" element={<ProfessorGroups />} />
+              <Route path="/professor-chat" element={<ProfessorChat />} />
+              
+              {/* University Routes */}
+              <Route path="/submit-program" element={<UniversitySubmitProgram />} />
+              <Route path="/programs" element={<UniversityPrograms />} />
+              <Route path="/messages" element={<UniversityMessages />} />
             </Routes>
           </main>
           
