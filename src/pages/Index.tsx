@@ -84,7 +84,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-slate-50/30">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="bg-[#0B1B4D] border-b border-blue-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -154,52 +154,52 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-12 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-white">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 text-sm px-4 py-2">
                   🌍 Global Education Platform
                 </Badge>
-                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
+                <h1 className="text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
                   Connect with the 
-                  <span className="text-blue-600"> World's</span> 
-                  <br />Academic Community
+                  <span className="text-blue-600 block"> World's</span> 
+                  Academic Community
                 </h1>
-                <p className="text-lg text-slate-600 leading-relaxed">
+                <p className="text-xl text-slate-600 leading-relaxed max-w-lg">
                   Join students, professors, and universities from around the globe. 
                   Find mentors, discover programs, and build meaningful academic connections.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/signup">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-6">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-8 py-4 text-lg">
                     Start Your Journey
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 <Link to="/features">
-                  <Button size="lg" variant="outline" className="border-blue-200 text-slate-700 hover:bg-blue-50 px-6">
+                  <Button size="lg" variant="outline" className="border-2 border-blue-200 text-slate-700 hover:bg-blue-50 px-8 py-4 text-lg">
                     Explore Features
                   </Button>
                 </Link>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 pt-6">
+              <div className="grid grid-cols-3 gap-8 pt-8">
                 <div className="text-center">
-                  <div className="text-xl font-bold text-slate-900">50k+</div>
-                  <div className="text-sm text-slate-600">Active Students</div>
+                  <div className="text-3xl font-bold text-slate-900">50k+</div>
+                  <div className="text-sm text-slate-600 font-medium">Active Students</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-slate-900">2k+</div>
-                  <div className="text-sm text-slate-600">Expert Mentors</div>
+                  <div className="text-3xl font-bold text-slate-900">2k+</div>
+                  <div className="text-sm text-slate-600 font-medium">Expert Mentors</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-slate-900">100+</div>
-                  <div className="text-sm text-slate-600">Universities</div>
+                  <div className="text-3xl font-bold text-slate-900">100+</div>
+                  <div className="text-sm text-slate-600 font-medium">Universities</div>
                 </div>
               </div>
             </div>
@@ -207,18 +207,18 @@ const Index = () => {
             {/* Globe Animation */}
             <div className="relative flex justify-center">
               <div className="relative">
-                <div className="w-80 h-80 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full shadow-2xl flex items-center justify-center animate-pulse">
-                  <Globe className="h-40 w-40 text-white opacity-90 animate-spin" style={{ animationDuration: '20s' }} />
+                <div className="w-96 h-96 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full shadow-2xl flex items-center justify-center">
+                  <Globe className="h-48 w-48 text-white opacity-90 animate-spin" style={{ animationDuration: '20s' }} />
                 </div>
                 {/* Floating elements */}
-                <div className="absolute -top-4 -right-4 p-3 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '0s' }}>
-                  <Users className="h-5 w-5 text-blue-600" />
+                <div className="absolute -top-6 -right-6 p-4 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '0s' }}>
+                  <Users className="h-6 w-6 text-blue-600" />
                 </div>
-                <div className="absolute -bottom-4 -left-4 p-3 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '1s' }}>
-                  <BookOpen className="h-5 w-5 text-blue-600" />
+                <div className="absolute -bottom-6 -left-6 p-4 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '1s' }}>
+                  <BookOpen className="h-6 w-6 text-blue-600" />
                 </div>
-                <div className="absolute top-1/2 -left-8 p-3 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '2s' }}>
-                  <MessageSquare className="h-5 w-5 text-blue-600" />
+                <div className="absolute top-1/2 -left-12 p-4 bg-white rounded-xl shadow-lg animate-bounce" style={{ animationDelay: '2s' }}>
+                  <MessageSquare className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
             </div>
@@ -227,27 +227,27 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <Badge className="bg-blue-100 text-blue-700">Features</Badge>
-            <h2 className="text-3xl font-bold text-slate-900">Everything You Need for Global Learning</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <div className="text-center space-y-6 mb-20">
+            <Badge className="bg-blue-100 text-blue-700 text-sm px-4 py-2">Features</Badge>
+            <h2 className="text-4xl font-bold text-slate-900">Everything You Need for Global Learning</h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Powerful tools and features designed to connect learners, educators, and institutions worldwide.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="border-blue-100 hover:shadow-lg transition-all duration-300 hover:border-blue-200">
-                <CardHeader>
-                  <div className="p-3 bg-blue-100 rounded-lg w-fit mb-4">
-                    <feature.icon className="h-6 w-6 text-blue-600" />
+              <Card key={index} className="border-slate-200 hover:shadow-xl transition-all duration-300 hover:border-blue-200 bg-white">
+                <CardHeader className="pb-4">
+                  <div className="p-4 bg-blue-100 rounded-xl w-fit mb-6">
+                    <feature.icon className="h-8 w-8 text-blue-600" />
                   </div>
-                  <CardTitle className="text-slate-900">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl text-slate-900">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-slate-600">
+                  <CardDescription className="text-base text-slate-600 leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardContent>
@@ -258,25 +258,28 @@ const Index = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 bg-gradient-to-br from-blue-50/50 to-slate-50/30">
+      <section className="py-24 bg-gradient-to-br from-blue-50 to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <Badge className="bg-blue-100 text-blue-700">Testimonials</Badge>
-            <h2 className="text-3xl font-bold text-slate-900">Loved by Students, Professors & Universities</h2>
+          <div className="text-center space-y-6 mb-20">
+            <Badge className="bg-blue-100 text-blue-700 text-sm px-4 py-2">Testimonials</Badge>
+            <h2 className="text-4xl font-bold text-slate-900">Loved by Students, Professors & Universities</h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              See what our global community says about their experience with Edfellow.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-blue-100 bg-white/80 backdrop-blur-sm">
-                <CardHeader>
+              <Card key={index} className="border-slate-200 bg-white shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="pb-4">
                   <div className="flex items-center space-x-4">
-                    <Avatar>
-                      <AvatarFallback className="bg-blue-100 text-blue-600">
+                    <Avatar className="h-14 w-14">
+                      <AvatarFallback className="bg-blue-100 text-blue-600 text-lg font-semibold">
                         {testimonial.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <CardTitle className="text-base text-slate-900">{testimonial.name}</CardTitle>
+                      <CardTitle className="text-lg text-slate-900">{testimonial.name}</CardTitle>
                       <CardDescription className="text-sm">
                         {testimonial.role} • {testimonial.country}
                       </CardDescription>
@@ -287,10 +290,10 @@ const Index = () => {
                   <div className="space-y-4">
                     <div className="flex">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                        <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
                       ))}
                     </div>
-                    <p className="text-slate-600 italic">"{testimonial.content}"</p>
+                    <p className="text-slate-600 italic text-base leading-relaxed">"{testimonial.content}"</p>
                   </div>
                 </CardContent>
               </Card>
@@ -300,24 +303,24 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-700">
+      <section className="py-24 bg-gradient-to-r from-blue-600 to-blue-700">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-white">
+          <div className="space-y-8">
+            <h2 className="text-4xl font-bold text-white">
               Ready to Join the Global Academic Community?
             </h2>
-            <p className="text-xl text-blue-100">
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
               Start connecting with students, professors, and universities from around the world today.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link to="/signup">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 shadow-lg px-8">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 shadow-lg px-10 py-4 text-lg">
                   Sign Up Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/login">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8">
+                <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 px-10 py-4 text-lg">
                   Sign In
                 </Button>
               </Link>
