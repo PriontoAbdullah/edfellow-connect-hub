@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Routes, Route } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import {
   SidebarProvider,
@@ -11,6 +11,8 @@ import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import ProfessorDashboard from '@/components/dashboards/ProfessorDashboard';
 import UniversityDashboard from '@/components/dashboards/UniversityDashboard';
+import StudentGroups from '@/components/dashboards/student/StudentGroups';
+import StudentChat from '@/components/dashboards/student/StudentChat';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -46,20 +48,16 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  const renderDashboard = () => {
-    switch (user.role) {
-      case 'student':
-        return <StudentDashboard />;
-      case 'professor':
-        return <ProfessorDashboard />;
-      case 'university':
-        return <UniversityDashboard />;
-      default:
-        return <StudentDashboard />;
-    }
-  };
-
-  const getDashboardTitle = () => {
+  const getDashboardTitle = (pathname: string) => {
+    if (pathname.includes('/groups')) return 'My Groups';
+    if (pathname.includes('/chat')) return 'Messages';
+    if (pathname.includes('/mentorship')) return 'Mentorship';
+    if (pathname.includes('/explore')) return 'Explore Programs';
+    if (pathname.includes('/profile')) return 'My Profile';
+    if (pathname.includes('/submit-program')) return 'Submit Program';
+    if (pathname.includes('/programs')) return 'My Programs';
+    if (pathname.includes('/messages')) return 'Messages';
+    
     switch (user.role) {
       case 'student':
         return `Welcome back, ${user.name}`;
@@ -72,7 +70,16 @@ const Dashboard = () => {
     }
   };
 
-  const getDashboardSubtitle = () => {
+  const getDashboardSubtitle = (pathname: string) => {
+    if (pathname.includes('/groups')) return 'Connect with global academic groups';
+    if (pathname.includes('/chat')) return 'Chat with mentors and peers';
+    if (pathname.includes('/mentorship')) return 'Find and connect with mentors';
+    if (pathname.includes('/explore')) return 'Discover educational opportunities';
+    if (pathname.includes('/profile')) return 'Manage your profile';
+    if (pathname.includes('/submit-program')) return 'Add your educational program';
+    if (pathname.includes('/programs')) return 'Manage your programs';
+    if (pathname.includes('/messages')) return 'Student and professor inquiries';
+    
     switch (user.role) {
       case 'student':
         return 'Student Dashboard';
@@ -93,12 +100,26 @@ const Dashboard = () => {
         <div className="flex-1 flex flex-col">
           <DashboardHeader 
             user={user} 
-            title={getDashboardTitle()}
-            subtitle={getDashboardSubtitle()}
+            title={getDashboardTitle(location.pathname)}
+            subtitle={getDashboardSubtitle(location.pathname)}
           />
           
           <main className="flex-1">
-            {renderDashboard()}
+            <Routes>
+              <Route path="/" element={
+                user.role === 'student' ? <StudentDashboard /> :
+                user.role === 'professor' ? <ProfessorDashboard /> :
+                <UniversityDashboard />
+              } />
+              <Route path="/groups" element={<StudentGroups />} />
+              <Route path="/chat" element={<StudentChat />} />
+              <Route path="/mentorship" element={<div className="p-6"><h1 className="text-2xl font-bold">Mentorship - Coming Soon</h1></div>} />
+              <Route path="/explore" element={<div className="p-6"><h1 className="text-2xl font-bold">Explore Programs - Coming Soon</h1></div>} />
+              <Route path="/profile" element={<div className="p-6"><h1 className="text-2xl font-bold">Profile - Coming Soon</h1></div>} />
+              <Route path="/submit-program" element={<div className="p-6"><h1 className="text-2xl font-bold">Submit Program - Coming Soon</h1></div>} />
+              <Route path="/programs" element={<div className="p-6"><h1 className="text-2xl font-bold">My Programs - Coming Soon</h1></div>} />
+              <Route path="/messages" element={<div className="p-6"><h1 className="text-2xl font-bold">Messages - Coming Soon</h1></div>} />
+            </Routes>
           </main>
           
           <DashboardFooter />

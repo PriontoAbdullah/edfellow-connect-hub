@@ -3,309 +3,330 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from 'react-router-dom';
+import { LandingFooter } from "@/components/LandingFooter";
 import { 
   GraduationCap, 
-  Building2, 
-  BookOpen, 
   Users, 
+  MessageSquare, 
   Globe, 
-  ArrowRight,
-  CheckCircle,
-  Sparkles,
-  Target,
+  Star,
+  Award,
+  BookOpen,
   Heart,
-  Info,
-  Users2
+  ArrowRight,
+  Menu,
+  X,
+  Target,
+  Zap,
+  Shield
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('students');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const userTypes = [
+  const features = [
     {
-      id: 'students',
-      title: 'Students',
-      icon: GraduationCap,
-      tagline: 'Connect Globally. Learn Locally. Lead Universally.',
-      description: 'Join a global community of learners. Connect with peers worldwide, find mentors, and discover opportunities that will shape your academic journey.',
-      features: [
-        'Field-Based Global Peer Groups',
-        'Mentor Marketplace',
-        'Career Exploration Center',
-        'Digital Portfolio Builder',
-        'Global Scholarship & Internship Board'
-      ],
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'from-blue-50 to-blue-100'
+      icon: Users,
+      title: "Global Academic Groups",
+      description: "Join subject-specific groups with students and professors worldwide."
     },
     {
-      id: 'professors',
-      title: 'Professors',
-      icon: BookOpen,
-      tagline: 'Teach Globally. Mentor Personally. Inspire Endlessly.',
-      description: 'Expand your impact beyond classroom walls. Share your expertise with students worldwide and build a thriving global academic practice.',
-      features: [
-        'Mentorship Dashboard',
-        'Global Course Builder',
-        'Research Assistant Portal',
-        'Admission & Academic Advisory Tools',
-        'Professional Profile & Promotion Tools'
-      ],
-      color: 'from-blue-600 to-blue-700',
-      bgColor: 'from-blue-50 to-blue-100'
+      icon: Heart,
+      title: "Expert Mentorship",
+      description: "Connect with experienced professors for personalized guidance."
     },
     {
-      id: 'universities',
-      title: 'Universities',
-      icon: Building2,
-      tagline: 'Expand Your Campus. Reach the World.',
-      description: 'Transform your institution into a global powerhouse. Attract international talent, promote programs worldwide, and engage alumni like never before.',
-      features: [
-        'Institution Dashboard',
-        'Program Promotion Tools',
-        'Student Recruitment Suite',
-        'Professor Recruitment',
-        'Alumni Engagement Network',
-        'Live Info Sessions & Webinars'
-      ],
-      color: 'from-blue-700 to-blue-800',
-      bgColor: 'from-blue-50 to-blue-100'
+      icon: Globe,
+      title: "International Programs",
+      description: "Discover and apply to programs from top universities globally."
+    },
+    {
+      icon: MessageSquare,
+      title: "Real-time Communication",
+      description: "Chat seamlessly with peers and mentors across time zones."
+    },
+    {
+      icon: Award,
+      title: "Achievement Tracking",
+      description: "Monitor your academic progress and celebrate milestones."
+    },
+    {
+      icon: Shield,
+      title: "Secure Platform",
+      description: "Your data and conversations are protected with enterprise-grade security."
     }
   ];
 
-  const activeUserType = userTypes.find(type => type.id === activeTab);
+  const testimonials = [
+    {
+      name: "Sarah Chen",
+      role: "Computer Science Student",
+      country: "Singapore",
+      content: "Edfellow helped me connect with amazing mentors and find the perfect PhD program in the US.",
+      rating: 5
+    },
+    {
+      name: "Dr. Michael Rodriguez",
+      role: "Professor of Mathematics",
+      country: "Spain",
+      content: "I love mentoring bright students from around the world. The platform makes it so easy to connect.",
+      rating: 5
+    },
+    {
+      name: "University of Toronto",
+      role: "Admissions Office",
+      country: "Canada",
+      content: "Edfellow has significantly increased our international student applications and quality.",
+      rating: 5
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-blue-100/20">
-      {/* Clean Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/95 border-b border-blue-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-slate-50/30">
+      {/* Navigation */}
+      <nav className="bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 sm:h-20">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="p-2 sm:p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                <GraduationCap className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
-                  Edfellow
-                </h1>
-                <p className="text-xs sm:text-sm text-blue-600 font-medium -mt-1">Where Education Meets the World</p>
+                <span className="text-xl font-bold text-slate-900">Edfellow</span>
+                <p className="text-xs text-blue-600 font-medium">Where Education Meets the World</p>
               </div>
             </div>
-            
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#" onClick={() => navigate('/about')} className="text-blue-600 hover:text-blue-800 transition-colors">About</a>
-              <a href="#" onClick={() => navigate('/features')} className="text-blue-600 hover:text-blue-800 transition-colors">Features</a>
-              <a href="#" onClick={() => navigate('/community')} className="text-blue-600 hover:text-blue-800 transition-colors">Community</a>
-            </nav>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/login')}
-                className="text-blue-700 hover:text-blue-900 text-sm sm:text-base"
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <Link to="/about" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">About</Link>
+              <Link to="/features" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Features</Link>
+              <Link to="/community" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Community</Link>
+              <Link to="/login">
+                <Button variant="ghost" className="text-slate-700 hover:text-blue-600 hover:bg-blue-50">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-slate-700 hover:text-blue-600 hover:bg-blue-50"
               >
-                Sign In
-              </Button>
-              <Button 
-                onClick={() => navigate('/signup')}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg px-4 sm:px-6 text-sm sm:text-base"
-              >
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* Hero Section */}
-      <section className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-blue-100/30" />
-        <div className="absolute top-10 sm:top-16 left-10 sm:left-20 w-24 sm:w-48 h-24 sm:h-48 bg-blue-400/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 sm:bottom-16 right-10 sm:right-20 w-32 sm:w-64 h-32 sm:h-64 bg-blue-500/10 rounded-full blur-3xl" />
-        
-        <div className="relative max-w-4xl mx-auto text-center">
-          <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-200 mb-6 sm:mb-8 px-4 sm:px-6 py-2 sm:py-3 text-sm font-semibold">
-            <Sparkles className="mr-2 h-4 w-4" />
-            Global Education Network
-          </Badge>
-          
-          <div className="flex items-center justify-center mb-6 sm:mb-8">
-            <div className="relative">
-              <Globe className="h-16 w-16 sm:h-20 sm:w-20 text-blue-500 mr-4 animate-pulse" />
-              <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-xl"></div>
-            </div>
-            <div className="text-left">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 leading-tight">
-                Unlock Knowledge,{" "}
-                <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
-                  Opportunity
-                </span>
-                , and{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
-                  Connection
-                </span>
-                —Globally
-              </h2>
-            </div>
-          </div>
-          
-          <p className="text-lg sm:text-xl text-blue-700 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed">
-            A global educational network connecting students, professors, and universities. 
-            Learn, teach, and collaborate beyond borders.
-          </p>
-        </div>
-      </section>
-
-      {/* Choose Your Path - Horizontal Tabs */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-blue-50/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Choose Your Path</h3>
-            <p className="text-lg sm:text-xl text-blue-700">Discover how Edfellow transforms your educational journey</p>
-          </div>
-
-          {/* Horizontal Tab Navigation */}
-          <div className="flex justify-center mb-8 sm:mb-12">
-            <div className="flex flex-col sm:flex-row bg-white rounded-2xl p-2 shadow-lg border-2 border-blue-200 w-full sm:w-auto">
-              {userTypes.map((type) => {
-                const IconComponent = type.icon;
-                return (
-                  <button
-                    key={type.id}
-                    onClick={() => setActiveTab(type.id)}
-                    className={`flex items-center justify-center px-4 sm:px-8 py-3 sm:py-4 rounded-xl transition-all duration-300 mb-2 sm:mb-0 sm:mr-2 last:mr-0 ${
-                      activeTab === type.id
-                        ? `bg-gradient-to-r ${type.color} text-white shadow-lg border-2 border-blue-300 transform scale-105`
-                        : 'text-blue-600 hover:text-blue-800 hover:bg-blue-50 border-2 border-transparent hover:border-blue-200'
-                    }`}
-                  >
-                    <IconComponent className="h-5 w-5 mr-2 sm:mr-3" />
-                    <span className="font-semibold text-sm sm:text-base">{type.title}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          {activeUserType && (
-            <div className={`bg-gradient-to-br ${activeUserType.bgColor} rounded-3xl p-6 sm:p-12 shadow-xl border-2 border-blue-200`}>
-              <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
-                <div>
-                  <div className={`inline-flex items-center bg-gradient-to-r ${activeUserType.color} text-white px-4 sm:px-6 py-2 sm:py-3 rounded-2xl mb-4 sm:mb-6 shadow-lg`}>
-                    <activeUserType.icon className="h-5 sm:h-6 w-5 sm:w-6 mr-2 sm:mr-3" />
-                    <span className="font-bold text-base sm:text-lg">For {activeUserType.title}</span>
-                  </div>
-                  
-                  <h4 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                    {activeUserType.tagline}
-                  </h4>
-                  
-                  <p className="text-base sm:text-lg text-blue-800 mb-6 sm:mb-8 leading-relaxed">
-                    {activeUserType.description}
-                  </p>
-
-                  <Button 
-                    size="lg"
-                    onClick={() => navigate('/signup')}
-                    className={`bg-gradient-to-r ${activeUserType.color} hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto`}
-                  >
-                    Get Started as {activeUserType.title.slice(0, -1)}
-                    <ArrowRight className="ml-2 h-4 sm:h-5 w-4 sm:w-5" />
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden py-4 border-t border-blue-100">
+              <div className="flex flex-col space-y-4">
+                <Link to="/about" className="text-slate-700 hover:text-blue-600 font-medium">About</Link>
+                <Link to="/features" className="text-slate-700 hover:text-blue-600 font-medium">Features</Link>
+                <Link to="/community" className="text-slate-700 hover:text-blue-600 font-medium">Community</Link>
+                <Link to="/login">
+                  <Button variant="outline" className="w-full border-blue-200 text-slate-700 hover:bg-blue-50">
+                    Sign In
                   </Button>
-                </div>
-
-                <div className="space-y-3 sm:space-y-4">
-                  {activeUserType.features.map((feature, index) => (
-                    <div key={index} className="flex items-center bg-white/70 backdrop-blur-sm rounded-xl p-3 sm:p-4 shadow-sm border border-blue-200">
-                      <CheckCircle className="h-4 sm:h-5 w-4 sm:w-5 mr-3 sm:mr-4 flex-shrink-0 text-blue-600" />
-                      <span className="text-blue-800 font-medium text-sm sm:text-base">{feature}</span>
-                    </div>
-                  ))}
-                </div>
+                </Link>
+                <Link to="/signup">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    Get Started
+                  </Button>
+                </Link>
               </div>
             </div>
           )}
         </div>
-      </section>
+      </nav>
 
-      {/* Final CTA */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
-            Ready to Connect with the World?
-          </h3>
-          <p className="text-lg sm:text-xl mb-8 sm:mb-12 opacity-90">
-            Join thousands building their global academic networks on Edfellow.
-          </p>
-          
-          <Button 
-            size="lg" 
-            onClick={() => navigate('/signup')}
-            className="bg-white text-blue-600 hover:bg-blue-50 px-8 sm:px-12 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-2xl transform hover:scale-105 transition-all duration-200 w-full sm:w-auto"
-          >
-            Start Your Journey
-            <ArrowRight className="ml-2 h-4 sm:h-5 w-4 sm:w-5" />
-          </Button>
-          
-          <div className="flex items-center justify-center space-x-2 text-sm opacity-80 mt-6 sm:mt-8">
-            <CheckCircle className="h-4 w-4" />
-            <span>Free to join • No credit card required</span>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section */}
+      <section className="relative py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+                  🌍 Global Education Platform
+                </Badge>
+                <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
+                  Connect with the 
+                  <span className="text-blue-600"> World's</span> 
+                  <br />Academic Community
+                </h1>
+                <p className="text-lg text-slate-600 leading-relaxed">
+                  Join students, professors, and universities from around the globe. 
+                  Find mentors, discover programs, and build meaningful academic connections.
+                </p>
+              </div>
 
-      {/* Clean Footer */}
-      <footer className="bg-blue-900 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
-            <div className="col-span-1 sm:col-span-2">
-              <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-                  <GraduationCap className="h-6 sm:h-8 w-6 sm:w-8 text-white" />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/signup">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-8">
+                    Start Your Journey
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/features">
+                  <Button size="lg" variant="outline" className="border-blue-200 text-slate-700 hover:bg-blue-50 px-8">
+                    Explore Features
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-6 pt-8">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-900">50k+</div>
+                  <div className="text-sm text-slate-600">Active Students</div>
                 </div>
-                <div>
-                  <span className="text-xl sm:text-2xl font-bold">Edfellow</span>
-                  <p className="text-xs text-blue-300">Where Education Meets the World</p>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-900">2k+</div>
+                  <div className="text-sm text-slate-600">Expert Mentors</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-900">100+</div>
+                  <div className="text-sm text-slate-600">Universities</div>
                 </div>
               </div>
-              <p className="text-blue-200 leading-relaxed mb-4 sm:mb-6 max-w-md text-sm sm:text-base">
-                Building bridges between students, professors, and universities globally. 
-                Empowering education through meaningful connections.
-              </p>
             </div>
-            
-            <div>
-              <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">Platform</h4>
-              <ul className="space-y-2 sm:space-y-3 text-blue-200 text-sm sm:text-base">
-                <li><a href="#" className="hover:text-white transition-colors">For Students</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">For Professors</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">For Universities</a></li>
-              </ul>
+
+            {/* Globe Illustration */}
+            <div className="relative flex justify-center">
+              <div className="relative">
+                <div className="w-96 h-96 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full shadow-2xl flex items-center justify-center">
+                  <Globe className="h-48 w-48 text-white opacity-90" />
+                </div>
+                {/* Floating elements */}
+                <div className="absolute -top-4 -right-4 p-3 bg-white rounded-xl shadow-lg">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="absolute -bottom-4 -left-4 p-3 bg-white rounded-xl shadow-lg">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="absolute top-1/2 -left-8 p-3 bg-white rounded-xl shadow-lg">
+                  <MessageSquare className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
             </div>
-            
-            <div>
-              <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">Company</h4>
-              <ul className="space-y-2 sm:space-y-3 text-blue-200 text-sm sm:text-base">
-                <li><a href="#" onClick={() => navigate('/about')} className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" onClick={() => navigate('/features')} className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" onClick={() => navigate('/community')} className="hover:text-white transition-colors">Community</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-blue-800 pt-6 sm:pt-8 text-center">
-            <p className="text-blue-200 text-sm sm:text-base">
-              © 2025 Edfellow. All rights reserved.
-            </p>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-16">
+            <Badge className="bg-blue-100 text-blue-700">Features</Badge>
+            <h2 className="text-3xl font-bold text-slate-900">Everything You Need for Global Learning</h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Powerful tools and features designed to connect learners, educators, and institutions worldwide.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="border-blue-100 hover:shadow-lg transition-all duration-300 hover:border-blue-200">
+                <CardHeader>
+                  <div className="p-3 bg-blue-100 rounded-lg w-fit mb-4">
+                    <feature.icon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-slate-900">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-slate-600">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-16 bg-gradient-to-br from-blue-50/50 to-slate-50/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-16">
+            <Badge className="bg-blue-100 text-blue-700">Testimonials</Badge>
+            <h2 className="text-3xl font-bold text-slate-900">Loved by Students, Professors & Universities</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="border-blue-100 bg-white/80 backdrop-blur-sm">
+                <CardHeader>
+                  <div className="flex items-center space-x-4">
+                    <Avatar>
+                      <AvatarFallback className="bg-blue-100 text-blue-600">
+                        {testimonial.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle className="text-base text-slate-900">{testimonial.name}</CardTitle>
+                      <CardDescription className="text-sm">
+                        {testimonial.role} • {testimonial.country}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-slate-600 italic">"{testimonial.content}"</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-700">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white">
+              Ready to Join the Global Academic Community?
+            </h2>
+            <p className="text-xl text-blue-100">
+              Start connecting with students, professors, and universities from around the world today.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/signup">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 shadow-lg px-8">
+                  Sign Up Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <LandingFooter />
     </div>
   );
 };

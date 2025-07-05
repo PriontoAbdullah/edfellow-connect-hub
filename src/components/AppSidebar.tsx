@@ -94,10 +94,16 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
 
   const menuItems = getMenuItems(user.role);
   
-  const isActive = (path: string) => currentPath === path;
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
+  const isActive = (path: string) => {
+    if (path === '/dashboard') {
+      return currentPath === '/dashboard';
+    }
+    return currentPath.startsWith(path);
+  };
+    
+  const getNavCls = (isActive: boolean) =>
     isActive 
-      ? "bg-blue-600 text-white font-medium" 
+      ? "bg-blue-600 text-white font-medium hover:bg-blue-700" 
       : "hover:bg-blue-700 text-blue-100 hover:text-white";
 
   const getRoleColor = (role: string) => {
@@ -110,10 +116,10 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
   };
 
   return (
-    <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} border-r-0 bg-slate-900`}>
-      <SidebarContent className="bg-slate-900">
+    <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} border-r-0 bg-[#0B1B4D]`}>
+      <SidebarContent className="bg-[#0B1B4D]">
         {/* Logo Section */}
-        <div className="p-4 border-b border-slate-700">
+        <div className="p-4 border-b border-blue-800">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
               <GraduationCap className="h-6 w-6 text-white" />
@@ -130,7 +136,7 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
         </div>
 
         {/* User Profile Section */}
-        <div className="p-4 border-b border-slate-700">
+        <div className="p-4 border-b border-blue-800">
           <div className="flex items-center space-x-3">
             <Avatar className={`h-10 w-10 ${getRoleColor(user.role)}`}>
               <AvatarFallback className={getRoleColor(user.role)}>
@@ -141,7 +147,7 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{user.name}</p>
                 <p className="text-xs text-blue-300 capitalize">{user.role}</p>
-                {user.major && <p className="text-xs text-slate-400 truncate">{user.major}</p>}
+                {user.major && <p className="text-xs text-blue-400 truncate">{user.major}</p>}
               </div>
             )}
           </div>
@@ -160,7 +166,11 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
                     <NavLink 
                       to={item.url} 
                       end={item.url === '/dashboard'}
-                      className={getNavCls}
+                      className={({ isActive: navIsActive }) => 
+                        `flex items-center px-4 py-3 rounded-lg transition-colors ${
+                          getNavCls(navIsActive || isActive(item.url))
+                        }`
+                      }
                     >
                       <item.icon className="h-5 w-5 mr-3 flex-shrink-0" />
                       {!isCollapsed && <span className="truncate">{item.title}</span>}
@@ -173,10 +183,10 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
         </SidebarGroup>
 
         {/* Logout Button */}
-        <div className="p-4 border-t border-slate-700">
+        <div className="p-4 border-t border-blue-800">
           <Button
             variant="ghost"
-            className="w-full justify-start text-blue-100 hover:text-white hover:bg-slate-800"
+            className="w-full justify-start text-blue-100 hover:text-white hover:bg-blue-800"
             onClick={onLogout}
           >
             <LogOut className="h-5 w-5 mr-3 flex-shrink-0" />
