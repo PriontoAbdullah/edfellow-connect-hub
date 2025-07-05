@@ -36,7 +36,9 @@ import {
   LogOut,
   Heart,
   Briefcase,
-  Star
+  Star,
+  FileText,
+  Send
 } from "lucide-react";
 
 interface AppSidebarProps {
@@ -50,67 +52,53 @@ interface AppSidebarProps {
 }
 
 const getMenuItems = (role: string) => {
-  const baseItems = [
-    { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Messages", url: "/dashboard/messages", icon: MessageSquare },
-    { title: "Calendar", url: "/dashboard/calendar", icon: Calendar },
-    { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
-  ];
-
   if (role === 'student') {
     return [
-      ...baseItems,
-      { title: "Peer Groups", url: "/dashboard/peer-groups", icon: Users },
-      { title: "Mentors", url: "/dashboard/mentors", icon: UserCheck },
-      { title: "Career Center", url: "/dashboard/career", icon: Briefcase },
-      { title: "Portfolio", url: "/dashboard/portfolio", icon: Award },
-      { title: "Scholarships", url: "/dashboard/scholarships", icon: Star },
-      { title: "Search", url: "/dashboard/search", icon: Search },
-      { title: "Settings", url: "/dashboard/settings", icon: Settings },
+      { title: "Home", url: "/dashboard", icon: Home },
+      { title: "My Groups", url: "/dashboard/groups", icon: Users },
+      { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
+      { title: "Mentorship", url: "/dashboard/mentorship", icon: Heart },
+      { title: "Explore Programs", url: "/dashboard/explore", icon: Search },
+      { title: "My Profile", url: "/dashboard/profile", icon: UserCheck },
     ];
   }
 
   if (role === 'professor') {
     return [
-      ...baseItems,
+      { title: "Home", url: "/dashboard", icon: Home },
+      { title: "Subject Groups", url: "/dashboard/groups", icon: Users },
+      { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
       { title: "Mentorship", url: "/dashboard/mentorship", icon: Heart },
-      { title: "Courses", url: "/dashboard/courses", icon: BookOpen },
-      { title: "Research", url: "/dashboard/research", icon: Award },
-      { title: "Students", url: "/dashboard/students", icon: Users },
-      { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
-      { title: "Profile", url: "/dashboard/profile", icon: UserCheck },
-      { title: "Settings", url: "/dashboard/settings", icon: Settings },
+      { title: "My Profile", url: "/dashboard/profile", icon: UserCheck },
     ];
   }
 
   if (role === 'university') {
     return [
-      ...baseItems,
-      { title: "Programs", url: "/dashboard/programs", icon: Presentation },
-      { title: "Recruitment", url: "/dashboard/recruitment", icon: Target },
-      { title: "Faculty", url: "/dashboard/faculty", icon: UserCheck },
-      { title: "Alumni", url: "/dashboard/alumni", icon: Network },
-      { title: "Webinars", url: "/dashboard/webinars", icon: Video },
-      { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
-      { title: "Settings", url: "/dashboard/settings", icon: Settings },
+      { title: "Home", url: "/dashboard", icon: Home },
+      { title: "Submit Program", url: "/dashboard/submit-program", icon: Send },
+      { title: "My Programs", url: "/dashboard/programs", icon: BookOpen },
+      { title: "Messages", url: "/dashboard/messages", icon: MessageSquare },
+      { title: "Profile", url: "/dashboard/profile", icon: Building2 },
     ];
   }
 
-  return baseItems;
+  return [];
 };
 
 export function AppSidebar({ user, onLogout }: AppSidebarProps) {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const isCollapsed = state === "collapsed";
 
   const menuItems = getMenuItems(user.role);
   
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-blue-100 text-blue-700 font-medium border-r-2 border-blue-500" 
-      : "hover:bg-blue-50 text-gray-600 hover:text-blue-700";
+      ? "bg-blue-600 text-white font-medium" 
+      : "hover:bg-blue-700 text-blue-100 hover:text-white";
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -122,38 +110,38 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
   };
 
   return (
-    <Sidebar className={`${collapsed ? "w-14" : "w-64"} border-r border-blue-200 bg-white`}>
-      <SidebarContent className="bg-gradient-to-b from-blue-50/50 to-white">
+    <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} border-r-0 bg-slate-900`}>
+      <SidebarContent className="bg-slate-900">
         {/* Logo Section */}
-        <div className="p-4 border-b border-blue-100">
+        <div className="p-4 border-b border-slate-700">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
-            {!collapsed && (
+            {!isCollapsed && (
               <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                <span className="text-xl font-bold text-white">
                   Edfellow
                 </span>
-                <p className="text-xs text-blue-600 font-medium">Where Education Meets the World</p>
+                <p className="text-xs text-blue-300 font-medium">Where Education Meets the World</p>
               </div>
             )}
           </div>
         </div>
 
         {/* User Profile Section */}
-        <div className="p-4 border-b border-blue-100">
+        <div className="p-4 border-b border-slate-700">
           <div className="flex items-center space-x-3">
             <Avatar className={`h-10 w-10 ${getRoleColor(user.role)}`}>
               <AvatarFallback className={getRoleColor(user.role)}>
                 {user.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
-            {!collapsed && (
+            {!isCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                <p className="text-xs text-blue-600 capitalize">{user.role}</p>
-                {user.major && <p className="text-xs text-gray-500 truncate">{user.major}</p>}
+                <p className="text-sm font-medium text-white truncate">{user.name}</p>
+                <p className="text-xs text-blue-300 capitalize">{user.role}</p>
+                {user.major && <p className="text-xs text-slate-400 truncate">{user.major}</p>}
               </div>
             )}
           </div>
@@ -161,11 +149,11 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
 
         {/* Navigation Menu */}
         <SidebarGroup className="flex-1">
-          <SidebarGroupLabel className="text-blue-700 font-semibold">
-            {!collapsed ? 'Navigation' : ''}
+          <SidebarGroupLabel className="text-blue-300 font-semibold px-4">
+            {!isCollapsed ? 'Navigation' : ''}
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className="space-y-1 px-2">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -175,7 +163,7 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
                       className={getNavCls}
                     >
                       <item.icon className="h-5 w-5 mr-3 flex-shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {!isCollapsed && <span className="truncate">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -185,14 +173,14 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
         </SidebarGroup>
 
         {/* Logout Button */}
-        <div className="p-4 border-t border-blue-100">
+        <div className="p-4 border-t border-slate-700">
           <Button
             variant="ghost"
-            className="w-full justify-start text-gray-600 hover:text-red-600 hover:bg-red-50"
+            className="w-full justify-start text-blue-100 hover:text-white hover:bg-slate-800"
             onClick={onLogout}
           >
             <LogOut className="h-5 w-5 mr-3 flex-shrink-0" />
-            {!collapsed && <span>Logout</span>}
+            {!isCollapsed && <span>Logout</span>}
           </Button>
         </div>
       </SidebarContent>
