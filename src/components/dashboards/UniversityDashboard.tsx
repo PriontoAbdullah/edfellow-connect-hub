@@ -1,5 +1,5 @@
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ import {
 
 const UniversityDashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const myPrograms = [
     { 
@@ -75,6 +76,51 @@ const UniversityDashboard = () => {
     { id: 3, title: 'PhD Research Opportunities', date: 'Dec 30 4:00 PM', registrations: 67 }
   ];
 
+  const handleNewProgram = () => {
+    navigate('/dashboard/submit-program');
+  };
+
+  const handleViewPrograms = () => {
+    navigate('/dashboard/programs');
+  };
+
+  const handleMessages = () => {
+    navigate('/dashboard/messages');
+  };
+
+  const handleEditProgram = (programId: number) => {
+    navigate('/dashboard/programs');
+    toast({
+      title: "Opening Program Editor",
+      description: "Redirecting to program management...",
+    });
+  };
+
+  const handleProgramAnalytics = (programId: number) => {
+    toast({
+      title: "Program Analytics",
+      description: "Opening detailed analytics for this program...",
+    });
+  };
+
+  const handleReplyToInquiry = (inquiryId: number) => {
+    navigate('/dashboard/messages');
+  };
+
+  const handleScheduleSession = () => {
+    toast({
+      title: "Schedule Session",
+      description: "Opening session scheduler...",
+    });
+  };
+
+  const handleStartWebinar = (webinarId: number) => {
+    toast({
+      title: "Starting Webinar",
+      description: "Launching webinar platform...",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50/30 via-white to-orange-100/20">
       <div className="p-6 space-y-6">
@@ -115,7 +161,12 @@ const UniversityDashboard = () => {
                 <BarChart3 className="h-4 w-4 mr-1" />
                 Full Analytics
               </Button>
-              <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-white/30 text-white hover:bg-white/10"
+                onClick={handleNewProgram}
+              >
                 <Plus className="h-4 w-4 mr-1" />
                 New Program
               </Button>
@@ -132,7 +183,7 @@ const UniversityDashboard = () => {
                   <BookOpen className="h-5 w-5 text-blue-600" />
                   My Programs
                 </CardTitle>
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={handleNewProgram}>
                   <Plus className="h-4 w-4 mr-1" />
                   Submit New
                 </Button>
@@ -165,15 +216,15 @@ const UniversityDashboard = () => {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button size="sm" variant="outline" className="flex-1" onClick={() => handleEditProgram(program.id)}>
                       <Edit className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button size="sm" variant="outline" className="flex-1" onClick={handleViewPrograms}>
                       <Eye className="h-3 w-3 mr-1" />
                       Preview
                     </Button>
-                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700" onClick={() => handleProgramAnalytics(program.id)}>
                       <BarChart3 className="h-3 w-3 mr-1" />
                       Analytics
                     </Button>
@@ -215,7 +266,7 @@ const UniversityDashboard = () => {
                   </div>
                   <p className="text-sm text-blue-600 mb-2">{inquiry.program}</p>
                   <div className="flex gap-2">
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 flex-1">
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700 flex-1" onClick={() => handleReplyToInquiry(inquiry.id)}>
                       <MessageSquare className="h-3 w-3 mr-1" />
                       Reply
                     </Button>
@@ -238,7 +289,7 @@ const UniversityDashboard = () => {
                 <Video className="h-5 w-5 text-purple-600" />
                 Upcoming Live Sessions
               </CardTitle>
-              <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+              <Button size="sm" className="bg-purple-600 hover:bg-purple-700" onClick={handleScheduleSession}>
                 <Plus className="h-4 w-4 mr-1" />
                 Schedule Session
               </Button>
@@ -260,7 +311,7 @@ const UniversityDashboard = () => {
                       <Edit className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
-                    <Button size="sm" className="flex-1 bg-purple-600 hover:bg-purple-700">
+                    <Button size="sm" className="flex-1 bg-purple-600 hover:bg-purple-700" onClick={() => handleStartWebinar(webinar.id)}>
                       <Video className="h-3 w-3 mr-1" />
                       Start
                     </Button>
