@@ -103,8 +103,8 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
     
   const getNavCls = (isActive: boolean) =>
     isActive 
-      ? "bg-blue-600 text-white font-medium hover:bg-blue-700" 
-      : "hover:bg-blue-700 text-blue-100 hover:text-white";
+      ? "bg-white/20 text-white font-medium hover:bg-white/30" 
+      : "hover:bg-white/10 text-white hover:text-white";
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -119,7 +119,7 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
     <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} border-r-0 bg-[#0B1B4D]`}>
       <SidebarContent className="bg-[#0B1B4D]">
         {/* Logo Section */}
-        <div className="p-4 border-b border-blue-800">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
               <GraduationCap className="h-6 w-6 text-white" />
@@ -129,14 +129,14 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
                 <span className="text-xl font-bold text-white">
                   Edfellow
                 </span>
-                <p className="text-xs text-blue-300 font-medium">Where Education Meets the World</p>
+                <p className="text-xs text-white/70 font-medium">Where Education Meets the World</p>
               </div>
             )}
           </div>
         </div>
 
         {/* User Profile Section */}
-        <div className="p-4 border-b border-blue-800">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center space-x-3">
             <Avatar className={`h-10 w-10 ${getRoleColor(user.role)}`}>
               <AvatarFallback className={getRoleColor(user.role)}>
@@ -146,8 +146,8 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{user.name}</p>
-                <p className="text-xs text-blue-300 capitalize">{user.role}</p>
-                {user.major && <p className="text-xs text-blue-400 truncate">{user.major}</p>}
+                <p className="text-xs text-white/70 capitalize">{user.role}</p>
+                {user.major && <p className="text-xs text-white/60 truncate">{user.major}</p>}
               </div>
             )}
           </div>
@@ -155,7 +155,7 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
 
         {/* Navigation Menu */}
         <SidebarGroup className="flex-1">
-          <SidebarGroupLabel className="text-blue-300 font-semibold px-4">
+          <SidebarGroupLabel className="text-white/70 font-semibold px-4">
             {!isCollapsed ? 'Navigation' : ''}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -183,10 +183,10 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
         </SidebarGroup>
 
         {/* Logout Button */}
-        <div className="p-4 border-t border-blue-800">
+        <div className="p-4 border-t border-white/20">
           <Button
             variant="ghost"
-            className="w-full justify-start text-blue-100 hover:text-white hover:bg-blue-800"
+            className="w-full justify-start text-white hover:text-white hover:bg-white/10"
             onClick={onLogout}
           >
             <LogOut className="h-5 w-5 mr-3 flex-shrink-0" />

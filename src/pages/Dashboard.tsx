@@ -11,6 +11,7 @@ import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import ProfessorDashboard from '@/components/dashboards/ProfessorDashboard';
 import UniversityDashboard from '@/components/dashboards/UniversityDashboard';
+import Notifications from '@/pages/Notifications';
 
 // Student Components
 import StudentGroups from '@/components/dashboards/student/StudentGroups';
@@ -97,6 +98,7 @@ const Dashboard = () => {
     if (pathname.includes('/submit-program')) return 'Submit Program';
     if (pathname.includes('/programs')) return 'My Programs';
     if (pathname.includes('/messages')) return 'Messages';
+    if (pathname.includes('/notifications')) return 'Notifications';
     
     switch (user.role) {
       case 'student':
@@ -119,6 +121,7 @@ const Dashboard = () => {
     if (pathname.includes('/submit-program')) return 'Add your educational program';
     if (pathname.includes('/programs')) return 'Manage your programs';
     if (pathname.includes('/messages')) return 'Student and professor inquiries';
+    if (pathname.includes('/notifications')) return 'Stay updated with your activities';
     
     switch (user.role) {
       case 'student':
@@ -152,6 +155,9 @@ const Dashboard = () => {
                 user.role === 'professor' ? <ProfessorDashboard /> :
                 <UniversityDashboard />
               } />
+              
+              {/* Common Routes */}
+              <Route path="/notifications" element={<Notifications />} />
               
               {/* Student Routes */}
               <Route path="/groups" element={<StudentGroups />} />
