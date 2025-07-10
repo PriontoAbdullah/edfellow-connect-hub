@@ -1,8 +1,7 @@
-
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 import {
   GraduationCap,
   Home,
@@ -38,8 +37,8 @@ import {
   Briefcase,
   Star,
   FileText,
-  Send
-} from "lucide-react";
+  Send,
+} from 'lucide-react';
 
 interface AppSidebarProps {
   user: {
@@ -54,32 +53,32 @@ interface AppSidebarProps {
 const getMenuItems = (role: string) => {
   if (role === 'student') {
     return [
-      { title: "Home", url: "/dashboard", icon: Home },
-      { title: "My Groups", url: "/dashboard/groups", icon: Users },
-      { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
-      { title: "Mentorship", url: "/dashboard/mentorship", icon: Heart },
-      { title: "Explore Programs", url: "/dashboard/explore", icon: Search },
-      { title: "My Profile", url: "/dashboard/profile", icon: UserCheck },
+      { title: 'Home', url: '/dashboard', icon: Home },
+      { title: 'My Groups', url: '/dashboard/groups', icon: Users },
+      { title: 'Chat', url: '/dashboard/chat', icon: MessageSquare },
+      { title: 'Mentorship', url: '/dashboard/mentorship', icon: Heart },
+      { title: 'Explore Programs', url: '/dashboard/explore', icon: Search },
+      { title: 'My Profile', url: '/dashboard/profile', icon: UserCheck },
     ];
   }
 
   if (role === 'professor') {
     return [
-      { title: "Home", url: "/dashboard", icon: Home },
-      { title: "Subject Groups", url: "/dashboard/groups", icon: Users },
-      { title: "Chat", url: "/dashboard/chat", icon: MessageSquare },
-      { title: "Mentorship", url: "/dashboard/mentorship", icon: Heart },
-      { title: "My Profile", url: "/dashboard/profile", icon: UserCheck },
+      { title: 'Home', url: '/dashboard', icon: Home },
+      { title: 'Subject Groups', url: '/dashboard/groups', icon: Users },
+      { title: 'Chat', url: '/dashboard/chat', icon: MessageSquare },
+      { title: 'Mentorship', url: '/dashboard/mentorship', icon: Heart },
+      { title: 'My Profile', url: '/dashboard/profile', icon: UserCheck },
     ];
   }
 
   if (role === 'university') {
     return [
-      { title: "Home", url: "/dashboard", icon: Home },
-      { title: "Submit Program", url: "/dashboard/submit-program", icon: Send },
-      { title: "My Programs", url: "/dashboard/programs", icon: BookOpen },
-      { title: "Messages", url: "/dashboard/messages", icon: MessageSquare },
-      { title: "Profile", url: "/dashboard/profile", icon: Building2 },
+      { title: 'Home', url: '/dashboard', icon: Home },
+      { title: 'Submit Program', url: '/dashboard/submit-program', icon: Send },
+      { title: 'My Programs', url: '/dashboard/programs', icon: BookOpen },
+      { title: 'Messages', url: '/dashboard/messages', icon: MessageSquare },
+      { title: 'Profile', url: '/dashboard/profile', icon: Building2 },
     ];
   }
 
@@ -90,90 +89,78 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const isCollapsed = state === "collapsed";
+  const isCollapsed = state === 'collapsed';
 
   const menuItems = getMenuItems(user.role);
-  
+
   const isActive = (path: string) => {
     if (path === '/dashboard') {
       return currentPath === '/dashboard';
     }
     return currentPath.startsWith(path);
   };
-    
+
   const getNavCls = (isActive: boolean) =>
-    isActive 
-      ? "bg-white/20 text-white font-medium hover:bg-white/30" 
-      : "hover:bg-white/10 text-white hover:text-white";
+    isActive
+      ? 'bg-white/20 text-white font-medium hover:bg-white/30'
+      : 'text-gray-300 hover:bg-white/10 hover:text-white';
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'student': return 'text-blue-600 bg-blue-100';
-      case 'professor': return 'text-green-600 bg-green-100';
-      case 'university': return 'text-orange-600 bg-orange-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'student':
+        return 'text-blue-600 bg-blue-100';
+      case 'professor':
+        return 'text-green-600 bg-green-100';
+      case 'university':
+        return 'text-orange-600 bg-orange-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
   };
 
   return (
-    <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} border-r-0 bg-[#0B1B4D]`}>
-      <SidebarContent className="bg-[#0B1B4D]">
+    <Sidebar
+      className={`${isCollapsed ? 'w-14' : 'w-64'} border-r-0 bg-gray-900`}
+    >
+      <SidebarContent className='bg-gray-900'>
         {/* Logo Section */}
-        <div className="p-4 border-b border-white/20">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-              <GraduationCap className="h-6 w-6 text-white" />
-            </div>
+        <div className='p-4 border-b border-gray-800'>
+          <div className='flex items-center space-x-3'>
+            <img src='/logo.png' alt='Edfellow' className='w-12 rounded-full' />
             {!isCollapsed && (
               <div>
-                <span className="text-xl font-bold text-white">
-                  Edfellow
-                </span>
-                <p className="text-xs text-white/70 font-medium">Where Education Meets the World</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* User Profile Section */}
-        <div className="p-4 border-b border-white/20">
-          <div className="flex items-center space-x-3">
-            <Avatar className={`h-10 w-10 ${getRoleColor(user.role)}`}>
-              <AvatarFallback className={getRoleColor(user.role)}>
-                {user.name.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{user.name}</p>
-                <p className="text-xs text-white/70 capitalize">{user.role}</p>
-                {user.major && <p className="text-xs text-white/60 truncate">{user.major}</p>}
+                <span className='text-xl font-bold text-white'>Edfellow</span>
+                <p className='text-[10px] text-gray-400 font-medium'>
+                  Where Education Meets the World
+                </p>
               </div>
             )}
           </div>
         </div>
 
         {/* Navigation Menu */}
-        <SidebarGroup className="flex-1">
-          <SidebarGroupLabel className="text-white/70 font-semibold px-4">
+        <SidebarGroup className='flex-1'>
+          <SidebarGroupLabel className='text-gray-200 font-semibold px-4'>
             {!isCollapsed ? 'Navigation' : ''}
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1 px-2">
+            <SidebarMenu className='space-y-2 px-2'>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
+                    <NavLink
+                      to={item.url}
                       end={item.url === '/dashboard'}
-                      className={({ isActive: navIsActive }) => 
-                        `flex items-center px-4 py-3 rounded-lg transition-colors ${
-                          getNavCls(navIsActive || isActive(item.url))
-                        }`
+                      className={({ isActive: navIsActive }) =>
+                        `flex items-center px-4 py-3 rounded-lg transition-colors text-gray-100 ${getNavCls(
+                          navIsActive || isActive(item.url)
+                        )}`
                       }
                     >
-                      <item.icon className="h-5 w-5 mr-3 flex-shrink-0" />
-                      {!isCollapsed && <span className="truncate">{item.title}</span>}
+                      <item.icon className='h-5 w-5 mr-3 flex-shrink-0' />
+                      {!isCollapsed && (
+                        <span className='truncate'>{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -182,14 +169,39 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* User Profile Section - Moved to bottom */}
+        <div className='p-4 border-t border-gray-800'>
+          <div className='flex items-center space-x-3'>
+            <Avatar className={`h-10 w-10 ${getRoleColor(user.role)}`}>
+              <AvatarFallback className={getRoleColor(user.role)}>
+                {user.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
+              </AvatarFallback>
+            </Avatar>
+            {!isCollapsed && (
+              <div className='flex-1 min-w-0'>
+                <p className='text-sm font-medium text-white truncate'>
+                  {user.name}
+                </p>
+                <p className='text-xs text-gray-400 capitalize'>{user.role}</p>
+                {user.major && (
+                  <p className='text-xs text-gray-500 truncate'>{user.major}</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Logout Button */}
-        <div className="p-4 border-t border-white/20">
+        <div className='p-4 border-t border-gray-800'>
           <Button
-            variant="ghost"
-            className="w-full justify-start text-white hover:text-white hover:bg-white/10"
+            variant='ghost'
+            className='w-full justify-start text-gray-300 hover:text-white hover:bg-white/10'
             onClick={onLogout}
           >
-            <LogOut className="h-5 w-5 mr-3 flex-shrink-0" />
+            <LogOut className='h-5 w-5 mr-3 flex-shrink-0' />
             {!isCollapsed && <span>Logout</span>}
           </Button>
         </div>
