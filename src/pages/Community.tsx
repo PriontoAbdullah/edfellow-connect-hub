@@ -1,225 +1,241 @@
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Link } from 'react-router-dom';
-import { LandingFooter } from "@/components/LandingFooter";
-import { 
-  GraduationCap, 
-  Users, 
-  MessageSquare, 
-  Globe, 
-  Star,
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  GraduationCap,
+  ArrowRight,
+  Users,
+  Globe,
+  MessageSquare,
+  TrendingUp,
   Award,
   BookOpen,
   Heart,
-  Menu,
-  X,
+  Star,
   MapPin,
   Calendar,
-  TrendingUp
 } from 'lucide-react';
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LandingFooter } from '@/components/LandingFooter';
 
 const Community = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const communityStats = [
-    { label: "Active Students", value: "50,000+", icon: Users },
-    { label: "Expert Mentors", value: "2,500+", icon: Award },
-    { label: "Universities", value: "150+", icon: BookOpen },
-    { label: "Countries", value: "80+", icon: Globe }
+    {
+      icon: Users,
+      number: '10,000+',
+      label: 'Active Members',
+      description:
+        'Students, professors, and universities from around the world',
+    },
+    {
+      icon: Globe,
+      number: '50+',
+      label: 'Countries',
+      description: 'Representing diverse cultures and educational systems',
+    },
+    {
+      icon: MessageSquare,
+      number: '100,000+',
+      label: 'Conversations',
+      description: 'Meaningful exchanges happening daily',
+    },
+    {
+      icon: BookOpen,
+      number: '500+',
+      label: 'Study Groups',
+      description: 'Active learning communities across all fields',
+    },
   ];
 
-  const featuredGroups = [
+  const testimonials = [
     {
-      name: "Computer Science Global",
-      members: 12500,
-      description: "Connect with CS students and professionals worldwide",
-      category: "Technology",
-      country: "Global",
-      active: true
+      name: 'Sarah Chen',
+      role: 'Computer Science Student',
+      university: 'University of Toronto',
+      country: 'Canada',
+      content:
+        'Edfellow connected me with students from 15 different countries studying CS. The diversity of perspectives has completely changed how I approach problem-solving.',
+      rating: 5,
     },
     {
-      name: "Business & Entrepreneurship",
-      members: 8900,
-      description: "Future business leaders sharing insights and opportunities",
-      category: "Business",
-      country: "Global", 
-      active: true
+      name: 'Dr. Ahmad Hassan',
+      role: 'Professor of Engineering',
+      university: 'American University of Beirut',
+      country: 'Lebanon',
+      content:
+        "Through Edfellow, I've been able to mentor students from across the globe and collaborate with colleagues I never would have met otherwise. It's truly revolutionary.",
+      rating: 5,
     },
     {
-      name: "Medical Students United",
-      members: 15600,
-      description: "Medical students supporting each other through their journey",
-      category: "Medicine",
-      country: "Global",
-      active: true
+      name: 'Maria Rodriguez',
+      role: 'International Relations Student',
+      university: 'Universidad de Barcelona',
+      country: 'Spain',
+      content:
+        "The global perspective I've gained through Edfellow's community has been invaluable for my studies. I've made friends and study partners worldwide.",
+      rating: 5,
     },
-    {
-      name: "Engineering Excellence",
-      members: 9800,
-      description: "Engineering students and professionals collaboration hub",
-      category: "Engineering",
-      country: "Global",
-      active: false
-    }
   ];
 
-  const topMentors = [
+  const communityFeatures = [
     {
-      name: "Dr. Sarah Chen",
-      expertise: "Artificial Intelligence",
-      university: "Stanford University",
-      students: 125,
-      rating: 4.9,
-      country: "USA"
+      icon: Users,
+      title: 'Global Study Groups',
+      description:
+        'Join field-specific groups with students from around the world. Share resources, discuss concepts, and learn together.',
+      color: 'from-blue-500 to-cyan-500',
     },
     {
-      name: "Prof. Michael Rodriguez",
-      expertise: "Business Strategy",
-      university: "Harvard Business School",
-      students: 89,
-      rating: 4.8,
-      country: "USA"
+      icon: MessageSquare,
+      title: 'Expert Q&A Forums',
+      description:
+        'Get answers from professors and industry experts. Share your knowledge and help others in your field.',
+      color: 'from-indigo-500 to-blue-500',
     },
     {
-      name: "Dr. Priya Sharma",
-      expertise: "Data Science",
-      university: "IIT Delhi",
-      students: 156,
-      rating: 4.9,
-      country: "India"
-    }
-  ];
-
-  const recentActivity = [
-    {
-      type: "group_join",
-      user: "Alex Thompson",
-      action: "joined Computer Science Global",
-      time: "2 hours ago"
+      icon: Calendar,
+      title: 'Virtual Events',
+      description:
+        'Attend workshops, seminars, and networking events hosted by universities and experts worldwide.',
+      color: 'from-blue-600 to-indigo-600',
     },
     {
-      type: "mentorship",
-      user: "Maria Garcia",
-      action: "started mentorship with Dr. Sarah Chen",
-      time: "4 hours ago"
+      icon: Award,
+      title: 'Achievement Recognition',
+      description:
+        'Celebrate academic milestones, research breakthroughs, and career achievements with the global community.',
+      color: 'from-indigo-600 to-blue-700',
     },
-    {
-      type: "discussion",
-      user: "James Liu",
-      action: "started a discussion about Machine Learning",
-      time: "6 hours ago"
-    },
-    {
-      type: "achievement",
-      user: "Emma Wilson",
-      action: "completed Advanced Python certification",
-      time: "1 day ago"
-    }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-slate-50/30">
-      {/* Navigation */}
-      <nav className="bg-[#0B1B4D] border-b border-blue-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                <GraduationCap className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <span className="text-xl font-bold text-white">Edfellow</span>
-                <p className="text-xs text-blue-300 font-medium">Where Education Meets the World</p>
-              </div>
-            </Link>
+    <div className='min-h-screen bg-white'>
+      {/* Header */}
+      <header className='sticky top-0 z-50 backdrop-blur-xl bg-white/95 border-b border-gray-100'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+          <div className='flex justify-between items-center h-16 sm:h-20'>
+            <div className='flex items-center space-x-2'>
+              <img
+                src='/logo.png'
+                alt='Edfellow'
+                className='w-12 rounded-full'
+              />
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <Link to="/about" className="text-blue-300 hover:text-white font-medium transition-colors">About</Link>
-              <Link to="/features" className="text-blue-300 hover:text-white font-medium transition-colors">Features</Link>
-              <Link to="/community" className="text-blue-300 hover:text-white font-medium transition-colors border-b-2 border-blue-500">Community</Link>
-              <Link to="/login">
-                <Button variant="ghost" className="text-blue-300 hover:text-white hover:bg-blue-700">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
-                  Get Started
-                </Button>
-              </Link>
+              <div>
+                <h1 className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
+                  Edfellow
+                </h1>
+                <p className='text-xs sm:text-sm text-gray-600 font-medium -mt-1'>
+                  Where Education Meets the World
+                </p>
+              </div>
             </div>
 
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-blue-300 hover:text-white hover:bg-blue-700"
+            <nav className='hidden md:flex items-center space-x-8'>
+              <a
+                href='#'
+                onClick={() => navigate('/')}
+                className='text-gray-600 hover:text-blue-600 transition-colors'
               >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                Home
+              </a>
+              <a
+                href='#'
+                onClick={() => navigate('/about')}
+                className='text-gray-600 hover:text-blue-600 transition-colors'
+              >
+                About
+              </a>
+              <a
+                href='#'
+                onClick={() => navigate('/features')}
+                className='text-gray-600 hover:text-blue-600 transition-colors'
+              >
+                Features
+              </a>
+            </nav>
+
+            <div className='flex items-center space-x-2 sm:space-x-4'>
+              <Button
+                variant='ghost'
+                onClick={() => navigate('/login')}
+                className='text-gray-700 hover:text-blue-600'
+              >
+                Sign In
+              </Button>
+              <Button
+                onClick={() => navigate('/signup')}
+                className='bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg px-4 sm:px-6'
+              >
+                Get Started
               </Button>
             </div>
           </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-blue-800">
-              <div className="flex flex-col space-y-4">
-                <Link to="/about" className="text-blue-300 hover:text-white font-medium">About</Link>
-                <Link to="/features" className="text-blue-300 hover:text-white font-medium">Features</Link>
-                <Link to="/community" className="text-blue-300 hover:text-white font-medium border-b border-blue-500 pb-2">Community</Link>
-                <Link to="/login">
-                  <Button variant="outline" className="w-full border-blue-300 text-blue-300 hover:bg-blue-700 hover:text-white">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 mb-6">
+      <section className='relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8'>
+        <div className='absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white to-indigo-50/30' />
+        <div className='relative max-w-4xl mx-auto text-center'>
+          <Badge className='bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border-blue-200 mb-6 sm:mb-8 px-4 sm:px-6 py-2 sm:py-3 text-sm font-semibold'>
+            <Users className='mr-2 h-4 w-4' />
             Global Community
           </Badge>
-          <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-            Join Our Thriving 
-            <span className="text-blue-600"> Academic Community</span>
-          </h1>
-          <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
-            Connect with students, professors, and universities from around the world. 
-            Share knowledge, find mentors, and build lasting academic relationships.
+          <h2 className='text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 sm:mb-8'>
+            Join a{' '}
+            <span className='bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
+              Thriving
+            </span>{' '}
+            Global Community
+          </h2>
+          <p className='text-lg sm:text-xl text-gray-600 mb-8 sm:mb-12 leading-relaxed'>
+            Connect with students, professors, and universities from around the
+            world. Share knowledge, build relationships, and grow together in
+            our vibrant educational community.
           </p>
         </div>
       </section>
 
       {/* Community Stats */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
+      <section className='py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/50'>
+        <div className='max-w-6xl mx-auto'>
+          <div className='text-center mb-12 sm:mb-16'>
+            <h3 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-6'>
+              Our Growing Community
+            </h3>
+            <p className='text-lg sm:text-xl text-gray-600'>
+              Numbers that show our global impact
+            </p>
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8'>
             {communityStats.map((stat, index) => (
-              <Card key={index} className="text-center border-blue-100 hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <div className="p-4 bg-blue-100 rounded-full w-fit mx-auto mb-4">
-                    <stat.icon className="h-8 w-8 text-blue-600" />
+              <Card
+                key={index}
+                className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm text-center hover:scale-105'
+              >
+                <CardHeader className='p-6 sm:p-8'>
+                  <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl mb-4 mx-auto'>
+                    <stat.icon className='h-8 w-8 text-white' />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-slate-900">{stat.value}</CardTitle>
-                  <CardDescription className="text-slate-600">{stat.label}</CardDescription>
+                  <div className='text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2'>
+                    {stat.number}
+                  </div>
+                  <CardTitle className='text-lg sm:text-xl font-bold text-gray-900 mb-3'>
+                    {stat.label}
+                  </CardTitle>
+                  <CardDescription className='text-gray-600 text-sm sm:text-base'>
+                    {stat.description}
+                  </CardDescription>
                 </CardHeader>
               </Card>
             ))}
@@ -227,176 +243,120 @@ const Community = () => {
         </div>
       </section>
 
-      {/* Featured Groups */}
-      <section className="py-16 bg-gradient-to-br from-blue-50/50 to-slate-50/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Badge className="bg-blue-100 text-blue-700 mb-4">Popular Groups</Badge>
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Featured Academic Groups</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Join subject-specific groups and connect with like-minded learners from around the globe.
+      {/* Community Features */}
+      <section className='py-16 sm:py-20 px-4 sm:px-6 lg:px-8'>
+        <div className='max-w-6xl mx-auto'>
+          <div className='text-center mb-12 sm:mb-16'>
+            <h3 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-6'>
+              Community Features
+            </h3>
+            <p className='text-lg sm:text-xl text-gray-600'>
+              Ways to connect, learn, and grow together
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {featuredGroups.map((group, index) => (
-              <Card key={index} className="border-blue-100 hover:shadow-lg transition-all duration-300 hover:border-blue-200">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-xs">{group.category}</Badge>
-                    <div className="flex items-center gap-2">
-                      {group.active && (
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      )}
-                      <span className="text-xs text-slate-500">
-                        {group.active ? 'Active' : 'Offline'}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8'>
+            {communityFeatures.map((feature, index) => (
+              <Card
+                key={index}
+                className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm hover:scale-105'
+              >
+                <CardHeader className='p-6 sm:p-8'>
+                  <div
+                    className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl mb-4`}
+                  >
+                    <feature.icon className='h-8 w-8 text-white' />
+                  </div>
+                  <CardTitle className='text-xl sm:text-2xl font-bold text-gray-900 mb-3'>
+                    {feature.title}
+                  </CardTitle>
+                  <CardDescription className='text-gray-600 text-sm sm:text-base leading-relaxed'>
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className='py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/50'>
+        <div className='max-w-6xl mx-auto'>
+          <div className='text-center mb-12 sm:mb-16'>
+            <h3 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-6'>
+              What Our Community Says
+            </h3>
+            <p className='text-lg sm:text-xl text-gray-600'>
+              Real stories from our global members
+            </p>
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8'>
+            {testimonials.map((testimonial, index) => (
+              <Card
+                key={index}
+                className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm'
+              >
+                <CardHeader className='p-6 sm:p-8'>
+                  <div className='flex items-center mb-4'>
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className='h-5 w-5 text-yellow-400 fill-current'
+                      />
+                    ))}
+                  </div>
+                  <CardDescription className='text-gray-700 text-sm sm:text-base leading-relaxed mb-6 italic'>
+                    "{testimonial.content}"
+                  </CardDescription>
+                  <div className='border-t pt-4'>
+                    <CardTitle className='text-lg font-bold text-gray-900'>
+                      {testimonial.name}
+                    </CardTitle>
+                    <p className='text-blue-600 font-medium text-sm'>
+                      {testimonial.role}
+                    </p>
+                    <div className='flex items-center text-gray-500 text-sm mt-1'>
+                      <MapPin className='h-4 w-4 mr-1' />
+                      <span>
+                        {testimonial.university}, {testimonial.country}
                       </span>
                     </div>
                   </div>
-                  <CardTitle className="text-lg">{group.name}</CardTitle>
-                  <CardDescription>{group.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-slate-600">
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {group.members.toLocaleString()} members
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Globe className="h-4 w-4" />
-                        {group.country}
-                      </div>
-                    </div>
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                      Join Group
-                    </Button>
-                  </div>
-                </CardContent>
               </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Top Mentors */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Badge className="bg-blue-100 text-blue-700 mb-4">Top Mentors</Badge>
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Learn from the Best</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Connect with experienced professors and industry experts who are passionate about mentoring.
-            </p>
+      {/* Join Community CTA */}
+      <section className='py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white'>
+        <div className='max-w-4xl mx-auto text-center'>
+          <div className='inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-8 backdrop-blur-sm'>
+            <Heart className='h-10 w-10 text-white' />
           </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {topMentors.map((mentor, index) => (
-              <Card key={index} className="border-blue-100 hover:shadow-lg transition-all duration-300 text-center">
-                <CardHeader>
-                  <Avatar className="h-20 w-20 mx-auto mb-4">
-                    <AvatarFallback className="bg-blue-100 text-blue-600 text-xl">
-                      {mentor.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <CardTitle className="text-lg">{mentor.name}</CardTitle>
-                  <CardDescription>{mentor.expertise}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="text-sm text-slate-600">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <BookOpen className="h-4 w-4" />
-                      {mentor.university}
-                    </div>
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <MapPin className="h-4 w-4" />
-                      {mentor.country}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center gap-4 text-sm">
-                    <div className="text-center">
-                      <div className="font-semibold text-slate-900">{mentor.students}</div>
-                      <div className="text-slate-600">Students</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-semibold text-slate-900 flex items-center gap-1">
-                        <Star className="h-4 w-4 text-yellow-500" />
-                        {mentor.rating}
-                      </div>
-                      <div className="text-slate-600">Rating</div>
-                    </div>
-                  </div>
-                  <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700">
-                    Connect
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Recent Activity */}
-      <section className="py-16 bg-gradient-to-br from-blue-50/50 to-slate-50/30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Badge className="bg-blue-100 text-blue-700 mb-4">Live Activity</Badge>
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">What's Happening Now</h2>
-            <p className="text-lg text-slate-600">
-              See the latest activities from our global community of learners.
-            </p>
-          </div>
-
-          <Card className="border-blue-100">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
-                Recent Community Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-center gap-4 p-4 bg-blue-50/50 rounded-lg">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-blue-100 text-blue-600">
-                        {activity.user.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="text-slate-900">
-                        <span className="font-medium">{activity.user}</span> {activity.action}
-                      </p>
-                      <p className="text-sm text-slate-500">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-700">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Join Our Global Community?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Connect with thousands of students, professors, and universities worldwide. Your academic journey awaits.
+          <h3 className='text-3xl sm:text-4xl md:text-5xl font-bold mb-6'>
+            Ready to Join Our Community?
+          </h3>
+          <p className='text-lg sm:text-xl mb-8 sm:mb-12 opacity-90'>
+            Become part of a global network of learners, educators, and
+            institutions working together to shape the future of education.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/signup">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 shadow-lg px-8">
-                Join Community
-              </Button>
-            </Link>
-            <Link to="/features">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8">
-                Explore Features
-              </Button>
-            </Link>
+
+          <Button
+            size='lg'
+            onClick={() => navigate('/signup')}
+            className='bg-white text-blue-600 hover:bg-gray-100 px-8 sm:px-12 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-2xl transform hover:scale-105 transition-all duration-200'
+          >
+            Join the Community
+            <ArrowRight className='ml-2 h-4 sm:h-5 w-4 sm:w-5' />
+          </Button>
+
+          <div className='flex items-center justify-center space-x-2 text-sm opacity-80 mt-6 sm:mt-8'>
+            <Users className='h-4 w-4' />
+            <span>Join 10,000+ members worldwide</span>
           </div>
         </div>
       </section>
