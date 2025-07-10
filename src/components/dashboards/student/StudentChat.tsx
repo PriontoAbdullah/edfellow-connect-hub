@@ -1,11 +1,5 @@
-import { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -48,6 +42,8 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { getCountryCode } from '@/lib/countries';
 
 const StudentChat = () => {
   const [isNewChatOpen, setIsNewChatOpen] = useState(false);
@@ -62,6 +58,11 @@ const StudentChat = () => {
   const [isSpeakerOn, setIsSpeakerOn] = useState(false);
   const { toast } = useToast();
 
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const conversations = [
     {
       id: 1,
@@ -73,6 +74,7 @@ const StudentChat = () => {
       unread: 2,
       online: true,
       avatar: 'SW',
+      country: 'United States',
     },
     {
       id: 2,
@@ -83,6 +85,7 @@ const StudentChat = () => {
       unread: 5,
       online: false,
       avatar: 'AI',
+      country: 'United Kingdom',
     },
     {
       id: 3,
@@ -93,6 +96,7 @@ const StudentChat = () => {
       unread: 0,
       online: true,
       avatar: 'ER',
+      country: 'Spain',
     },
     {
       id: 4,
@@ -104,6 +108,7 @@ const StudentChat = () => {
       unread: 1,
       online: false,
       avatar: 'MB',
+      country: 'Germany',
     },
     {
       id: 5,
@@ -114,6 +119,7 @@ const StudentChat = () => {
       unread: 3,
       online: false,
       avatar: 'CS',
+      country: 'Japan',
     },
   ];
 
@@ -323,9 +329,12 @@ const StudentChat = () => {
                           <p className='font-medium text-gray-900 truncate'>
                             {conv.name}
                           </p>
-                          <span className='text-xs text-gray-500'>
-                            {conv.time}
-                          </span>
+                          {conv.country && (
+                            <CountryFlag
+                              code={getCountryCode(conv.country) || ''}
+                              size={16}
+                            />
+                          )}
                         </div>
                         <p className='text-sm text-gray-600 truncate mb-1'>
                           {conv.lastMessage}

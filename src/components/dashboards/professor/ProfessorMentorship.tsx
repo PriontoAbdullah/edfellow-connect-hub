@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -35,6 +35,11 @@ const ProfessorMentorship = () => {
     'accept'
   );
   const { toast } = useToast();
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const mentorshipRequests = [
     {
@@ -148,7 +153,11 @@ const ProfessorMentorship = () => {
           variant={activeTab === 'requests' ? 'default' : 'ghost'}
           size='sm'
           onClick={() => setActiveTab('requests')}
-          className={activeTab === 'requests' ? 'bg-white shadow-sm' : ''}
+          className={
+            activeTab === 'requests'
+              ? 'bg-white shadow-sm text-black'
+              : 'text-gray-500'
+          }
         >
           <Heart className='h-4 w-4 mr-2' />
           New Requests ({mentorshipRequests.length})
@@ -157,7 +166,11 @@ const ProfessorMentorship = () => {
           variant={activeTab === 'mentees' ? 'default' : 'ghost'}
           size='sm'
           onClick={() => setActiveTab('mentees')}
-          className={activeTab === 'mentees' ? 'bg-white shadow-sm' : ''}
+          className={
+            activeTab === 'mentees'
+              ? 'bg-white shadow-sm text-black'
+              : 'text-gray-500'
+          }
         >
           <Star className='h-4 w-4 mr-2' />
           Current Mentees ({currentMentees.length})

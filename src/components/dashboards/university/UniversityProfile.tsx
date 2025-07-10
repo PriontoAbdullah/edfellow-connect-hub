@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -41,6 +41,11 @@ import {
 } from 'lucide-react';
 
 const UniversityProfile = () => {
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -154,7 +159,7 @@ const UniversityProfile = () => {
         <div className='max-w-6xl mx-auto space-y-6'>
           {/* Header Card */}
           <Card className='relative overflow-hidden'>
-            <div className='h-32 bg-gradient-to-r from-orange-500 to-red-600'></div>
+            <div className='h-32 bg-gradient-to-r from-orange-600/40 to-red-600/40'></div>
             <CardContent className='p-8 -mt-16 relative'>
               <div className='flex items-start justify-between'>
                 <div className='flex items-center space-x-6'>

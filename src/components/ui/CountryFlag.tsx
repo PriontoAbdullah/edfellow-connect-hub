@@ -33,12 +33,17 @@ export const CountryFlag: React.FC<CountryFlagProps> = ({
 
   return (
     <div
-      className={`inline-block ${className}`}
-      style={{ width: size, height: size * 0.75 }}
+      className={`inline-flex items-center justify-center ${className}`}
+      style={{
+        width: size,
+        height: size * 0.75,
+        minWidth: size,
+        minHeight: size * 0.75,
+      }}
     >
       {isLoading && (
         <div
-          className='inline-flex items-center justify-center bg-gray-200 rounded animate-pulse'
+          className='absolute inset-0 flex items-center justify-center bg-gray-200 rounded animate-pulse'
           style={{ width: size, height: size * 0.75 }}
         />
       )}
@@ -51,12 +56,14 @@ export const CountryFlag: React.FC<CountryFlagProps> = ({
         width={size}
         height={size * 0.75}
         className={`rounded border border-gray-200 ${
-          isLoading ? 'hidden' : 'inline-block'
+          isLoading ? 'hidden' : 'block'
         }`}
         style={{
           objectFit: 'cover',
           maxWidth: '100%',
-          height: 'auto',
+          maxHeight: '100%',
+          width: '100%',
+          height: '100%',
         }}
         onLoad={() => setIsLoading(false)}
         onError={() => {

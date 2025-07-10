@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -33,6 +33,11 @@ import CountrySelect from '@/components/ui/CountrySelect';
 import { getCountryCode } from '@/lib/countries';
 
 const StudentProfile = () => {
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const [isEditing, setIsEditing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileData, setProfileData] = useState({

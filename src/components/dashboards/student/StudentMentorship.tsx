@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -45,6 +45,11 @@ const StudentMentorship = () => {
   const [isSavedMentorsOpen, setIsSavedMentorsOpen] = useState(false);
   const [selectedMentor, setSelectedMentor] = useState<any>(null);
   const [savedMentors, setSavedMentors] = useState<number[]>([3, 5]); // IDs of saved mentors
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const myMentors = [
     {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -45,6 +45,11 @@ const ProfessorDashboard = () => {
   );
   const [groupViewOpen, setGroupViewOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const mentorshipRequests = [
     {
@@ -166,7 +171,7 @@ const ProfessorDashboard = () => {
               <Button
                 variant='secondary'
                 size='sm'
-                className='bg-white/20 hover:bg-white/30 text-white border-white/30'
+                className='bg-white/20 border-white hover:bg-white/30 text-white'
                 onClick={() => setAnalyticsOpen(true)}
               >
                 <TrendingUp className='h-4 w-4 mr-1' />
@@ -175,7 +180,7 @@ const ProfessorDashboard = () => {
               <Button
                 variant='outline'
                 size='sm'
-                className='border-white/30 text-white hover:bg-white/10'
+                className='border-white/30 text-green-600 bg-white/80 hover:text-white hover:bg-white/10'
                 onClick={() => setJoinGroupsOpen(true)}
               >
                 <Users className='h-4 w-4 mr-1' />

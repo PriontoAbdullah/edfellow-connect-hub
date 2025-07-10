@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -40,6 +40,11 @@ const StudentExplore = () => {
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [savedPrograms, setSavedPrograms] = useState<number[]>([2, 4]); // IDs of saved programs
   const { toast } = useToast();
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const trendingPrograms = [
     {

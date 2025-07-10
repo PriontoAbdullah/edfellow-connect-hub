@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -38,6 +38,11 @@ const StudentGroups = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isJoinGroupsOpen, setIsJoinGroupsOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const myGroups = [
     {

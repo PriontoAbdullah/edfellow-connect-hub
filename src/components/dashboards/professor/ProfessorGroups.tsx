@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -33,6 +33,11 @@ const ProfessorGroups = () => {
   const [selectedGroupForChat, setSelectedGroupForChat] = useState<any>(null);
   const { toast } = useToast();
 
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const myGroups = [
     {
       id: 1,
@@ -43,6 +48,7 @@ const ProfessorGroups = () => {
       description: 'Discussion forum for CS faculty members worldwide',
       category: 'Faculty',
       activity: 'Very Active',
+      privacy: 'public' as const,
     },
     {
       id: 2,
@@ -53,6 +59,7 @@ const ProfessorGroups = () => {
       description: 'Collaborative space for AI researchers and academics',
       category: 'Research',
       activity: 'Active',
+      privacy: 'public' as const,
     },
     {
       id: 3,
@@ -63,6 +70,7 @@ const ProfessorGroups = () => {
       description: 'Support group for academic writing and publishing',
       category: 'Writing',
       activity: 'Moderate',
+      privacy: 'private' as const,
     },
   ];
 
