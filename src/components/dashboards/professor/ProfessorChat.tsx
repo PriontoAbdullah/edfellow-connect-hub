@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Breadcrumb } from "../../dashboard/Breadcrumb";
-import { MessageSquare, Search, Phone, Video, Archive } from 'lucide-react';
+import CallModal from "../../modals/CallModal";
+import { MessageSquare, Search, Phone, Video, Archive, MoreVertical, Trash2, Star, Archive as ArchiveIcon } from 'lucide-react';
 
 const ProfessorChat = () => {
   const [selectedChat, setSelectedChat] = useState(null);
+  const [callModalOpen, setCallModalOpen] = useState(false);
+  const [callType, setCallType] = useState<'audio' | 'video'>('audio');
+  const [selectedContact, setSelectedContact] = useState('');
 
   const conversations = [
     {
@@ -171,12 +176,49 @@ const ProfessorChat = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedContact(conversations.find(c => c.id === selectedChat)?.name || '');
+                        setCallType('audio');
+                        setCallModalOpen(true);
+                      }}
+                    >
                       <Phone className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedContact(conversations.find(c => c.id === selectedChat)?.name || '');
+                        setCallType('video');
+                        setCallModalOpen(true);
+                      }}
+                    >
                       <Video className="h-4 w-4" />
                     </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" variant="outline">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Star className="h-4 w-4 mr-2" />
+                          Add to Favorites
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <ArchiveIcon className="h-4 w-4 mr-2" />
+                          Archive Chat
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Chat
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </CardHeader>
@@ -207,6 +249,14 @@ const ProfessorChat = () => {
           )}
         </Card>
       </div>
+
+      {/* Call Modal */}
+      <CallModal 
+        open={callModalOpen} 
+        onOpenChange={setCallModalOpen}
+        contactName={selectedContact}
+        isVideoCall={callType === 'video'}
+      />
     </div>
   );
 };

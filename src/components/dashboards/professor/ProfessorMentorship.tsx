@@ -5,10 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Breadcrumb } from "../../dashboard/Breadcrumb";
+import ScheduleSessionModal from "../../modals/ScheduleSessionModal";
+import { useToast } from "@/hooks/use-toast";
 import { Heart, CheckCircle, XCircle, Calendar, MessageSquare, Star, Clock, BookOpen, MapPin } from 'lucide-react';
 
 const ProfessorMentorship = () => {
   const [activeTab, setActiveTab] = useState('requests');
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [scheduleAction, setScheduleAction] = useState<'accept' | 'reschedule'>('accept');
+  const { toast } = useToast();
 
   const mentorshipRequests = [
     {
@@ -184,15 +190,40 @@ const ProfessorMentorship = () => {
                   </div>
 
                   <div className="flex gap-3 pt-4 border-t">
-                    <Button className="bg-green-600 hover:bg-green-700 flex-1">
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700 flex-1"
+                      onClick={() => {
+                        setSelectedStudent(request.student);
+                        setScheduleAction('accept');
+                        setScheduleModalOpen(true);
+                      }}
+                    >
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Accept & Schedule
                     </Button>
-                    <Button variant="outline" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => {
+                        toast({
+                          title: "Message Sent",
+                          description: `Opening message chat with ${request.student}...`,
+                        });
+                      }}
+                    >
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Message First
                     </Button>
-                    <Button variant="outline" className="px-4">
+                    <Button 
+                      variant="outline" 
+                      className="px-4"
+                      onClick={() => {
+                        toast({
+                          title: "Request Declined",
+                          description: `Mentorship request from ${request.student} has been declined.`,
+                        });
+                      }}
+                    >
                       <XCircle className="h-4 w-4 mr-2" />
                       Decline
                     </Button>
@@ -257,11 +288,29 @@ const ProfessorMentorship = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    <Button 
+                      size="sm" 
+                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      onClick={() => {
+                        toast({
+                          title: "Opening Chat",
+                          description: `Starting conversation with ${mentee.name}...`,
+                        });
+                      }}
+                    >
                       <MessageSquare className="h-4 w-4 mr-1" />
                       Message
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => {
+                        setSelectedStudent(mentee.name);
+                        setScheduleAction('reschedule');
+                        setScheduleModalOpen(true);
+                      }}
+                    >
                       <Calendar className="h-4 w-4 mr-1" />
                       Schedule
                     </Button>
@@ -272,6 +321,14 @@ const ProfessorMentorship = () => {
           </div>
         </div>
       )}
+
+      {/* Schedule Modal */}
+      <ScheduleSessionModal 
+        open={scheduleModalOpen} 
+        onOpenChange={setScheduleModalOpen}
+        studentName={selectedStudent}
+        action={scheduleAction}
+      />
     </div>
   );
 };

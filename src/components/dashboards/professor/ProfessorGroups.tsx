@@ -6,10 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Breadcrumb } from "../../dashboard/Breadcrumb";
+import GroupViewModal from "../../modals/GroupViewModal";
+import { useToast } from "@/hooks/use-toast";
 import { Users, Search, Plus, MessageSquare, Settings, Crown, Star } from 'lucide-react';
 
 const ProfessorGroups = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [groupViewOpen, setGroupViewOpen] = useState(false);
+  
+  const [selectedGroup, setSelectedGroup] = useState<any>(null);
+  const { toast } = useToast();
 
   const myGroups = [
     { 
@@ -80,7 +86,15 @@ const ProfessorGroups = () => {
           <h1 className="text-2xl font-bold text-gray-900">Subject Groups</h1>
           <p className="text-gray-600">Connect with faculty and researchers in your field</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => {
+            toast({
+              title: "Create Group",
+              description: "Group creation feature would open here",
+            });
+          }}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Create Group
         </Button>
@@ -138,11 +152,28 @@ const ProfessorGroups = () => {
                   </Badge>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                  <Button 
+                    size="sm" 
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    onClick={() => {
+                      setSelectedGroup(group);
+                      setGroupViewOpen(true);
+                    }}
+                  >
                     <MessageSquare className="h-4 w-4 mr-1" />
                     View Posts
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => {
+                      toast({
+                        title: group.role === 'moderator' ? "Opening Group Management" : "Opening Settings",
+                        description: `Managing ${group.name} settings...`,
+                      });
+                    }}
+                  >
                     <Settings className="h-4 w-4 mr-1" />
                     {group.role === 'moderator' ? 'Manage' : 'Settings'}
                   </Button>
@@ -175,7 +206,16 @@ const ProfessorGroups = () => {
                   <Users className="h-4 w-4 mr-1" />
                   {group.members} members
                 </div>
-                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700">
+                <Button 
+                  size="sm" 
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    toast({
+                      title: "Group Joined!",
+                      description: `You have successfully joined ${group.name}`,
+                    });
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Join Group
                 </Button>
@@ -184,6 +224,13 @@ const ProfessorGroups = () => {
           ))}
         </div>
       </div>
+
+      {/* Modals */}
+      <GroupViewModal 
+        open={groupViewOpen} 
+        onOpenChange={setGroupViewOpen}
+        group={selectedGroup}
+      />
     </div>
   );
 };

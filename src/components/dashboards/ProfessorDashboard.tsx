@@ -6,6 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Breadcrumb } from "../dashboard/Breadcrumb";
+import AnalyticsModal from "../modals/AnalyticsModal";
+import JoinGroupsModal from "../modals/JoinGroupsModal";
+import ScheduleSessionModal from "../modals/ScheduleSessionModal";
+import GroupViewModal from "../modals/GroupViewModal";
 import { 
   Users, 
   MessageSquare, 
@@ -27,6 +31,13 @@ import {
 
 const ProfessorDashboard = () => {
   const { toast } = useToast();
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [joinGroupsOpen, setJoinGroupsOpen] = useState(false);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [scheduleAction, setScheduleAction] = useState<'accept' | 'reschedule'>('accept');
+  const [groupViewOpen, setGroupViewOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
   const mentorshipRequests = [
     { id: 1, student: 'John Doe', major: 'Computer Science', message: 'Seeking guidance on AI research...', time: '2h ago' },
@@ -89,11 +100,21 @@ const ProfessorDashboard = () => {
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="secondary" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                onClick={() => setAnalyticsOpen(true)}
+              >
                 <TrendingUp className="h-4 w-4 mr-1" />
                 Analytics
               </Button>
-              <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-white/30 text-white hover:bg-white/10"
+                onClick={() => setJoinGroupsOpen(true)}
+              >
                 <Users className="h-4 w-4 mr-1" />
                 Join Groups
               </Button>
@@ -134,11 +155,29 @@ const ProfessorDashboard = () => {
                   </div>
                   <p className="text-sm text-gray-700 mb-3 line-clamp-2">{request.message}</p>
                   <div className="flex gap-2">
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 flex-1">
+                    <Button 
+                      size="sm" 
+                      className="bg-green-600 hover:bg-green-700 flex-1"
+                      onClick={() => {
+                        setSelectedStudent(request.student);
+                        setScheduleAction('accept');
+                        setScheduleModalOpen(true);
+                      }}
+                    >
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Accept
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => {
+                        toast({
+                          title: "Request Declined",
+                          description: `Mentorship request from ${request.student} has been declined.`,
+                        });
+                      }}
+                    >
                       <XCircle className="h-3 w-3 mr-1" />
                       Decline
                     </Button>
@@ -170,11 +209,29 @@ const ProfessorDashboard = () => {
                   </div>
                   <p className="text-sm text-blue-700 font-medium mb-2">{session.time}</p>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => {
+                        setSelectedStudent(session.student);
+                        setScheduleAction('reschedule');
+                        setScheduleModalOpen(true);
+                      }}
+                    >
                       <Clock className="h-3 w-3 mr-1" />
                       Reschedule
                     </Button>
-                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    <Button 
+                      size="sm" 
+                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      onClick={() => {
+                        toast({
+                          title: "Joining Call",
+                          description: `Starting video session with ${session.student}...`,
+                        });
+                      }}
+                    >
                       <Video className="h-3 w-3 mr-1" />
                       Join Call
                     </Button>
@@ -215,7 +272,14 @@ const ProfessorDashboard = () => {
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">{group.members} members</p>
-                  <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700">
+                  <Button 
+                    size="sm" 
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => {
+                      setSelectedGroup(group);
+                      setGroupViewOpen(true);
+                    }}
+                  >
                     <MessageSquare className="h-4 w-4 mr-1" />
                     View Posts
                   </Button>
@@ -255,6 +319,21 @@ const ProfessorDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modals */}
+      <AnalyticsModal open={analyticsOpen} onOpenChange={setAnalyticsOpen} />
+      <JoinGroupsModal open={joinGroupsOpen} onOpenChange={setJoinGroupsOpen} />
+      <ScheduleSessionModal 
+        open={scheduleModalOpen} 
+        onOpenChange={setScheduleModalOpen}
+        studentName={selectedStudent}
+        action={scheduleAction}
+      />
+      <GroupViewModal 
+        open={groupViewOpen} 
+        onOpenChange={setGroupViewOpen}
+        group={selectedGroup}
+      />
     </div>
   );
 };

@@ -7,10 +7,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Breadcrumb } from "../../dashboard/Breadcrumb";
+import SettingsModal from "../../modals/SettingsModal";
 import { User, Mail, MapPin, BookOpen, Edit, Save, X, Settings, Star, Award, Users } from 'lucide-react';
 
 const ProfessorProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileData, setProfileData] = useState({
     name: 'Dr. Sarah Johnson',
     email: 'sarah.johnson@university.edu',
@@ -333,7 +335,12 @@ const ProfessorProfile = () => {
                 <span className="text-sm">Contact Information</span>
                 <Badge variant="secondary">Students Only</Badge>
               </div>
-              <Button size="sm" variant="outline" className="w-full">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => setSettingsOpen(true)}
+              >
                 <Settings className="h-4 w-4 mr-2" />
                 Manage Settings
               </Button>
@@ -341,6 +348,9 @@ const ProfessorProfile = () => {
           </Card>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 };
