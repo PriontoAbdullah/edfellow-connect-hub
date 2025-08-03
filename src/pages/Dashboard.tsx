@@ -8,6 +8,7 @@ import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import ProfessorDashboard from '@/components/dashboards/ProfessorDashboard';
 import UniversityDashboard from '@/components/dashboards/UniversityDashboard';
+import RecentPosts from '@/components/dashboards/RecentPosts';
 import Notifications from '@/pages/Notifications';
 
 // Student Components
@@ -54,6 +55,17 @@ const Dashboard = () => {
     }
   });
 
+  // Check if user has completed their profile
+  useEffect(() => {
+    const storedUser = localStorage.getItem('edfellow_user');
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      if (!userData.profileComplete) {
+        navigate('/complete-profile', { state: { user: userData } });
+      }
+    }
+  }, [navigate]);
+
   const handleLogout = () => {
     localStorage.removeItem('edfellow_user');
     toast({
@@ -67,6 +79,7 @@ const Dashboard = () => {
     if (pathname.includes('/groups'))
       return user.role === 'professor' ? 'Subject Groups' : 'My Groups';
     if (pathname.includes('/chat')) return 'Messages';
+    if (pathname.includes('/recent-posts')) return 'Recent Posts';
     if (pathname.includes('/mentorship'))
       return user.role === 'professor' ? 'Mentorship Requests' : 'Find Mentors';
     if (pathname.includes('/explore')) return 'Explore Programs';
@@ -94,6 +107,8 @@ const Dashboard = () => {
         ? 'Connect with faculty and researchers'
         : 'Connect with global academic groups';
     if (pathname.includes('/chat')) return 'Chat with mentors and peers';
+    if (pathname.includes('/recent-posts'))
+      return 'Discover opportunities, scholarships, and announcements';
     if (pathname.includes('/mentorship'))
       return user.role === 'professor'
         ? 'Manage student mentorship requests'
@@ -151,6 +166,7 @@ const Dashboard = () => {
 
               {/* Common Routes */}
               <Route path='/notifications' element={<Notifications />} />
+              <Route path='/recent-posts' element={<RecentPosts />} />
 
               {/* Student Routes */}
               <Route path='/groups' element={<StudentGroups />} />

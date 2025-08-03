@@ -15,6 +15,7 @@ import {
   Users,
   Globe,
   ArrowRight,
+  ArrowLeft,
   CheckCircle,
   Sparkles,
   MessageSquare,
@@ -41,12 +42,18 @@ import {
   Microscope,
   Calculator,
   BookMarked,
+  DollarSign,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import GlobalNavbar from '@/components/GlobalNavbar';
 import { LandingFooter } from '@/components/LandingFooter';
 
 const Index = () => {
   const navigate = useNavigate();
+  const [featuredProgramsIndex, setFeaturedProgramsIndex] = useState(0);
+  const [communityGroupsIndex, setCommunityGroupsIndex] = useState(0);
+  const [professorsIndex, setProfessorsIndex] = useState(0);
+  const [opportunitiesIndex, setOpportunitiesIndex] = useState(0);
 
   const featuredPrograms = [
     {
@@ -100,6 +107,23 @@ const Index = () => {
       capacity: '1,200',
       cost: '$45,000/year',
     },
+    {
+      id: 4,
+      university: 'Harvard University',
+      logo: 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      program: 'MBA in Business Administration',
+      duration: '2 years',
+      location: 'Cambridge, MA',
+      rating: 4.8,
+      applications: 1500,
+      description:
+        'World-class business education with global networking opportunities.',
+      image:
+        'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      tag: 'Business',
+      capacity: '1,800',
+      cost: '$75,000/year',
+    },
   ];
 
   const communityGroups = [
@@ -147,6 +171,21 @@ const Index = () => {
       activity: 'Medium',
       lastActive: '1 day ago',
       featured: false,
+    },
+    {
+      id: 4,
+      name: 'Engineering Students Global',
+      image:
+        'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      status: 'Very Active',
+      members: '3,245',
+      description:
+        'Connect with engineering students worldwide. Share projects, discuss innovations, and collaborate on technical challenges.',
+      tags: ['Engineering', 'Robotics', 'IoT'],
+      color: 'purple',
+      activity: 'High',
+      lastActive: '1 hour ago',
+      featured: true,
     },
   ];
 
@@ -311,78 +350,26 @@ const Index = () => {
       availability: 'Available Today',
       color: 'pink',
     },
+    {
+      id: 4,
+      name: 'Prof. David Rodriguez',
+      avatar:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+      title: 'Data Science Professor',
+      university: 'UC Berkeley',
+      rating: 4.8,
+      reviews: 89,
+      hourlyRate: 70,
+      specialties: ['Machine Learning', 'Statistics'],
+      sessions: 623,
+      availability: 'Next Available: Tomorrow',
+      color: 'indigo',
+    },
   ];
 
   return (
     <div className='min-h-screen bg-white'>
-      {/* Sticky Top Navigation Bar */}
-      <header className='sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex justify-between items-center h-16'>
-            {/* Logo */}
-            <div className='flex items-center space-x-3'>
-              <img
-                src='/logo.png'
-                alt='Edfellow'
-                className='w-10 h-10 rounded-full'
-              />
-              <div>
-                <h1 className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
-                  Edfellow
-                </h1>
-              </div>
-            </div>
-
-            {/* Navigation Links */}
-            <nav className='hidden md:flex items-center space-x-8'>
-              <a
-                href='#'
-                onClick={() => navigate('/about')}
-                className='text-gray-700 hover:text-[#007BFF] transition-colors font-medium'
-              >
-                About
-              </a>
-              <a
-                href='#'
-                onClick={() => navigate('/features')}
-                className='text-gray-700 hover:text-[#007BFF] transition-colors font-medium'
-              >
-                Mentorship
-              </a>
-              <a
-                href='#'
-                onClick={() => navigate('/community')}
-                className='text-gray-700 hover:text-[#007BFF] transition-colors font-medium'
-              >
-                Forum
-              </a>
-              <a
-                href='#'
-                className='text-gray-700 hover:text-[#007BFF] transition-colors font-medium'
-              >
-                Opportunities
-              </a>
-            </nav>
-
-            {/* Auth Buttons */}
-            <div className='flex items-center space-x-4'>
-              <Button
-                variant='outline'
-                onClick={() => navigate('/login')}
-                className='border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white transition-colors'
-              >
-                Log In
-              </Button>
-              <Button
-                onClick={() => navigate('/signup')}
-                className='bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white transition-colors'
-              >
-                Sign Up
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <GlobalNavbar />
 
       {/* Hero Section */}
       <section className='relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex items-center justify-center'>
@@ -395,7 +382,7 @@ const Index = () => {
         />
         {/* Overlay for readability */}
         <div className='absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/30 to-indigo-100/40 z-10' />
-        <div className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center'>
+        <div className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'>
           <Badge className='bg-white/90 backdrop-blur-sm text-[#007BFF] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
             Global Academic Network
           </Badge>
@@ -408,43 +395,10 @@ const Index = () => {
           <h3 className='text-2xl sm:text-3xl font-semibold text-indigo-700 mb-8'>
             Your Global Hub for Learning, Connection, and Opportunity
           </h3>
-          <p className='text-lg text-gray-600 mb-10 leading-relaxed'>
+          <p className='text-lg text-gray-600 leading-relaxed'>
             Join a thriving international community where students, educators,
             and institutions come together to learn, teach, and grow.
           </p>
-          {/* Role-based CTA Buttons */}
-          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-            <Button
-              size='lg'
-              onClick={() =>
-                navigate('/signup', { state: { role: 'student' } })
-              }
-              className='bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
-            >
-              Sign Up as Student
-              <ArrowRight className='ml-2 h-5 w-5' />
-            </Button>
-            <Button
-              size='lg'
-              variant='outline'
-              onClick={() =>
-                navigate('/signup', { state: { role: 'professor' } })
-              }
-              className='border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white px-8 py-4 text-lg font-semibold shadow-md transition-transform duration-200 hover:scale-105'
-            >
-              Sign Up as Professor
-            </Button>
-            <Button
-              size='lg'
-              variant='outline'
-              onClick={() =>
-                navigate('/signup', { state: { role: 'university' } })
-              }
-              className='border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white px-8 py-4 text-lg font-semibold shadow-md transition-transform duration-200 hover:scale-105'
-            >
-              Sign Up as University
-            </Button>
-          </div>
         </div>
       </section>
 
@@ -515,177 +469,570 @@ const Index = () => {
       </section>
 
       {/* Featured Programs Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8'>
-        <div className='max-w-6xl mx-auto'>
-          <div className='text-left mb-16'>
-            <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
-              Featured Programs
-            </h3>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'>
+        <div className='max-w-7xl mx-auto px-12'>
+          <div className='flex justify-between items-center mb-16'>
+            <div>
+              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-2'>
+                Featured Programs
+              </h3>
+              <p className='text-lg text-gray-600'>
+                Discover world-class academic programs from top institutions
+              </p>
+            </div>
+            <div className='flex gap-2'>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setFeaturedProgramsIndex(
+                    Math.max(0, featuredProgramsIndex - 1)
+                  )
+                }
+                disabled={featuredProgramsIndex === 0}
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+              >
+                <ArrowLeft className='h-4 w-4' />
+              </Button>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setFeaturedProgramsIndex(
+                    Math.min(
+                      Math.max(0, featuredPrograms.length - 4),
+                      featuredProgramsIndex + 1
+                    )
+                  )
+                }
+                disabled={
+                  featuredProgramsIndex >=
+                  Math.max(0, featuredPrograms.length - 4)
+                }
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+              >
+                <ArrowRight className='h-4 w-4' />
+              </Button>
+            </div>
           </div>
 
-          <div className='grid md:grid-cols-3 gap-8'>
-            {featuredPrograms.map((program) => (
-              <Card
-                key={program.id}
-                className='border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl overflow-hidden group'
-              >
-                <div className='relative'>
-                  <img
-                    src={program.image}
-                    alt={program.program}
-                    className='w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300'
-                  />
-                  <Badge className='absolute top-4 right-4 bg-blue-100 text-blue-700 border-0 font-semibold'>
-                    {program.tag}
-                  </Badge>
-                  <div className='absolute bottom-4 left-4'>
-                    <img
-                      src={program.logo}
-                      alt={program.university}
-                      className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
-                    />
-                  </div>
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
-                </div>
-                <CardHeader className='pb-4 pt-6'>
-                  <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
-                    {program.program}
-                  </CardTitle>
-                  <CardDescription className='text-gray-600 mb-4 font-medium'>
-                    {program.university}
-                  </CardDescription>
-                  <div className='flex items-center space-x-1 mb-4'>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < Math.floor(program.rating)
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
-                        }`}
+          <div className='relative overflow-hidden px-8'>
+            <div
+              className='flex gap-8 transition-transform duration-300 ease-in-out'
+              style={{
+                transform: `translateX(-${featuredProgramsIndex * (100 / 4)}%)`,
+              }}
+            >
+              {featuredPrograms.map((program) => (
+                <div key={program.id} className='w-full md:w-1/4 flex-shrink-0'>
+                  <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                    <div className='relative'>
+                      <img
+                        src={program.image}
+                        alt={program.program}
+                        className='w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300'
                       />
-                    ))}
-                    <span className='text-sm text-gray-600 ml-1'>
-                      {program.rating}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
-                    <div className='flex items-center gap-1'>
-                      <MapPin className='h-4 w-4' />
-                      <span>{program.location}</span>
+                      <Badge className='absolute top-4 right-4 bg-blue-100 text-blue-700 border-0 font-semibold'>
+                        {program.tag}
+                      </Badge>
+                      <div className='absolute bottom-4 left-4'>
+                        <img
+                          src={program.logo}
+                          alt={program.university}
+                          className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
+                        />
+                      </div>
+                      <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                     </div>
-                    <div className='flex items-center gap-1'>
-                      <Clock className='h-4 w-4' />
-                      <span>{program.duration}</span>
+                    <CardHeader className='pb-4 pt-6'>
+                      <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                        {program.program}
+                      </CardTitle>
+                      <CardDescription className='text-gray-600 mb-4 font-medium'>
+                        {program.university}
+                      </CardDescription>
+                      <div className='flex items-center space-x-1 mb-4'>
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < Math.floor(program.rating)
+                                ? 'text-yellow-400 fill-current'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                        <span className='text-sm text-gray-600 ml-1'>
+                          {program.rating}
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
+                        <div className='flex items-center gap-1'>
+                          <MapPin className='h-4 w-4' />
+                          <span>{program.location}</span>
+                        </div>
+                        <div className='flex items-center gap-1'>
+                          <Clock className='h-4 w-4' />
+                          <span>{program.duration}</span>
+                        </div>
+                        <div className='flex items-center gap-1'>
+                          <Users className='h-4 w-4' />
+                          <span>{program.capacity}</span>
+                        </div>
+                      </div>
+                      <div className='text-lg font-semibold text-[#007BFF] mb-4'>
+                        {program.cost}
+                      </div>
+                      <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                        Learn More
+                        <ExternalLink className='ml-2 h-4 w-4' />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Opportunities Section */}
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50'>
+        <div className='max-w-7xl mx-auto px-12'>
+          <div className='text-center mb-16'>
+            <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+              Latest Opportunities
+            </h3>
+            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+              Discover job opportunities, scholarships, and research positions
+              from top institutions worldwide.
+            </p>
+          </div>
+
+          <div className='flex justify-between items-center mb-8'>
+            <div className='flex gap-2'>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setOpportunitiesIndex(Math.max(0, opportunitiesIndex - 1))
+                }
+                disabled={opportunitiesIndex === 0}
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+              >
+                <ArrowLeft className='h-4 w-4' />
+              </Button>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setOpportunitiesIndex(
+                    Math.min(Math.max(0, 4 - 4), opportunitiesIndex + 1)
+                  )
+                }
+                disabled={opportunitiesIndex >= Math.max(0, 4 - 4)}
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+              >
+                <ArrowRight className='h-4 w-4' />
+              </Button>
+            </div>
+          </div>
+          <div className='relative overflow-hidden px-8'>
+            <div
+              className='flex gap-8 transition-transform duration-300 ease-in-out'
+              style={{
+                transform: `translateX(-${opportunitiesIndex * (100 / 4)}%)`,
+              }}
+            >
+              <div className='w-full md:w-1/4 flex-shrink-0'>
+                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-green-50 to-emerald-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                  <div className='relative'>
+                    <img
+                      src='https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+                      alt='Research Position'
+                      className='w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300'
+                    />
+                    <Badge className='absolute top-4 right-4 bg-green-100 text-green-700 border-0 font-semibold'>
+                      Research
+                    </Badge>
+                    <div className='absolute bottom-4 left-4'>
+                      <img
+                        src='https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
+                        alt='MIT'
+                        className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
+                      />
                     </div>
-                    <div className='flex items-center gap-1'>
-                      <Users className='h-4 w-4' />
-                      <span>{program.capacity}</span>
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
+                  </div>
+                  <CardHeader className='pb-4 pt-6'>
+                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                      AI Research Assistant
+                    </CardTitle>
+                    <CardDescription className='text-gray-600 mb-4 font-medium'>
+                      MIT Computer Science
+                    </CardDescription>
+                    <div className='flex items-center space-x-1 mb-4'>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < 4
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className='text-sm text-gray-600 ml-1'>4.8</span>
                     </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
+                      <div className='flex items-center gap-1'>
+                        <MapPin className='h-4 w-4' />
+                        <span>Cambridge, MA</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <Clock className='h-4 w-4' />
+                        <span>Full-time</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <DollarSign className='h-4 w-4' />
+                        <span>$45K/year</span>
+                      </div>
+                    </div>
+                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                      Apply Now
+                      <ExternalLink className='ml-2 h-4 w-4' />
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className='w-full md:w-1/4 flex-shrink-0'>
+                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                  <div className='relative'>
+                    <img
+                      src='https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+                      alt='Scholarship'
+                      className='w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300'
+                    />
+                    <Badge className='absolute top-4 right-4 bg-blue-100 text-blue-700 border-0 font-semibold'>
+                      Scholarship
+                    </Badge>
+                    <div className='absolute bottom-4 left-4'>
+                      <img
+                        src='https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
+                        alt='Stanford'
+                        className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
+                      />
+                    </div>
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
-                  <div className='text-lg font-semibold text-[#007BFF] mb-4'>
-                    {program.cost}
+                  <CardHeader className='pb-4 pt-6'>
+                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                      Full Scholarship - Computer Science
+                    </CardTitle>
+                    <CardDescription className='text-gray-600 mb-4 font-medium'>
+                      Stanford University
+                    </CardDescription>
+                    <div className='flex items-center space-x-1 mb-4'>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < 5
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className='text-sm text-gray-600 ml-1'>4.9</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
+                      <div className='flex items-center gap-1'>
+                        <MapPin className='h-4 w-4' />
+                        <span>Stanford, CA</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <Clock className='h-4 w-4' />
+                        <span>PhD Program</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <DollarSign className='h-4 w-4' />
+                        <span>Full Tuition</span>
+                      </div>
+                    </div>
+                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                      Apply Now
+                      <ExternalLink className='ml-2 h-4 w-4' />
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className='w-full md:w-1/4 flex-shrink-0'>
+                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-orange-50 to-amber-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                  <div className='relative'>
+                    <img
+                      src='https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+                      alt='Job Position'
+                      className='w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300'
+                    />
+                    <Badge className='absolute top-4 right-4 bg-orange-100 text-orange-700 border-0 font-semibold'>
+                      Job
+                    </Badge>
+                    <div className='absolute bottom-4 left-4'>
+                      <img
+                        src='https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
+                        alt='Google'
+                        className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
+                      />
+                    </div>
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
-                  <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
-                    Learn More
-                    <ExternalLink className='ml-2 h-4 w-4' />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardHeader className='pb-4 pt-6'>
+                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                      Software Engineer - ML
+                    </CardTitle>
+                    <CardDescription className='text-gray-600 mb-4 font-medium'>
+                      Google Research
+                    </CardDescription>
+                    <div className='flex items-center space-x-1 mb-4'>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < 4
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className='text-sm text-gray-600 ml-1'>4.7</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
+                      <div className='flex items-center gap-1'>
+                        <MapPin className='h-4 w-4' />
+                        <span>Mountain View, CA</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <Clock className='h-4 w-4' />
+                        <span>Full-time</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <DollarSign className='h-4 w-4' />
+                        <span>$150K/year</span>
+                      </div>
+                    </div>
+                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                      Apply Now
+                      <ExternalLink className='ml-2 h-4 w-4' />
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className='w-full md:w-1/4 flex-shrink-0'>
+                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-purple-50 to-violet-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                  <div className='relative'>
+                    <img
+                      src='https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+                      alt='Internship'
+                      className='w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300'
+                    />
+                    <Badge className='absolute top-4 right-4 bg-purple-100 text-purple-700 border-0 font-semibold'>
+                      Internship
+                    </Badge>
+                    <div className='absolute bottom-4 left-4'>
+                      <img
+                        src='https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
+                        alt='Microsoft'
+                        className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
+                      />
+                    </div>
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
+                  </div>
+                  <CardHeader className='pb-4 pt-6'>
+                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                      Data Science Intern
+                    </CardTitle>
+                    <CardDescription className='text-gray-600 mb-4 font-medium'>
+                      Microsoft Research
+                    </CardDescription>
+                    <div className='flex items-center space-x-1 mb-4'>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < 4
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className='text-sm text-gray-600 ml-1'>4.6</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
+                      <div className='flex items-center gap-1'>
+                        <MapPin className='h-4 w-4' />
+                        <span>Redmond, WA</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <Clock className='h-4 w-4' />
+                        <span>Summer 2024</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <DollarSign className='h-4 w-4' />
+                        <span>$8K/month</span>
+                      </div>
+                    </div>
+                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                      Apply Now
+                      <ExternalLink className='ml-2 h-4 w-4' />
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Connect by Your Major Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
-        <div className='max-w-6xl mx-auto'>
-          <div className='text-center mb-16'>
-            <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
-              Connect by Your Major
-            </h3>
-            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
-              Join subject-specific communities where students with similar
-              academic interests connect, collaborate, and grow together.
-            </p>
-          </div>
-          <div className='grid md:grid-cols-3 gap-8'>
-            {communityGroups.map((group) => (
-              <Card
-                key={group.id}
-                className='border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl overflow-hidden group relative'
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50'>
+        <div className='max-w-7xl mx-auto px-12'>
+          <div className='flex justify-between items-center mb-16'>
+            <div className='text-center flex-1'>
+              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+                Connect by Your Major
+              </h3>
+              <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+                Join subject-specific communities where students with similar
+                academic interests connect, collaborate, and grow together.
+              </p>
+            </div>
+            <div className='flex gap-2'>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setCommunityGroupsIndex(Math.max(0, communityGroupsIndex - 1))
+                }
+                disabled={communityGroupsIndex === 0}
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
               >
-                {group.featured && (
-                  <div className='absolute top-4 left-4 z-10'>
-                    <Badge className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 font-semibold'>
-                      Featured
-                    </Badge>
-                  </div>
-                )}
-                <div className='relative h-48 overflow-hidden'>
-                  <img
-                    src={group.image}
-                    alt={group.name}
-                    className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'
-                  />
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
-                  <div className='absolute bottom-4 right-4'>
-                    <Bookmark className='h-5 w-5 text-white hover:text-yellow-400 cursor-pointer transition-colors' />
-                  </div>
-                </div>
-                <CardHeader className='pb-4 pt-6'>
-                  <div className='flex items-center justify-between mb-4'>
-                    <div className='flex items-center gap-2'>
-                      <Badge
-                        className={`bg-green-100 text-green-700 border-0 font-semibold flex items-center gap-1`}
-                      >
-                        <Activity className='h-3 w-3' />
-                        {group.status}
-                      </Badge>
-                      <div className='flex items-center gap-1 text-sm text-gray-500'>
-                        <Users2 className='h-4 w-4' />
-                        <span>{group.members}</span>
+                <ArrowLeft className='h-4 w-4' />
+              </Button>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setCommunityGroupsIndex(
+                    Math.min(
+                      Math.max(0, communityGroups.length - 4),
+                      communityGroupsIndex + 1
+                    )
+                  )
+                }
+                disabled={
+                  communityGroupsIndex >=
+                  Math.max(0, communityGroups.length - 4)
+                }
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+              >
+                <ArrowRight className='h-4 w-4' />
+              </Button>
+            </div>
+          </div>
+          <div className='relative overflow-hidden px-8'>
+            <div
+              className='flex gap-8 transition-transform duration-300 ease-in-out'
+              style={{
+                transform: `translateX(-${communityGroupsIndex * (100 / 4)}%)`,
+              }}
+            >
+              {communityGroups.map((group) => (
+                <div key={group.id} className='w-full md:w-1/4 flex-shrink-0'>
+                  <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-orange-50 to-amber-50 rounded-2xl overflow-hidden group relative backdrop-blur-sm'>
+                    {group.featured && (
+                      <div className='absolute top-4 left-4 z-10'>
+                        <Badge className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 font-semibold'>
+                          Featured
+                        </Badge>
+                      </div>
+                    )}
+                    <div className='relative h-48 overflow-hidden'>
+                      <img
+                        src={group.image}
+                        alt={group.name}
+                        className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'
+                      />
+                      <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
+                      <div className='absolute bottom-4 right-4'>
+                        <Bookmark className='h-5 w-5 text-white hover:text-yellow-400 cursor-pointer transition-colors' />
                       </div>
                     </div>
-                  </div>
-                  <CardTitle className='text-xl font-bold text-[#0B1B4D] pb-2'>
-                    {group.name}
-                  </CardTitle>
-                  <p className='text-sm text-gray-600 pb-2 leading-relaxed'>
-                    {group.description}
-                  </p>
-                  <div className='flex flex-wrap gap-2 pb-2'>
-                    {group.tags.map((tag, index) => (
-                      <Badge
-                        key={index}
-                        className='bg-blue-100 text-blue-700 border-0 text-xs font-medium'
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className='flex items-center justify-between text-xs text-gray-500 pb-2'>
-                    <span>Last active: {group.lastActive}</span>
-                    <div className='flex items-center gap-1'>
-                      <TrendingUp className='h-3 w-3' />
-                      <span>{group.activity} Activity</span>
-                    </div>
-                  </div>
-                  <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
-                    Join Group
-                  </Button>
-                </CardHeader>
-              </Card>
-            ))}
+                    <CardHeader className='pb-4 pt-6'>
+                      <div className='flex items-center justify-between mb-4'>
+                        <div className='flex items-center gap-2'>
+                          <Badge
+                            className={`bg-green-100 text-green-700 border-0 font-semibold flex items-center gap-1`}
+                          >
+                            <Activity className='h-3 w-3' />
+                            {group.status}
+                          </Badge>
+                          <div className='flex items-center gap-1 text-sm text-gray-500'>
+                            <Users2 className='h-4 w-4' />
+                            <span>{group.members}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <CardTitle className='text-xl font-bold text-[#0B1B4D] pb-2'>
+                        {group.name}
+                      </CardTitle>
+                      <p className='text-sm text-gray-600 pb-2 leading-relaxed'>
+                        {group.description}
+                      </p>
+                      <div className='flex flex-wrap gap-2 pb-2'>
+                        {group.tags.map((tag, index) => (
+                          <Badge
+                            key={index}
+                            className='bg-blue-100 text-blue-700 border-0 text-xs font-medium'
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className='flex items-center justify-between text-xs text-gray-500 pb-2'>
+                        <span>Last active: {group.lastActive}</span>
+                        <div className='flex items-center gap-1'>
+                          <TrendingUp className='h-3 w-3' />
+                          <span>{group.activity} Activity</span>
+                        </div>
+                      </div>
+                      <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                        Join Group
+                      </Button>
+                    </CardHeader>
+                  </Card>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Connect with Our Community Section */}
       <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
-        <div className='max-w-7xl mx-auto'>
+        <div className='max-w-7xl mx-auto px-12'>
           <div className='text-center mb-16'>
             <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
               Connect with Our Community
@@ -803,96 +1150,136 @@ const Index = () => {
       </section>
 
       {/* Mentorship Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
-        <div className='max-w-6xl mx-auto'>
-          <div className='text-center mb-16'>
-            <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
-              Learn from the Best Professors
-            </h3>
-            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
-              Book one-on-one mentorship sessions with world-class professors.
-              Get personalized guidance for your academic and career journey.
-            </p>
-          </div>
-          <div className='grid md:grid-cols-3 gap-8'>
-            {professors.map((professor) => (
-              <Card
-                key={professor.id}
-                className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white'
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-50 via-rose-50 to-red-50'>
+        <div className='max-w-7xl mx-auto px-12'>
+          <div className='flex justify-between items-center mb-16'>
+            <div className='text-center flex-1'>
+              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+                Learn from the Best Professors
+              </h3>
+              <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+                Book one-on-one mentorship sessions with world-class professors.
+                Get personalized guidance for your academic and career journey.
+              </p>
+            </div>
+            <div className='flex gap-2'>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setProfessorsIndex(Math.max(0, professorsIndex - 1))
+                }
+                disabled={professorsIndex === 0}
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
               >
-                <CardHeader className='flex flex-col items-center pb-4'>
-                  <img
-                    src={professor.avatar}
-                    alt={professor.name}
-                    className='w-20 h-20 rounded-full mb-4 border-4 border-gray-100 shadow'
-                  />
-                  <CardTitle className='text-lg font-bold text-[#0B1B4D] text-center'>
-                    {professor.name}
-                  </CardTitle>
-                  <CardDescription className='text-gray-600 text-center'>
-                    {professor.title}
-                  </CardDescription>
-                  <CardDescription className='text-gray-600 text-center pb-1'>
-                    {professor.university}
-                  </CardDescription>
-                  <div className='flex items-center gap-1 pb-1'>
-                    <Star className='h-5 w-5 text-yellow-400 fill-current' />
-                    <span className='text-base text-gray-600'>
-                      {professor.rating} ({professor.reviews})
-                    </span>
-                  </div>
-                  <div className='text-lg font-semibold text-[#007BFF] pb-1'>
-                    ${professor.hourlyRate}/hour
-                  </div>
-                  <div className='flex flex-wrap gap-2 pb-1 justify-center'>
-                    {professor.specialties.map((specialty, index) => (
-                      <Badge
-                        key={index}
-                        className='bg-blue-100 text-blue-700 border-0 text-xs'
-                      >
-                        {specialty}
-                      </Badge>
-                    ))}
-                    <Badge className='bg-blue-100 text-blue-700 border-0 text-xs'>
-                      +1
-                    </Badge>
-                  </div>
-                  <div className='flex items-center gap-2 pb-1 text-sm text-gray-500'>
-                    <Clock className='h-4 w-4' />
-                    <span>{professor.sessions} sessions</span>
-                  </div>
-                  <div className='text-sm text-green-600 pb-2 font-medium'>
-                    {professor.availability}
-                  </div>
-                  <div className='flex gap-2 w-full'>
-                    <Button className='flex-1 bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold'>
-                      Book Session
-                    </Button>
-                    <Button
-                      variant='outline'
-                      size='icon'
-                      className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
-                    >
-                      <MessageCircle className='h-4 w-4' />
-                    </Button>
-                    <Button
-                      variant='outline'
-                      size='icon'
-                      className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
-                    >
-                      <User className='h-4 w-4' />
-                    </Button>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
+                <ArrowLeft className='h-4 w-4' />
+              </Button>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() =>
+                  setProfessorsIndex(
+                    Math.min(
+                      Math.max(0, professors.length - 4),
+                      professorsIndex + 1
+                    )
+                  )
+                }
+                disabled={professorsIndex >= Math.max(0, professors.length - 4)}
+                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+              >
+                <ArrowRight className='h-4 w-4' />
+              </Button>
+            </div>
+          </div>
+          <div className='relative overflow-hidden px-8'>
+            <div
+              className='flex gap-8 transition-transform duration-300 ease-in-out'
+              style={{
+                transform: `translateX(-${professorsIndex * (100 / 4)}%)`,
+              }}
+            >
+              {professors.map((professor) => (
+                <div
+                  key={professor.id}
+                  className='w-full md:w-1/4 flex-shrink-0'
+                >
+                  <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-pink-50 to-rose-50 rounded-2xl backdrop-blur-sm'>
+                    <CardHeader className='flex flex-col items-center pb-4'>
+                      <img
+                        src={professor.avatar}
+                        alt={professor.name}
+                        className='w-20 h-20 rounded-full mb-4 border-4 border-gray-100 shadow'
+                      />
+                      <CardTitle className='text-lg font-bold text-[#0B1B4D] text-center'>
+                        {professor.name}
+                      </CardTitle>
+                      <CardDescription className='text-gray-600 text-center'>
+                        {professor.title}
+                      </CardDescription>
+                      <CardDescription className='text-gray-600 text-center pb-1'>
+                        {professor.university}
+                      </CardDescription>
+                      <div className='flex items-center gap-1 pb-1'>
+                        <Star className='h-5 w-5 text-yellow-400 fill-current' />
+                        <span className='text-base text-gray-600'>
+                          {professor.rating} ({professor.reviews})
+                        </span>
+                      </div>
+                      <div className='text-lg font-semibold text-[#007BFF] pb-1'>
+                        ${professor.hourlyRate}/hour
+                      </div>
+                      <div className='flex flex-wrap gap-2 pb-1 justify-center'>
+                        {professor.specialties.map((specialty, index) => (
+                          <Badge
+                            key={index}
+                            className='bg-blue-100 text-blue-700 border-0 text-xs'
+                          >
+                            {specialty}
+                          </Badge>
+                        ))}
+                        <Badge className='bg-blue-100 text-blue-700 border-0 text-xs'>
+                          +1
+                        </Badge>
+                      </div>
+                      <div className='flex items-center gap-2 pb-1 text-sm text-gray-500'>
+                        <Clock className='h-4 w-4' />
+                        <span>{professor.sessions} sessions</span>
+                      </div>
+                      <div className='text-sm text-green-600 pb-2 font-medium'>
+                        {professor.availability}
+                      </div>
+                      <div className='flex gap-2 w-full'>
+                        <Button className='flex-1 bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold'>
+                          Book Session
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='icon'
+                          className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                        >
+                          <MessageCircle className='h-4 w-4' />
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='icon'
+                          className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                        >
+                          <User className='h-4 w-4' />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* How Mentorship Works Section */}
       <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'>
-        <div className='max-w-6xl mx-auto'>
+        <div className='max-w-7xl mx-auto px-12'>
           <div className='text-center mb-16'>
             <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
               How Mentorship Works

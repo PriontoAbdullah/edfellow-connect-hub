@@ -38,6 +38,7 @@ import {
   Star,
   FileText,
   Send,
+  Newspaper,
 } from 'lucide-react';
 
 interface AppSidebarProps {
@@ -56,6 +57,11 @@ const getMenuItems = (role: string) => {
       { title: 'Home', url: '/dashboard', icon: Home },
       { title: 'My Groups', url: '/dashboard/groups', icon: Users },
       { title: 'Chat', url: '/dashboard/chat', icon: MessageSquare },
+      {
+        title: 'Recent Posts',
+        url: '/dashboard/recent-posts',
+        icon: Newspaper,
+      },
       { title: 'Mentorship', url: '/dashboard/mentorship', icon: Heart },
       { title: 'Explore Programs', url: '/dashboard/explore', icon: Search },
       { title: 'My Profile', url: '/dashboard/profile', icon: UserCheck },
@@ -67,6 +73,11 @@ const getMenuItems = (role: string) => {
       { title: 'Home', url: '/dashboard', icon: Home },
       { title: 'Subject Groups', url: '/dashboard/groups', icon: Users },
       { title: 'Chat', url: '/dashboard/chat', icon: MessageSquare },
+      {
+        title: 'Recent Posts',
+        url: '/dashboard/recent-posts',
+        icon: Newspaper,
+      },
       { title: 'Mentorship', url: '/dashboard/mentorship', icon: Heart },
       { title: 'My Profile', url: '/dashboard/profile', icon: UserCheck },
     ];
@@ -78,6 +89,11 @@ const getMenuItems = (role: string) => {
       { title: 'Submit Program', url: '/dashboard/submit-program', icon: Send },
       { title: 'My Programs', url: '/dashboard/programs', icon: BookOpen },
       { title: 'Messages', url: '/dashboard/messages', icon: MessageSquare },
+      {
+        title: 'Recent Posts',
+        url: '/dashboard/recent-posts',
+        icon: Newspaper,
+      },
       { title: 'Profile', url: '/dashboard/profile', icon: Building2 },
     ];
   }

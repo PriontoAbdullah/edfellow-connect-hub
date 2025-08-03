@@ -22,6 +22,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import GlobalNavbar from '@/components/GlobalNavbar';
 import { LandingFooter } from '@/components/LandingFooter';
 
 const Community = () => {
@@ -118,69 +119,7 @@ const Community = () => {
 
   return (
     <div className='min-h-screen bg-white'>
-      {/* Header */}
-      <header className='sticky top-0 z-50 backdrop-blur-xl bg-white/95 border-b border-gray-100'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex justify-between items-center h-16 sm:h-20'>
-            <div className='flex items-center space-x-2'>
-              <img
-                src='/logo.png'
-                alt='Edfellow'
-                className='w-12 rounded-full'
-              />
-
-              <div>
-                <h1 className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
-                  Edfellow
-                </h1>
-                <p className='text-xs sm:text-sm text-gray-600 font-medium -mt-1'>
-                  Where Education Meets the World
-                </p>
-              </div>
-            </div>
-
-            <nav className='hidden md:flex items-center space-x-8'>
-              <a
-                href='#'
-                onClick={() => navigate('/')}
-                className='text-gray-600 hover:text-blue-600 transition-colors'
-              >
-                Home
-              </a>
-              <a
-                href='#'
-                onClick={() => navigate('/about')}
-                className='text-gray-600 hover:text-blue-600 transition-colors'
-              >
-                About
-              </a>
-              <a
-                href='#'
-                onClick={() => navigate('/features')}
-                className='text-gray-600 hover:text-blue-600 transition-colors'
-              >
-                Features
-              </a>
-            </nav>
-
-            <div className='flex items-center space-x-2 sm:space-x-4'>
-              <Button
-                variant='ghost'
-                onClick={() => navigate('/login')}
-                className='text-gray-700 hover:text-blue-600'
-              >
-                Sign In
-              </Button>
-              <Button
-                onClick={() => navigate('/signup')}
-                className='bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg px-4 sm:px-6'
-              >
-                Get Started
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <GlobalNavbar />
 
       {/* Hero Section */}
       <section className='relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8'>

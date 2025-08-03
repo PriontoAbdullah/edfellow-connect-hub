@@ -1,0 +1,630 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Briefcase,
+  Award,
+  GraduationCap,
+  Building2,
+  Search,
+  Filter,
+  MapPin,
+  Clock,
+  DollarSign,
+  Users,
+  Star,
+  ArrowRight,
+  Plus,
+  Bookmark,
+  ExternalLink,
+  Calendar,
+  Globe,
+  TrendingUp,
+  CheckCircle,
+  Heart,
+  MessageCircle,
+  Share2,
+  BookOpen,
+  Microscope,
+  Code,
+  School,
+  Target,
+  Zap,
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import GlobalNavbar from '@/components/GlobalNavbar';
+import { LandingFooter } from '@/components/LandingFooter';
+
+const Opportunities = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+
+  const opportunities = [
+    {
+      id: 1,
+      title: 'Research Assistant Position - AI/ML',
+      type: 'Research Position',
+      category: 'Technology',
+      organization: 'MIT',
+      location: 'Cambridge, MA',
+      salary: '$45,000/year',
+      duration: '2 years',
+      deadline: '2024-02-15',
+      description:
+        "Join our cutting-edge research team working on machine learning applications in healthcare. We're looking for motivated students with strong programming skills.",
+      requirements: ['Python', 'Machine Learning', 'Research Experience'],
+      tags: ['AI/ML', 'Research', 'Healthcare'],
+      logo: 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+      isFeatured: true,
+      applications: 45,
+      rating: 4.8,
+    },
+    {
+      id: 2,
+      title: 'Full Scholarship - Computer Science PhD',
+      type: 'Scholarship',
+      category: 'Technology',
+      organization: 'Stanford University',
+      location: 'Stanford, CA',
+      salary: 'Full Tuition + $65,000/year',
+      duration: '4-6 years',
+      deadline: '2024-03-01',
+      description:
+        'Stanford University is offering a full scholarship for exceptional students pursuing a PhD in Computer Science. Covers tuition, living expenses, and research funding.',
+      requirements: [
+        'Excellent Academic Record',
+        'Research Proposal',
+        'GRE Scores',
+      ],
+      tags: ['PhD', 'Computer Science', 'Full Scholarship'],
+      logo: 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+      isFeatured: true,
+      applications: 89,
+      rating: 4.9,
+    },
+    {
+      id: 3,
+      title: 'Summer Internship - Tech Companies',
+      type: 'Internship',
+      category: 'Technology',
+      organization: 'Multiple Tech Companies',
+      location: 'Multiple Locations',
+      salary: '$8,000-$12,000/month',
+      duration: '3 months',
+      deadline: '2024-02-28',
+      description:
+        'Multiple tech companies are offering summer internships for students. Positions available in software engineering, data science, and product management.',
+      requirements: ['Programming Skills', 'Teamwork', 'Problem Solving'],
+      tags: ['Internship', 'Tech', 'Summer'],
+      logo: 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+      isFeatured: false,
+      applications: 67,
+      rating: 4.7,
+    },
+    {
+      id: 4,
+      title: 'Merit-Based Scholarship - Engineering',
+      type: 'Scholarship',
+      category: 'Engineering',
+      organization: 'MIT Engineering Department',
+      location: 'Cambridge, MA',
+      salary: '$25,000/year',
+      duration: '4 years',
+      deadline: '2024-02-20',
+      description:
+        'Engineering students with outstanding academic performance can apply for our merit-based scholarship program. Multiple awards available.',
+      requirements: ['GPA 3.8+', 'Engineering Major', 'Leadership Experience'],
+      tags: ['Engineering', 'Merit', 'Scholarship'],
+      logo: 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+      isFeatured: false,
+      applications: 56,
+      rating: 4.6,
+    },
+    {
+      id: 5,
+      title: 'Research Collaboration Opportunity',
+      type: 'Research Position',
+      category: 'Science',
+      organization: 'Stanford University',
+      location: 'Stanford, CA',
+      salary: '$60,000/year',
+      duration: '2-3 years',
+      deadline: '2024-03-15',
+      description:
+        'Seeking research partners for interdisciplinary project on sustainable energy solutions. Open to professors and graduate students.',
+      requirements: [
+        'Research Experience',
+        'Energy Background',
+        'Publication Record',
+      ],
+      tags: ['Research', 'Energy', 'Collaboration'],
+      logo: 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+      isFeatured: false,
+      applications: 42,
+      rating: 4.5,
+    },
+    {
+      id: 6,
+      title: 'International Conference Call for Papers',
+      type: 'Conference',
+      category: 'Research',
+      organization: 'University of Toronto',
+      location: 'Toronto, Canada',
+      salary: 'Travel Grant Available',
+      duration: '1 week',
+      deadline: '2024-01-30',
+      description:
+        'Submit your research papers for the 2024 International Conference on Artificial Intelligence and Machine Learning. Early bird registration now open.',
+      requirements: ['Original Research', 'Peer Review', 'Presentation'],
+      tags: ['Conference', 'AI/ML', 'Research'],
+      logo: 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+      isFeatured: false,
+      applications: 34,
+      rating: 4.4,
+    },
+  ];
+
+  const opportunityStats = [
+    {
+      icon: Briefcase,
+      number: '1,000+',
+      label: 'Active Opportunities',
+      description: 'Updated daily',
+    },
+    {
+      icon: Award,
+      number: '500+',
+      label: 'Scholarships',
+      description: 'From top institutions',
+    },
+    {
+      icon: Users,
+      number: '50,000+',
+      label: 'Successful Applications',
+      description: 'Students placed',
+    },
+    {
+      icon: Globe,
+      number: '80+',
+      label: 'Countries',
+      description: 'Global opportunities',
+    },
+  ];
+
+  const categories = [
+    { name: 'Technology', icon: Code, count: 234, color: 'blue' },
+    { name: 'Engineering', icon: Microscope, count: 189, color: 'green' },
+    { name: 'Business', icon: Building2, count: 156, color: 'yellow' },
+    { name: 'Science', icon: School, count: 123, color: 'purple' },
+    { name: 'Research', icon: BookOpen, count: 98, color: 'orange' },
+    { name: 'Arts', icon: GraduationCap, count: 67, color: 'pink' },
+  ];
+
+  const opportunityTypes = [
+    { name: 'Scholarships', icon: Award, count: 234 },
+    { name: 'Internships', icon: Briefcase, count: 189 },
+    { name: 'Research Positions', icon: Microscope, count: 156 },
+    { name: 'Conferences', icon: Calendar, count: 98 },
+    { name: 'Fellowships', icon: Star, count: 67 },
+    { name: 'Grants', icon: DollarSign, count: 45 },
+  ];
+
+  return (
+    <div className='min-h-screen bg-white'>
+      <GlobalNavbar />
+
+      {/* Hero Section */}
+      <section className='relative py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50'>
+        <div className='max-w-6xl mx-auto text-center'>
+          <Badge className='bg-white/90 backdrop-blur-sm text-orange-600 border-orange-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg'>
+            Academic Opportunities
+          </Badge>
+          <h1 className='text-5xl sm:text-6xl font-extrabold text-[#0B1B4D] mb-8 leading-tight'>
+            Discover Your{' '}
+            <span className='bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent'>
+              Next Opportunity
+            </span>
+          </h1>
+          <p className='text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed'>
+            Find scholarships, internships, research positions, and academic
+            opportunities from top institutions worldwide. Take the next step in
+            your academic and professional journey.
+          </p>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+            <Button
+              size='lg'
+              onClick={() => navigate('/signup')}
+              className='bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+            >
+              Start Exploring
+              <ArrowRight className='ml-2 h-5 w-5' />
+            </Button>
+            <Button
+              size='lg'
+              variant='outline'
+              className='border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white px-8 py-4 text-lg font-semibold'
+            >
+              Learn More
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-white'>
+        <div className='max-w-6xl mx-auto'>
+          <div className='grid md:grid-cols-4 gap-8'>
+            {opportunityStats.map((stat) => {
+              const IconComponent = stat.icon;
+              return (
+                <div key={stat.label} className='text-center'>
+                  <div className='flex justify-center mb-4'>
+                    <div className='w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center text-white shadow-lg'>
+                      <IconComponent className='h-8 w-8' />
+                    </div>
+                  </div>
+                  <div className='text-3xl font-bold text-[#0B1B4D] mb-2'>
+                    {stat.number}
+                  </div>
+                  <div className='text-lg font-semibold text-gray-900 mb-2'>
+                    {stat.label}
+                  </div>
+                  <div className='text-gray-600'>{stat.description}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-gray-50'>
+        <div className='max-w-6xl mx-auto'>
+          <div className='text-center mb-12'>
+            <h2 className='text-3xl font-bold text-[#0B1B4D] mb-6'>
+              Explore by Category
+            </h2>
+            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+              Find opportunities in your field of interest
+            </p>
+          </div>
+
+          <div className='grid md:grid-cols-3 lg:grid-cols-6 gap-6'>
+            {categories.map((category) => {
+              const IconComponent = category.icon;
+              return (
+                <Card
+                  key={category.name}
+                  className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white cursor-pointer'
+                >
+                  <CardContent className='p-6 text-center'>
+                    <div
+                      className={`w-12 h-12 bg-gradient-to-br from-${category.color}-500 to-${category.color}-600 rounded-xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg`}
+                    >
+                      <IconComponent className='h-6 w-6' />
+                    </div>
+                    <h3 className='font-semibold text-gray-900 mb-2'>
+                      {category.name}
+                    </h3>
+                    <p className='text-sm text-gray-600'>
+                      {category.count} opportunities
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Search and Filter Section */}
+      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-white'>
+        <div className='max-w-6xl mx-auto'>
+          <div className='text-center mb-12'>
+            <h2 className='text-3xl font-bold text-[#0B1B4D] mb-6'>
+              Find Your Perfect Opportunity
+            </h2>
+            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+              Search and filter through thousands of opportunities to find the
+              perfect match for your skills and interests
+            </p>
+          </div>
+
+          {/* Search and Filters */}
+          <div className='bg-white rounded-2xl shadow-xl p-6 mb-8'>
+            <div className='grid md:grid-cols-4 gap-4'>
+              <div>
+                <Label htmlFor='search'>Search Opportunities</Label>
+                <div className='relative'>
+                  <Search className='absolute left-3 top-3 h-4 w-4 text-gray-400' />
+                  <Input
+                    id='search'
+                    placeholder='Search by title, organization, or keywords...'
+                    className='pl-10'
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor='category'>Category</Label>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select category' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='technology'>Technology</SelectItem>
+                    <SelectItem value='engineering'>Engineering</SelectItem>
+                    <SelectItem value='business'>Business</SelectItem>
+                    <SelectItem value='science'>Science</SelectItem>
+                    <SelectItem value='research'>Research</SelectItem>
+                    <SelectItem value='arts'>Arts</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor='location'>Location</Label>
+                <Select
+                  value={selectedLocation}
+                  onValueChange={setSelectedLocation}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select location' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='remote'>Remote</SelectItem>
+                    <SelectItem value='usa'>United States</SelectItem>
+                    <SelectItem value='europe'>Europe</SelectItem>
+                    <SelectItem value='asia'>Asia</SelectItem>
+                    <SelectItem value='canada'>Canada</SelectItem>
+                    <SelectItem value='australia'>Australia</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor='type'>Opportunity Type</Label>
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select type' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='scholarship'>Scholarship</SelectItem>
+                    <SelectItem value='internship'>Internship</SelectItem>
+                    <SelectItem value='research'>Research Position</SelectItem>
+                    <SelectItem value='conference'>Conference</SelectItem>
+                    <SelectItem value='fellowship'>Fellowship</SelectItem>
+                    <SelectItem value='grant'>Grant</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Opportunity Types */}
+          <div className='grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8'>
+            {opportunityTypes.map((type) => {
+              const IconComponent = type.icon;
+              return (
+                <Card
+                  key={type.name}
+                  className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white cursor-pointer'
+                >
+                  <CardContent className='p-4 text-center'>
+                    <div className='w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center text-white mb-3 mx-auto shadow-lg'>
+                      <IconComponent className='h-5 w-5' />
+                    </div>
+                    <h3 className='font-semibold text-gray-900 text-sm mb-1'>
+                      {type.name}
+                    </h3>
+                    <p className='text-xs text-gray-600'>
+                      {type.count} available
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Opportunities Grid */}
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className='w-full'
+          >
+            <TabsList className='grid w-full grid-cols-4'>
+              <TabsTrigger value='all'>All Opportunities</TabsTrigger>
+              <TabsTrigger value='featured'>Featured</TabsTrigger>
+              <TabsTrigger value='recent'>Recent</TabsTrigger>
+              <TabsTrigger value='deadline'>Deadline Soon</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={activeTab} className='mt-6'>
+              <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-8'>
+                {opportunities.map((opportunity) => (
+                  <Card
+                    key={opportunity.id}
+                    className={`border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-white overflow-hidden ${
+                      opportunity.isFeatured ? 'ring-2 ring-orange-200' : ''
+                    }`}
+                  >
+                    {opportunity.isFeatured && (
+                      <div className='absolute top-4 left-4 z-10'>
+                        <Badge className='bg-gradient-to-r from-orange-400 to-amber-500 text-white border-0 font-semibold'>
+                          <TrendingUp className='h-3 w-3 mr-1' />
+                          Featured
+                        </Badge>
+                      </div>
+                    )}
+                    <CardHeader className='pb-4 pt-6'>
+                      <div className='flex items-start justify-between mb-4'>
+                        <div className='flex items-center gap-3'>
+                          <img
+                            src={opportunity.logo}
+                            alt={opportunity.organization}
+                            className='w-12 h-12 rounded-full'
+                          />
+                          <div>
+                            <div className='flex items-center gap-2'>
+                              <span className='font-semibold text-gray-900'>
+                                {opportunity.organization}
+                              </span>
+                              <div className='flex items-center gap-1'>
+                                <Star className='h-3 w-3 text-yellow-400 fill-current' />
+                                <span className='text-xs text-gray-600'>
+                                  {opportunity.rating}
+                                </span>
+                              </div>
+                            </div>
+                            <div className='text-sm text-gray-600'>
+                              {opportunity.location}
+                            </div>
+                          </div>
+                        </div>
+                        <div className='flex items-center gap-2'>
+                          <Badge className='bg-blue-100 text-blue-700 border-0'>
+                            {opportunity.type}
+                          </Badge>
+                          <Bookmark className='h-4 w-4 text-gray-400 hover:text-orange-500 cursor-pointer transition-colors' />
+                        </div>
+                      </div>
+                      <CardTitle className='text-lg font-bold text-[#0B1B4D] mb-2'>
+                        {opportunity.title}
+                      </CardTitle>
+                      <p className='text-sm text-gray-600 mb-4 leading-relaxed'>
+                        {opportunity.description}
+                      </p>
+                      <div className='flex flex-wrap gap-2 mb-4'>
+                        {opportunity.tags.map((tag, index) => (
+                          <Badge
+                            key={index}
+                            variant='outline'
+                            className='text-xs'
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
+                        <div className='flex items-center gap-4'>
+                          <div className='flex items-center gap-1'>
+                            <DollarSign className='h-4 w-4' />
+                            <span>{opportunity.salary}</span>
+                          </div>
+                          <div className='flex items-center gap-1'>
+                            <Clock className='h-4 w-4' />
+                            <span>{opportunity.duration}</span>
+                          </div>
+                          <div className='flex items-center gap-1'>
+                            <Users className='h-4 w-4' />
+                            <span>{opportunity.applications} applied</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className='flex items-center justify-between text-sm text-red-600 font-medium mb-4'>
+                        <div className='flex items-center gap-1'>
+                          <Calendar className='h-4 w-4' />
+                          <span>Deadline: {opportunity.deadline}</span>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className='space-y-3'>
+                      <div>
+                        <h4 className='font-semibold text-gray-900 mb-2'>
+                          Requirements:
+                        </h4>
+                        <div className='flex flex-wrap gap-2'>
+                          {opportunity.requirements.map((req, index) => (
+                            <Badge
+                              key={index}
+                              className='bg-gray-100 text-gray-700 border-0 text-xs'
+                            >
+                              {req}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className='flex gap-2'>
+                        <Button className='flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white'>
+                          Apply Now
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='icon'
+                          className='border-gray-300 hover:border-orange-600 hover:text-orange-600'
+                        >
+                          <MessageCircle className='h-4 w-4' />
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='icon'
+                          className='border-gray-300 hover:border-orange-600 hover:text-orange-600'
+                        >
+                          <Share2 className='h-4 w-4' />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50'>
+        <div className='max-w-4xl mx-auto text-center'>
+          <h2 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+            Ready to Find Your Next Opportunity?
+          </h2>
+          <p className='text-lg text-gray-600 mb-10 max-w-2xl mx-auto'>
+            Join thousands of students who have discovered life-changing
+            opportunities through our platform.
+          </p>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+            <Button
+              size='lg'
+              onClick={() => navigate('/signup')}
+              className='bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+            >
+              Start Your Search
+              <ArrowRight className='ml-2 h-5 w-5' />
+            </Button>
+            <Button
+              size='lg'
+              variant='outline'
+              className='border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white px-8 py-4 text-lg font-semibold'
+            >
+              Browse Categories
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <LandingFooter />
+    </div>
+  );
+};
+
+export default Opportunities;
