@@ -508,19 +508,16 @@ const Index = () => {
         {/* Overlay for readability */}
         <div className='absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/30 to-indigo-100/40 z-10' />
         <div className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'>
-          <Badge className='bg-white/90 backdrop-blur-sm text-[#007BFF] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
+          <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
             Global Academic Network
           </Badge>
-          <h2 className='text-5xl sm:text-6xl font-extrabold text-[#0B1B4D] mb-8 leading-tight drop-shadow-lg'>
-            Welcome to{' '}
-            <span className='bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
-              Edfellow
-            </span>
+          <h2 className='text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
+            Welcome to <span className='text-[#0A66C2]'>Edfellow</span>
           </h2>
-          <h3 className='text-2xl sm:text-3xl font-semibold text-indigo-700 mb-8'>
+          <h3 className='text-xl sm:text-2xl font-semibold text-gray-700 mb-6'>
             Your Global Hub for Learning, Connecting, and Limitless Opportunity
           </h3>
-          <p className='text-lg text-gray-600 leading-relaxed'>
+          <p className='text-base text-gray-600 leading-relaxed max-w-2xl mx-auto'>
             Connect with a worldwide academic community built for collaboration,
             mentorship, and shared success.
           </p>
@@ -528,17 +525,17 @@ const Index = () => {
       </section>
 
       {/* Role Teaser Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
         <div className='max-w-6xl mx-auto'>
           <div className='text-center mb-16'>
-            <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+            <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'>
               How Edfellow Empowers You
             </h3>
-            <p className='text-lg text-gray-600 max-w-3xl mx-auto'>
+            <p className='text-base text-gray-600 max-w-3xl mx-auto mb-4'>
               Choose your path and unlock a world of knowledge, mentorship, and
               global opportunity.
             </p>
-            <p className='text-lg text-gray-600 max-w-3xl mx-auto'>
+            <p className='text-sm text-gray-500 max-w-3xl mx-auto'>
               At Edfellow, we believe education should be more than lectures and
               textbooks—it should be an experience that connects you to real
               people, real insights, and real opportunities across the world.
@@ -555,7 +552,7 @@ const Index = () => {
               return (
                 <Card
                   key={role.id}
-                  className='border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white via-gray-50 to-gray-100 hover:scale-105 rounded-2xl p-2'
+                  className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white hover:scale-105 rounded-lg p-2'
                 >
                   <CardHeader className='text-center pb-6'>
                     <div
@@ -563,10 +560,10 @@ const Index = () => {
                     >
                       <IconComponent className='h-10 w-10 text-white' />
                     </div>
-                    <CardTitle className='text-2xl font-bold text-[#0B1B4D] mb-2'>
+                    <CardTitle className='text-xl font-bold text-gray-900 mb-2'>
                       {role.title}
                     </CardTitle>
-                    <div className='text-[#007BFF] font-semibold text-base pb-2'>
+                    <div className='text-[#0A66C2] font-semibold text-base pb-2'>
                       {role.tagline}
                     </div>
                     {/* <CardDescription className='text-gray-600 leading-relaxed mb-4'>
@@ -576,9 +573,9 @@ const Index = () => {
                       {role.features.map((feature, idx) => (
                         <li
                           key={idx}
-                          className='flex items-start gap-2 text-gray-700 text-sm'
+                          className='flex items-start gap-2 text-gray-600 text-sm'
                         >
-                          <CheckCircle className='h-4 w-4 text-[#007BFF] mt-0.5 flex-shrink-0' />
+                          <CheckCircle className='h-4 w-4 text-[#0A66C2] mt-0.5 flex-shrink-0' />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -589,7 +586,7 @@ const Index = () => {
                       onClick={() =>
                         navigate('/signup', { state: { role: role.id } })
                       }
-                      className={`bg-gradient-to-r ${role.color} hover:shadow-xl transform hover:scale-105 transition-all duration-200 w-full text-white font-semibold py-3 rounded-lg`}
+                      className='bg-[#0A66C2] hover:bg-[#084482] hover:shadow-md transition-all duration-200 w-full text-white font-semibold py-3 rounded-md'
                     >
                       Explore More
                       <ArrowRight className='ml-2 h-4 w-4' />
@@ -603,14 +600,14 @@ const Index = () => {
       </section>
 
       {/* Featured Programs Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
         <div className='max-w-8xl mx-auto'>
           <div className='flex justify-between items-center mb-16 px-12'>
             <div>
-              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-2'>
+              <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Featured Programs
               </h3>
-              <p className='text-lg text-gray-600'>
+              <p className='text-base text-gray-600'>
                 Discover world-class academic programs from top institutions
               </p>
             </div>
@@ -624,7 +621,7 @@ const Index = () => {
                   )
                 }
                 disabled={featuredProgramsIndex === 0}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowLeft className='h-4 w-4' />
               </Button>
@@ -643,7 +640,7 @@ const Index = () => {
                   featuredProgramsIndex >=
                   Math.max(0, featuredPrograms.length - 4)
                 }
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
@@ -662,7 +659,7 @@ const Index = () => {
                   key={program.id}
                   className='w-full md:w-1/4 flex-shrink-0 pr-8'
                 >
-                  <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                  <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                     <div className='relative'>
                       <img
                         src={program.image}
@@ -682,7 +679,7 @@ const Index = () => {
                       <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                     </div>
                     <CardHeader className='pb-4 pt-6'>
-                      <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                      <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
                         {program.program}
                       </CardTitle>
                       <CardDescription className='text-gray-600 mb-4 font-medium'>
@@ -719,10 +716,10 @@ const Index = () => {
                           <span>{program.capacity}</span>
                         </div>
                       </div>
-                      <div className='text-lg font-semibold text-[#007BFF] mb-4'>
+                      <div className='text-lg font-semibold text-[#0A66C2] mb-4'>
                         {program.cost}
                       </div>
-                      <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                      <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                         Learn More
                         <ExternalLink className='ml-2 h-4 w-4' />
                       </Button>
@@ -736,14 +733,14 @@ const Index = () => {
       </section>
 
       {/* Opportunities Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50'>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
         <div className='max-w-8xl mx-auto'>
           <div className='flex justify-between items-center mb-16 px-12'>
             <div>
-              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-2'>
+              <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Latest Opportunities
               </h3>
-              <p className='text-lg text-gray-600'>
+              <p className='text-base text-gray-600'>
                 Discover job opportunities, scholarships, and research positions
                 from top institutions worldwide.
               </p>
@@ -756,7 +753,7 @@ const Index = () => {
                   setOpportunitiesIndex(Math.max(0, opportunitiesIndex - 1))
                 }
                 disabled={opportunitiesIndex === 0}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowLeft className='h-4 w-4' />
               </Button>
@@ -769,7 +766,7 @@ const Index = () => {
                   )
                 }
                 disabled={opportunitiesIndex >= Math.max(0, 6 - 4)}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
@@ -783,7 +780,7 @@ const Index = () => {
               }}
             >
               <div className='w-full md:w-1/4 flex-shrink-0 pr-8'>
-                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-green-50 to-emerald-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                   <div className='relative'>
                     <img
                       src='https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
@@ -803,7 +800,7 @@ const Index = () => {
                     <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
                   <CardHeader className='pb-4 pt-6'>
-                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                    <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
                       AI Research Assistant
                     </CardTitle>
                     <CardDescription className='text-gray-600 mb-4 font-medium'>
@@ -838,7 +835,7 @@ const Index = () => {
                         <span>$45K/year</span>
                       </div>
                     </div>
-                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                    <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                       Apply Now
                       <ExternalLink className='ml-2 h-4 w-4' />
                     </Button>
@@ -847,7 +844,7 @@ const Index = () => {
               </div>
 
               <div className='w-full md:w-1/4 flex-shrink-0 pr-8'>
-                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                   <div className='relative'>
                     <img
                       src='https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
@@ -867,7 +864,7 @@ const Index = () => {
                     <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
                   <CardHeader className='pb-4 pt-6'>
-                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                    <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
                       Full Scholarship - Computer Science
                     </CardTitle>
                     <CardDescription className='text-gray-600 mb-4 font-medium'>
@@ -902,7 +899,7 @@ const Index = () => {
                         <span>Full Tuition</span>
                       </div>
                     </div>
-                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                    <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                       Apply Now
                       <ExternalLink className='ml-2 h-4 w-4' />
                     </Button>
@@ -911,7 +908,7 @@ const Index = () => {
               </div>
 
               <div className='w-full md:w-1/4 flex-shrink-0 pr-8'>
-                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-orange-50 to-amber-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                   <div className='relative'>
                     <img
                       src='https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
@@ -931,7 +928,7 @@ const Index = () => {
                     <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
                   <CardHeader className='pb-4 pt-6'>
-                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                    <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
                       Software Engineer - ML
                     </CardTitle>
                     <CardDescription className='text-gray-600 mb-4 font-medium'>
@@ -966,7 +963,7 @@ const Index = () => {
                         <span>$150K/year</span>
                       </div>
                     </div>
-                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                    <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                       Apply Now
                       <ExternalLink className='ml-2 h-4 w-4' />
                     </Button>
@@ -975,7 +972,7 @@ const Index = () => {
               </div>
 
               <div className='w-full md:w-1/4 flex-shrink-0 pr-8'>
-                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-purple-50 to-violet-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                   <div className='relative'>
                     <img
                       src='https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
@@ -995,7 +992,7 @@ const Index = () => {
                     <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
                   <CardHeader className='pb-4 pt-6'>
-                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                    <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
                       Data Science Intern
                     </CardTitle>
                     <CardDescription className='text-gray-600 mb-4 font-medium'>
@@ -1030,7 +1027,7 @@ const Index = () => {
                         <span>$8K/month</span>
                       </div>
                     </div>
-                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                    <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                       Apply Now
                       <ExternalLink className='ml-2 h-4 w-4' />
                     </Button>
@@ -1039,7 +1036,7 @@ const Index = () => {
               </div>
 
               <div className='w-full md:w-1/4 flex-shrink-0 pr-8'>
-                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-red-50 to-pink-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                   <div className='relative'>
                     <img
                       src='https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
@@ -1059,7 +1056,7 @@ const Index = () => {
                     <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
                   <CardHeader className='pb-4 pt-6'>
-                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                    <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
                       Medical Research Fellow
                     </CardTitle>
                     <CardDescription className='text-gray-600 mb-4 font-medium'>
@@ -1094,7 +1091,7 @@ const Index = () => {
                         <span>$65K/year</span>
                       </div>
                     </div>
-                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                    <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                       Apply Now
                       <ExternalLink className='ml-2 h-4 w-4' />
                     </Button>
@@ -1103,7 +1100,7 @@ const Index = () => {
               </div>
 
               <div className='w-full md:w-1/4 flex-shrink-0 pr-8'>
-                <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-indigo-50 to-blue-50 rounded-2xl overflow-hidden group backdrop-blur-sm'>
+                <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                   <div className='relative'>
                     <img
                       src='https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
@@ -1123,7 +1120,7 @@ const Index = () => {
                     <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                   </div>
                   <CardHeader className='pb-4 pt-6'>
-                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                    <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
                       UX/UI Designer
                     </CardTitle>
                     <CardDescription className='text-gray-600 mb-4 font-medium'>
@@ -1158,7 +1155,7 @@ const Index = () => {
                         <span>$120K/year</span>
                       </div>
                     </div>
-                    <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                    <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                       Apply Now
                       <ExternalLink className='ml-2 h-4 w-4' />
                     </Button>
@@ -1171,14 +1168,14 @@ const Index = () => {
       </section>
 
       {/* Connect by Your Major Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50'>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
         <div className='max-w-8xl mx-auto'>
           <div className='flex justify-between items-center mb-16 px-12'>
             <div>
-              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-2'>
+              <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Connect by Your Major
               </h3>
-              <p className='text-lg text-gray-600'>
+              <p className='text-base text-gray-600'>
                 Join subject-specific communities where students with similar
                 academic interests connect, collaborate, and grow together.
               </p>
@@ -1191,7 +1188,7 @@ const Index = () => {
                   setCommunityGroupsIndex(Math.max(0, communityGroupsIndex - 1))
                 }
                 disabled={communityGroupsIndex === 0}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowLeft className='h-4 w-4' />
               </Button>
@@ -1204,7 +1201,7 @@ const Index = () => {
                   )
                 }
                 disabled={communityGroupsIndex >= Math.max(0, 6 - 4)}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
@@ -1222,7 +1219,7 @@ const Index = () => {
                   key={group.id}
                   className='w-full md:w-1/4 flex-shrink-0 pr-8'
                 >
-                  <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-orange-50 to-amber-50 rounded-2xl overflow-hidden group relative backdrop-blur-sm'>
+                  <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group relative'>
                     {group.featured && (
                       <div className='absolute top-4 left-4 z-10'>
                         <Badge className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 font-semibold'>
@@ -1256,7 +1253,7 @@ const Index = () => {
                           </div>
                         </div>
                       </div>
-                      <CardTitle className='text-xl font-bold text-[#0B1B4D] pb-2'>
+                      <CardTitle className='text-lg font-bold text-gray-900 pb-2'>
                         {group.name}
                       </CardTitle>
                       <p className='text-sm text-gray-600 pb-2 leading-relaxed'>
@@ -1279,7 +1276,7 @@ const Index = () => {
                           <span>{group.activity} Activity</span>
                         </div>
                       </div>
-                      <Button className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-3 rounded-lg transition-all duration-200 hover:scale-105'>
+                      <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
                         Join Group
                       </Button>
                     </CardHeader>
@@ -1292,14 +1289,14 @@ const Index = () => {
       </section>
 
       {/* Connect with Our Community Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
         <div className='max-w-8xl mx-auto'>
           <div className='flex justify-between items-center mb-16 px-12'>
             <div>
-              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-2'>
+              <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Connect with Our Community
               </h3>
-              <p className='text-lg text-gray-600'>
+              <p className='text-base text-gray-600'>
                 Join students, professors, and universities from around the
                 world
               </p>
@@ -1312,7 +1309,7 @@ const Index = () => {
                   setCommunityUsersIndex(Math.max(0, communityUsersIndex - 1))
                 }
                 disabled={communityUsersIndex === 0}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowLeft className='h-4 w-4' />
               </Button>
@@ -1325,7 +1322,7 @@ const Index = () => {
                   )
                 }
                 disabled={communityUsersIndex >= Math.max(0, 6 - 4)}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
@@ -1345,7 +1342,7 @@ const Index = () => {
                 >
                   <Card
                     key={user.id}
-                    className='border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl overflow-hidden group'
+                    className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'
                   >
                     <div className='relative p-6'>
                       <div className='flex flex-col items-center text-center'>
@@ -1359,7 +1356,7 @@ const Index = () => {
                             <div className='w-2 h-2 bg-white rounded-full'></div>
                           </div>
                         </div>
-                        <CardTitle className='text-lg font-bold text-[#0B1B4D] mb-2'>
+                        <CardTitle className='text-base font-bold text-gray-900 mb-2'>
                           {user.name}
                         </CardTitle>
                         <Badge
@@ -1434,13 +1431,13 @@ const Index = () => {
                             : null}
                         </div>
                         <div className='flex gap-2 w-full'>
-                          <Button className='flex-1 bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold py-2 rounded-lg text-sm transition-all duration-200 hover:scale-105'>
+                          <Button className='flex-1 bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-2 rounded-md text-sm transition-all duration-200 hover:shadow-md'>
                             Connect
                           </Button>
                           <Button
                             variant='outline'
                             size='icon'
-                            className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                            className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
                           >
                             <MessageCircle className='h-4 w-4' />
                           </Button>
@@ -1456,14 +1453,14 @@ const Index = () => {
       </section>
 
       {/* Mentorship Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-50 via-rose-50 to-red-50'>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
         <div className='max-w-8xl mx-auto'>
           <div className='flex justify-between items-center mb-16 px-12'>
             <div>
-              <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-2'>
+              <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Learn from the Best Professors
               </h3>
-              <p className='text-lg text-gray-600'>
+              <p className='text-base text-gray-600'>
                 Book one-on-one mentorship sessions with world-class professors.
                 Get personalized guidance for your academic and career journey.
               </p>
@@ -1476,7 +1473,7 @@ const Index = () => {
                   setProfessorsIndex(Math.max(0, professorsIndex - 1))
                 }
                 disabled={professorsIndex === 0}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowLeft className='h-4 w-4' />
               </Button>
@@ -1489,7 +1486,7 @@ const Index = () => {
                   )
                 }
                 disabled={professorsIndex >= Math.max(0, 6 - 4)}
-                className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
@@ -1507,14 +1504,14 @@ const Index = () => {
                   key={professor.id}
                   className='w-full md:w-1/4 flex-shrink-0 pr-8'
                 >
-                  <Card className='border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white via-pink-50 to-rose-50 rounded-2xl backdrop-blur-sm'>
+                  <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg'>
                     <CardHeader className='flex flex-col items-center pb-4'>
                       <img
                         src={professor.avatar}
                         alt={professor.name}
                         className='w-20 h-20 rounded-full mb-4 border-4 border-gray-100 shadow'
                       />
-                      <CardTitle className='text-lg font-bold text-[#0B1B4D] text-center'>
+                      <CardTitle className='text-base font-bold text-gray-900 text-center'>
                         {professor.name}
                       </CardTitle>
                       <CardDescription className='text-gray-600 text-center'>
@@ -1529,7 +1526,7 @@ const Index = () => {
                           {professor.rating} ({professor.reviews})
                         </span>
                       </div>
-                      <div className='text-lg font-semibold text-[#007BFF] pb-1'>
+                      <div className='text-lg font-semibold text-[#0A66C2] pb-1'>
                         ${professor.hourlyRate}/hour
                       </div>
                       <div className='flex flex-wrap gap-2 pb-1 justify-center'>
@@ -1553,20 +1550,20 @@ const Index = () => {
                         {professor.availability}
                       </div>
                       <div className='flex gap-2 w-full'>
-                        <Button className='flex-1 bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white font-semibold'>
+                        <Button className='flex-1 bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold'>
                           Book Session
                         </Button>
                         <Button
                           variant='outline'
                           size='icon'
-                          className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                          className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
                         >
                           <MessageCircle className='h-4 w-4' />
                         </Button>
                         <Button
                           variant='outline'
                           size='icon'
-                          className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
+                          className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
                         >
                           <User className='h-4 w-4' />
                         </Button>
@@ -1581,13 +1578,13 @@ const Index = () => {
       </section>
 
       {/* How Mentorship Works Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'>
+      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
         <div className='max-w-7xl mx-auto px-12'>
           <div className='text-center mb-16'>
-            <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+            <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'>
               How Mentorship Works
             </h3>
-            <p className='text-lg text-gray-600 max-w-3xl mx-auto'>
+            <p className='text-base text-gray-600 max-w-3xl mx-auto'>
               Get personalized guidance from world-class professors in just
               three simple steps
             </p>
@@ -1595,16 +1592,16 @@ const Index = () => {
 
           <div className='grid md:grid-cols-3 gap-8'>
             <div className='relative group'>
-              <div className='bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100'>
+              <div className='bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-gray-200'>
                 <div className='relative mb-6'>
-                  <div className='w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300'>
+                  <div className='w-20 h-20 bg-[#0A66C2] rounded-lg flex items-center justify-center text-white mb-4 mx-auto shadow-sm group-hover:scale-110 transition-transform duration-300'>
                     <Calendar className='h-10 w-10' />
                   </div>
-                  <div className='absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold'>
+                  <div className='absolute -top-2 -right-2 w-8 h-8 bg-[#0A66C2] rounded-full flex items-center justify-center text-white text-sm font-bold'>
                     1
                   </div>
                 </div>
-                <h4 className='text-xl font-bold text-[#0B1B4D] mb-3 text-center'>
+                <h4 className='text-lg font-bold text-gray-900 mb-3 text-center'>
                   Book a Session
                 </h4>
                 <p className='text-gray-600 text-center leading-relaxed'>
@@ -1622,16 +1619,16 @@ const Index = () => {
             </div>
 
             <div className='relative group'>
-              <div className='bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100'>
+              <div className='bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-gray-200'>
                 <div className='relative mb-6'>
-                  <div className='w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300'>
+                  <div className='w-20 h-20 bg-[#0A66C2] rounded-lg flex items-center justify-center text-white mb-4 mx-auto shadow-sm group-hover:scale-110 transition-transform duration-300'>
                     <Video className='h-10 w-10' />
                   </div>
-                  <div className='absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold'>
+                  <div className='absolute -top-2 -right-2 w-8 h-8 bg-[#0A66C2] rounded-full flex items-center justify-center text-white text-sm font-bold'>
                     2
                   </div>
                 </div>
-                <h4 className='text-xl font-bold text-[#0B1B4D] mb-3 text-center'>
+                <h4 className='text-lg font-bold text-gray-900 mb-3 text-center'>
                   Meet Online
                 </h4>
                 <p className='text-gray-600 text-center leading-relaxed'>
@@ -1648,16 +1645,16 @@ const Index = () => {
             </div>
 
             <div className='relative group'>
-              <div className='bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100'>
+              <div className='bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-gray-200'>
                 <div className='relative mb-6'>
-                  <div className='w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300'>
+                  <div className='w-20 h-20 bg-[#0A66C2] rounded-lg flex items-center justify-center text-white mb-4 mx-auto shadow-sm group-hover:scale-110 transition-transform duration-300'>
                     <GraduationCap className='h-10 w-10' />
                   </div>
-                  <div className='absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold'>
+                  <div className='absolute -top-2 -right-2 w-8 h-8 bg-[#0A66C2] rounded-full flex items-center justify-center text-white text-sm font-bold'>
                     3
                   </div>
                 </div>
-                <h4 className='text-xl font-bold text-[#0B1B4D] mb-3 text-center'>
+                <h4 className='text-lg font-bold text-gray-900 mb-3 text-center'>
                   Grow & Succeed
                 </h4>
                 <p className='text-gray-600 text-center leading-relaxed'>
@@ -1677,7 +1674,7 @@ const Index = () => {
           <div className='text-center mt-12'>
             <Button
               size='lg'
-              className='bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-md transition-all duration-200 hover:shadow-lg rounded-md'
             >
               Start Your Mentorship Journey
               <ArrowRight className='ml-2 h-5 w-5' />
@@ -1697,19 +1694,19 @@ const Index = () => {
             />
             <h2 className='text-2xl font-bold text-[#0B1B4D]'>Edfellow</h2>
           </div>
-          <h3 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-4'>
+          <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'>
             Join Our Community
           </h3>
-          <p className='text-lg text-gray-600 mb-10'>
+          <p className='text-base text-gray-600 mb-10'>
             Choose your role to get started
           </p>
           <div className='grid md:grid-cols-3 gap-8 mb-8'>
-            <Card className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-blue-50 to-indigo-50'>
+            <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white'>
               <CardHeader className='text-center pb-4'>
-                <div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-                  <User className='h-8 w-8 text-blue-600' />
+                <div className='w-16 h-16 bg-[#0A66C2]/10 rounded-full flex items-center justify-center mx-auto mb-4'>
+                  <User className='h-8 w-8 text-[#0A66C2]' />
                 </div>
-                <CardTitle className='text-xl font-bold text-[#0B1B4D]'>
+                <CardTitle className='text-lg font-bold text-gray-900'>
                   Student
                 </CardTitle>
                 <CardDescription className='text-gray-600'>
@@ -1717,17 +1714,17 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className='w-full bg-blue-600 hover:bg-blue-700 text-white'>
+                <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white'>
                   Explore Student Space
                 </Button>
               </CardContent>
             </Card>
-            <Card className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-green-50 to-emerald-50'>
+            <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white'>
               <CardHeader className='text-center pb-4'>
-                <div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-                  <GraduationCap className='h-8 w-8 text-green-600' />
+                <div className='w-16 h-16 bg-[#0A66C2]/10 rounded-full flex items-center justify-center mx-auto mb-4'>
+                  <GraduationCap className='h-8 w-8 text-[#0A66C2]' />
                 </div>
-                <CardTitle className='text-xl font-bold text-[#0B1B4D]'>
+                <CardTitle className='text-lg font-bold text-gray-900'>
                   Professor
                 </CardTitle>
                 <CardDescription className='text-gray-600'>
@@ -1735,17 +1732,17 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className='w-full bg-green-600 hover:bg-green-700 text-white'>
+                <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white'>
                   Join as a Mentor/Educator/Expert
                 </Button>
               </CardContent>
             </Card>
-            <Card className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-orange-50 to-amber-50'>
+            <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white'>
               <CardHeader className='text-center pb-4'>
-                <div className='w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-                  <Building2 className='h-8 w-8 text-orange-600' />
+                <div className='w-16 h-16 bg-[#0A66C2]/10 rounded-full flex items-center justify-center mx-auto mb-4'>
+                  <Building2 className='h-8 w-8 text-[#0A66C2]' />
                 </div>
-                <CardTitle className='text-xl font-bold text-[#0B1B4D]'>
+                <CardTitle className='text-lg font-bold text-gray-900'>
                   University
                 </CardTitle>
                 <CardDescription className='text-gray-600'>
@@ -1753,7 +1750,7 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className='w-full bg-purple-600 hover:bg-purple-700 text-white'>
+                <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white'>
                   Partner with Edfellow
                 </Button>
               </CardContent>
@@ -1761,7 +1758,7 @@ const Index = () => {
           </div>
           <p className='text-sm text-gray-500'>
             Already have an account?{' '}
-            <a href='#' className='text-[#007BFF] hover:underline'>
+            <a href='#' className='text-[#0A66C2] hover:underline'>
               Sign in here
             </a>
           </p>

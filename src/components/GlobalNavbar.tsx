@@ -65,9 +65,7 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
               className='w-14 h-14 rounded-full'
             />
             <div>
-              <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
-                Edfellow
-              </h1>
+              <h1 className='text-2xl font-bold text-gray-900'>Edfellow</h1>
             </div>
           </div>
 
@@ -83,8 +81,8 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
                 }}
                 className={`transition-colors font-medium ${
                   isActive(item.href)
-                    ? 'text-[#007BFF]'
-                    : 'text-gray-700 hover:text-[#007BFF]'
+                    ? 'text-[#0A66C2]'
+                    : 'text-gray-700 hover:text-[#0A66C2]'
                 }`}
               >
                 {item.name}
@@ -96,12 +94,12 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
           <div className='flex items-center space-x-4'>
             {isAuthenticated ? (
               <div className='flex items-center space-x-4'>
-                <span className='text-sm text-gray-600'>
+                <span className='text-sm text-gray-500'>
                   Welcome, {user?.name}
                 </span>
                 <Button
                   onClick={() => navigate('/dashboard')}
-                  className='bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white'
+                  className='bg-[#0A66C2] hover:bg-[#084482] text-white'
                 >
                   Dashboard
                 </Button>
@@ -111,7 +109,7 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
                 <Button
                   variant='outline'
                   onClick={() => navigate('/login')}
-                  className='border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white transition-colors'
+                  className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white transition-colors'
                 >
                   Log In
                 </Button>
@@ -119,7 +117,7 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       onClick={() => handleSignUp()}
-                      className='bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white transition-colors'
+                      className='bg-[#0A66C2] hover:bg-[#084482] text-white transition-colors'
                     >
                       Sign Up
                       <ArrowRight className='ml-2 h-4 w-4' />
@@ -176,7 +174,7 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className='md:hidden p-2 rounded-md text-gray-700 hover:text-[#007BFF] hover:bg-gray-100'
+              className='md:hidden p-2 rounded-md text-gray-700 hover:text-[#0A66C2] hover:bg-gray-100'
             >
               {isMobileMenuOpen ? (
                 <X className='h-6 w-6' />
@@ -202,8 +200,8 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
                   }}
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     isActive(item.href)
-                      ? 'text-[#007BFF] bg-blue-50'
-                      : 'text-gray-700 hover:text-[#007BFF] hover:bg-gray-50'
+                      ? 'text-[#0A66C2] bg-blue-50'
+                      : 'text-gray-700 hover:text-[#0A66C2] hover:bg-gray-50'
                   }`}
                 >
                   {item.name}
@@ -217,7 +215,7 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
                       navigate('/login');
                       setIsMobileMenuOpen(false);
                     }}
-                    className='w-full border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white'
+                    className='w-full border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white'
                   >
                     Log In
                   </Button>
@@ -226,7 +224,7 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
                       handleSignUp();
                       setIsMobileMenuOpen(false);
                     }}
-                    className='w-full bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white'
+                    className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white'
                   >
                     Sign Up
                   </Button>
