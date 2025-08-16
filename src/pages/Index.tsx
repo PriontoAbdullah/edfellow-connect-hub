@@ -47,6 +47,40 @@ import {
 import { useNavigate } from 'react-router-dom';
 import GlobalNavbar from '@/components/GlobalNavbar';
 import { LandingFooter } from '@/components/LandingFooter';
+import { motion } from 'framer-motion';
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const fadeInScale = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+  transition: { duration: 0.5, ease: 'easeOut' },
+};
+
+const slideInLeft = {
+  initial: { opacity: 0, x: -60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
+
+const slideInRight = {
+  initial: { opacity: 0, x: 60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
 
 const Index = () => {
   const navigate = useNavigate();
@@ -497,45 +531,83 @@ const Index = () => {
       <GlobalNavbar />
 
       {/* Hero Section */}
-      <section className='relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex items-center justify-center'>
+      <motion.section
+        className='relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex items-center justify-center'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+      >
         {/* Globe SVG Background */}
-        <img
+        <motion.img
           src='/globe.svg'
           alt='Global Network Globe'
           className='absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none select-none z-0'
           style={{ objectPosition: 'center top' }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.35 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
         />
         {/* Overlay for readability */}
         <div className='absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/30 to-indigo-100/40 z-10' />
-        <div className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'>
-          <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
-            Global Academic Network
-          </Badge>
-          <h2 className='text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
+        <motion.div
+          className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'
+          variants={staggerContainer}
+        >
+          <motion.div variants={fadeInUp}>
+            <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
+              Global Academic Network
+            </Badge>
+          </motion.div>
+          <motion.h2
+            className='text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight'
+            variants={fadeInUp}
+          >
             Welcome to <span className='text-[#0A66C2]'>Edfellow</span>
-          </h2>
-          <h3 className='text-xl sm:text-2xl font-semibold text-gray-700 mb-6'>
+          </motion.h2>
+          <motion.h3
+            className='text-xl sm:text-2xl font-semibold text-gray-700 mb-6'
+            variants={fadeInUp}
+          >
             Your Global Hub for Learning, Connecting, and Limitless Opportunity
-          </h3>
-          <p className='text-base text-gray-600 leading-relaxed max-w-2xl mx-auto'>
+          </motion.h3>
+          <motion.p
+            className='text-base text-gray-600 leading-relaxed max-w-2xl mx-auto'
+            variants={fadeInUp}
+          >
             Connect with a worldwide academic community built for collaboration,
             mentorship, and shared success.
-          </p>
-        </div>
-      </section>
+          </motion.p>
+        </motion.div>
+      </motion.section>
 
       {/* Role Teaser Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-6xl mx-auto'>
-          <div className='text-center mb-16'>
-            <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'>
+          <motion.div className='text-center mb-16' variants={staggerContainer}>
+            <motion.h3
+              className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'
+              variants={fadeInUp}
+            >
               How Edfellow Empowers You
-            </h3>
-            <p className='text-base text-gray-600 max-w-3xl mx-auto mb-4'>
+            </motion.h3>
+            <motion.p
+              className='text-base text-gray-600 max-w-3xl mx-auto mb-4'
+              variants={fadeInUp}
+            >
               Choose your path and unlock a world of knowledge, mentorship, and
               global opportunity.
-            </p>
-            <p className='text-sm text-gray-500 max-w-3xl mx-auto'>
+            </motion.p>
+            <motion.p
+              className='text-sm text-gray-500 max-w-3xl mx-auto'
+              variants={fadeInUp}
+            >
               At Edfellow, we believe education should be more than lectures and
               textbooks—it should be an experience that connects you to real
               people, real insights, and real opportunities across the world.
@@ -543,75 +615,94 @@ const Index = () => {
               to share your expertise, or an institution expanding your reach,
               Edfellow provides the tools, community, and connections to help
               you grow, wherever you are.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className='grid md:grid-cols-3 gap-8'>
-            {roles.map((role) => {
+          <motion.div
+            className='grid md:grid-cols-3 gap-8'
+            variants={staggerContainer}
+          >
+            {roles.map((role, index) => {
               const IconComponent = role.icon;
               return (
-                <Card
+                <motion.div
                   key={role.id}
-                  className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white hover:scale-105 rounded-lg p-2'
+                  variants={fadeInScale}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <CardHeader className='text-center pb-6'>
-                    <div
-                      className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${role.color} rounded-2xl mb-6 mx-auto shadow-lg`}
-                    >
-                      <IconComponent className='h-10 w-10 text-white' />
-                    </div>
-                    <CardTitle className='text-xl font-bold text-gray-900 mb-2'>
-                      {role.title}
-                    </CardTitle>
-                    <div className='text-[#0A66C2] font-semibold text-base pb-2'>
-                      {role.tagline}
-                    </div>
-                    {/* <CardDescription className='text-gray-600 leading-relaxed mb-4'>
-                      {role.description}
-                    </CardDescription> */}
-                    <ul className='text-left space-y-2 mb-2'>
-                      {role.features.map((feature, idx) => (
-                        <li
-                          key={idx}
-                          className='flex items-start gap-2 text-gray-600 text-sm'
-                        >
-                          <CheckCircle className='h-4 w-4 text-[#0A66C2] mt-0.5 flex-shrink-0' />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardHeader>
-                  <CardContent className='text-center'>
-                    <Button
-                      onClick={() =>
-                        navigate('/signup', { state: { role: role.id } })
-                      }
-                      className='bg-[#0A66C2] hover:bg-[#084482] hover:shadow-md transition-all duration-200 w-full text-white font-semibold py-3 rounded-md'
-                    >
-                      Explore More
-                      <ArrowRight className='ml-2 h-4 w-4' />
-                    </Button>
-                  </CardContent>
-                </Card>
+                  <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white rounded-lg p-2'>
+                    <CardHeader className='text-center pb-6'>
+                      <motion.div
+                        className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${role.color} rounded-2xl mb-6 mx-auto shadow-lg`}
+                        whileHover={{ rotate: 5, scale: 1.1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <IconComponent className='h-10 w-10 text-white' />
+                      </motion.div>
+                      <CardTitle className='text-xl font-bold text-gray-900 mb-2'>
+                        {role.title}
+                      </CardTitle>
+                      <div className='text-[#0A66C2] font-semibold text-base pb-2'>
+                        {role.tagline}
+                      </div>
+                      <ul className='text-left space-y-2 mb-2'>
+                        {role.features.map((feature, idx) => (
+                          <motion.li
+                            key={idx}
+                            className='flex items-start gap-2 text-gray-600 text-sm'
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            viewport={{ once: true }}
+                          >
+                            <CheckCircle className='h-4 w-4 text-[#0A66C2] mt-0.5 flex-shrink-0' />
+                            <span>{feature}</span>
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </CardHeader>
+                    <CardContent className='text-center'>
+                      <Button
+                        onClick={() =>
+                          navigate('/signup', { state: { role: role.id } })
+                        }
+                        className='bg-[#0A66C2] hover:bg-[#084482] hover:shadow-md transition-all duration-200 w-full text-white font-semibold py-3 rounded-md'
+                      >
+                        Explore More
+                        <ArrowRight className='ml-2 h-4 w-4' />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Featured Programs Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-8xl mx-auto'>
-          <div className='flex justify-between items-center mb-16 px-12'>
-            <div>
+          <motion.div
+            className='flex justify-between items-center mb-16 px-12'
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp}>
               <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Featured Programs
               </h3>
               <p className='text-base text-gray-600'>
                 Discover world-class academic programs from top institutions
               </p>
-            </div>
-            <div className='flex gap-2'>
+            </motion.div>
+            <motion.div className='flex gap-2' variants={fadeInUp}>
               <Button
                 variant='outline'
                 size='icon'
@@ -644,8 +735,8 @@ const Index = () => {
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           <div className='relative overflow-hidden px-12'>
             <div
@@ -730,13 +821,22 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Opportunities Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-8xl mx-auto'>
-          <div className='flex justify-between items-center mb-16 px-12'>
-            <div>
+          <motion.div
+            className='flex justify-between items-center mb-16 px-12'
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp}>
               <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Latest Opportunities
               </h3>
@@ -744,8 +844,8 @@ const Index = () => {
                 Discover job opportunities, scholarships, and research positions
                 from top institutions worldwide.
               </p>
-            </div>
-            <div className='flex gap-2'>
+            </motion.div>
+            <motion.div className='flex gap-2' variants={fadeInUp}>
               <Button
                 variant='outline'
                 size='icon'
@@ -770,8 +870,8 @@ const Index = () => {
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
           <div className='relative overflow-hidden px-12'>
             <div
               className='flex transition-transform duration-300 ease-in-out pb-8'
@@ -1165,13 +1265,22 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Connect by Your Major Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-8xl mx-auto'>
-          <div className='flex justify-between items-center mb-16 px-12'>
-            <div>
+          <motion.div
+            className='flex justify-between items-center mb-16 px-12'
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp}>
               <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Connect by Your Major
               </h3>
@@ -1179,8 +1288,8 @@ const Index = () => {
                 Join subject-specific communities where students with similar
                 academic interests connect, collaborate, and grow together.
               </p>
-            </div>
-            <div className='flex gap-2'>
+            </motion.div>
+            <motion.div className='flex gap-2' variants={fadeInUp}>
               <Button
                 variant='outline'
                 size='icon'
@@ -1205,8 +1314,8 @@ const Index = () => {
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
           <div className='relative overflow-hidden px-12'>
             <div
               className='flex transition-transform duration-300 ease-in-out pb-8'
@@ -1286,13 +1395,22 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Connect with Our Community Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-8xl mx-auto'>
-          <div className='flex justify-between items-center mb-16 px-12'>
-            <div>
+          <motion.div
+            className='flex justify-between items-center mb-16 px-12'
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp}>
               <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Connect with Our Community
               </h3>
@@ -1300,8 +1418,8 @@ const Index = () => {
                 Join students, professors, and universities from around the
                 world
               </p>
-            </div>
-            <div className='flex gap-2'>
+            </motion.div>
+            <motion.div className='flex gap-2' variants={fadeInUp}>
               <Button
                 variant='outline'
                 size='icon'
@@ -1326,8 +1444,8 @@ const Index = () => {
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
           <div className='relative overflow-hidden px-12'>
             <div
               className='flex transition-transform duration-300 ease-in-out pb-8'
@@ -1450,13 +1568,22 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Mentorship Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-8xl mx-auto'>
-          <div className='flex justify-between items-center mb-16 px-12'>
-            <div>
+          <motion.div
+            className='flex justify-between items-center mb-16 px-12'
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp}>
               <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
                 Learn from the Best Professors
               </h3>
@@ -1464,8 +1591,8 @@ const Index = () => {
                 Book one-on-one mentorship sessions with world-class professors.
                 Get personalized guidance for your academic and career journey.
               </p>
-            </div>
-            <div className='flex gap-2'>
+            </motion.div>
+            <motion.div className='flex gap-2' variants={fadeInUp}>
               <Button
                 variant='outline'
                 size='icon'
@@ -1490,8 +1617,8 @@ const Index = () => {
               >
                 <ArrowRight className='h-4 w-4' />
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
           <div className='relative overflow-hidden px-12'>
             <div
               className='flex transition-transform duration-300 ease-in-out pb-8'
@@ -1575,22 +1702,37 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* How Mentorship Works Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-7xl mx-auto px-12'>
-          <div className='text-center mb-16'>
-            <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'>
+          <motion.div className='text-center mb-16' variants={staggerContainer}>
+            <motion.h3
+              className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'
+              variants={fadeInUp}
+            >
               How Mentorship Works
-            </h3>
-            <p className='text-base text-gray-600 max-w-3xl mx-auto'>
+            </motion.h3>
+            <motion.p
+              className='text-base text-gray-600 max-w-3xl mx-auto'
+              variants={fadeInUp}
+            >
               Get personalized guidance from world-class professors in just
               three simple steps
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className='grid md:grid-cols-3 gap-8'>
+          <motion.div
+            className='grid md:grid-cols-3 gap-8'
+            variants={staggerContainer}
+          >
             <div className='relative group'>
               <div className='bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-gray-200'>
                 <div className='relative mb-6'>
@@ -1669,9 +1811,9 @@ const Index = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className='text-center mt-12'>
+          <motion.div className='text-center mt-12' variants={fadeInUp}>
             <Button
               size='lg'
               className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-md transition-all duration-200 hover:shadow-lg rounded-md'
@@ -1679,27 +1821,42 @@ const Index = () => {
               Start Your Mentorship Journey
               <ArrowRight className='ml-2 h-5 w-5' />
             </Button>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Join Our Community Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-4xl mx-auto text-center'>
-          <div className='flex items-center justify-center mb-6'>
+          <motion.div
+            className='flex items-center justify-center mb-6'
+            variants={fadeInUp}
+          >
             <img
               src='/logo.png'
               alt='Edfellow'
               className='w-12 h-12 rounded-full mr-3'
             />
             <h2 className='text-2xl font-bold text-[#0B1B4D]'>Edfellow</h2>
-          </div>
-          <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'>
+          </motion.div>
+          <motion.h3
+            className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'
+            variants={fadeInUp}
+          >
             Join Our Community
-          </h3>
-          <p className='text-base text-gray-600 mb-10'>
+          </motion.h3>
+          <motion.p
+            className='text-base text-gray-600 mb-10'
+            variants={fadeInUp}
+          >
             Choose your role to get started
-          </p>
+          </motion.p>
           <div className='grid md:grid-cols-3 gap-8 mb-8'>
             <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white'>
               <CardHeader className='text-center pb-4'>
@@ -1756,14 +1913,14 @@ const Index = () => {
               </CardContent>
             </Card>
           </div>
-          <p className='text-sm text-gray-500'>
+          <motion.p className='text-sm text-gray-500' variants={fadeInUp}>
             Already have an account?{' '}
             <a href='#' className='text-[#0A66C2] hover:underline'>
               Sign in here
             </a>
-          </p>
+          </motion.p>
         </div>
-      </section>
+      </motion.section>
 
       {/* Footer */}
       <LandingFooter />
