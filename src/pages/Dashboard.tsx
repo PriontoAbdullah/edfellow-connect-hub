@@ -16,6 +16,7 @@ import Profile from '@/pages/Profile';
 import Chat from '@/pages/Chat';
 import Groups from '@/pages/Groups';
 import Explore from '@/pages/Explore';
+import Analytics from '@/pages/Analytics';
 
 const Dashboard = () => {
   const location = useLocation();
@@ -27,6 +28,7 @@ const Dashboard = () => {
     title: 'Computer Science',
     university: 'University of Technology',
     location: 'Bangladesh',
+    country: 'Bangladesh',
     rating: 4.0,
     profileViews: 26,
     role: 'student', // This would determine which dashboard to show
@@ -69,6 +71,7 @@ const Dashboard = () => {
               <Route path='/chat' element={<Chat />} />
               <Route path='/groups' element={<Groups />} />
               <Route path='/explore' element={<Explore />} />
+              <Route path='/analytics' element={<Analytics />} />
 
               {/* Professor Routes */}
               <Route path='/professor' element={<ProfessorDashboard />} />

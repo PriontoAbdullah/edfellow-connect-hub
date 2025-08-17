@@ -204,70 +204,79 @@ const StudentGroups = () => {
         </TabsList>
 
         <TabsContent value='my-groups' className='space-y-4'>
-          <div className='grid gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {filteredMyGroups.map((group) => (
               <Card
                 key={group.id}
-                className='hover:shadow-lg transition-shadow'
+                className='hover:shadow-lg transition-shadow h-full'
               >
-                <CardContent className='p-6'>
-                  <div className='flex items-start justify-between'>
-                    <div className='flex items-start space-x-4 flex-1'>
-                      <Avatar className='h-12 w-12 bg-blue-100 text-blue-600'>
-                        <AvatarFallback className='bg-blue-100 text-blue-600'>
-                          {group.image}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className='flex-1'>
-                        <div className='flex items-center gap-2 mb-1'>
-                          <h3 className='font-semibold text-gray-900'>
-                            {group.name}
-                          </h3>
-                          {group.privacy === 'private' ? (
-                            <Lock className='h-4 w-4 text-gray-500' />
-                          ) : (
-                            <Globe className='h-4 w-4 text-gray-500' />
-                          )}
-                          {group.role === 'moderator' && (
-                            <Badge className='bg-green-100 text-green-700'>
-                              Moderator
-                            </Badge>
-                          )}
-                        </div>
-                        <p className='text-gray-600 text-sm mb-2'>
-                          {group.description}
-                        </p>
-                        <div className='flex items-center gap-4 text-sm text-gray-500'>
-                          <div className='flex items-center gap-1'>
-                            <Users className='h-4 w-4' />
-                            {group.members} members
-                          </div>
-                          <Badge variant='outline'>{group.category}</Badge>
-                          <span>Active {group.lastActivity}</span>
-                        </div>
+                <CardContent className='p-6 h-full flex flex-col'>
+                  <div className='flex items-start space-x-4 mb-4'>
+                    <Avatar className='h-12 w-12 bg-blue-100 text-blue-600 flex-shrink-0'>
+                      <AvatarFallback className='bg-blue-100 text-blue-600'>
+                        {group.image}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <h3 className='font-semibold text-gray-900 text-sm leading-tight'>
+                          {group.name}
+                        </h3>
+                        {group.privacy === 'private' ? (
+                          <Lock className='h-4 w-4 text-gray-500 flex-shrink-0' />
+                        ) : (
+                          <Globe className='h-4 w-4 text-gray-500 flex-shrink-0' />
+                        )}
                       </div>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                      {group.unreadMessages > 0 && (
-                        <Badge className='bg-red-500 text-white'>
-                          {group.unreadMessages}
+                      {group.role === 'moderator' && (
+                        <Badge className='bg-green-100 text-green-700 text-xs'>
+                          Moderator
                         </Badge>
                       )}
+                    </div>
+                  </div>
+
+                  <p className='text-gray-600 text-sm mb-4 flex-1'>
+                    {group.description}
+                  </p>
+
+                  <div className='space-y-3'>
+                    <div className='flex items-center justify-between text-sm text-gray-500'>
+                      <div className='flex items-center gap-1'>
+                        <Users className='h-4 w-4' />
+                        {group.members} members
+                      </div>
+                      <Badge variant='outline' className='text-xs'>
+                        {group.category}
+                      </Badge>
+                    </div>
+
+                    <div className='flex items-center justify-between text-xs text-gray-500'>
+                      <span>Active {group.lastActivity}</span>
+                      {group.unreadMessages > 0 && (
+                        <Badge className='bg-red-500 text-white text-xs'>
+                          {group.unreadMessages} new
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className='flex gap-2 pt-2'>
                       <Button
                         variant='outline'
                         size='sm'
+                        className='flex-1 text-xs'
                         onClick={() => handleChatGroup(group)}
                       >
-                        <MessageSquare className='h-4 w-4 mr-2' />
+                        <MessageSquare className='h-3 w-3 mr-1' />
                         Chat
                       </Button>
                       <Button
                         size='sm'
-                        className='bg-blue-600 hover:bg-blue-700'
+                        className='bg-blue-600 hover:bg-blue-700 text-xs flex-1'
                         onClick={() => handleViewGroup(group)}
                       >
-                        <Eye className='h-4 w-4 mr-2' />
-                        View Group
+                        <Eye className='h-3 w-3 mr-1' />
+                        View
                       </Button>
                     </div>
                   </div>
@@ -278,61 +287,67 @@ const StudentGroups = () => {
         </TabsContent>
 
         <TabsContent value='discover' className='space-y-4'>
-          <div className='grid gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {filteredSuggestedGroups.map((group) => (
               <Card
                 key={group.id}
-                className='hover:shadow-lg transition-shadow'
+                className='hover:shadow-lg transition-shadow h-full'
               >
-                <CardContent className='p-6'>
-                  <div className='flex items-start justify-between'>
-                    <div className='flex items-start space-x-4 flex-1'>
-                      <Avatar className='h-12 w-12 bg-purple-100 text-purple-600'>
-                        <AvatarFallback className='bg-purple-100 text-purple-600'>
-                          {group.image}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className='flex-1'>
-                        <div className='flex items-center gap-2 mb-1'>
-                          <h3 className='font-semibold text-gray-900'>
-                            {group.name}
-                          </h3>
-                          <Globe className='h-4 w-4 text-gray-500' />
-                          {group.trending && (
-                            <Badge className='bg-orange-100 text-orange-700 flex items-center gap-1'>
-                              <TrendingUp className='h-3 w-3' />
-                              Trending
-                            </Badge>
-                          )}
-                        </div>
-                        <p className='text-gray-600 text-sm mb-2'>
-                          {group.description}
-                        </p>
-                        <div className='flex items-center gap-4 text-sm text-gray-500'>
-                          <div className='flex items-center gap-1'>
-                            <Users className='h-4 w-4' />
-                            {group.members} members
-                          </div>
-                          <Badge variant='outline'>{group.category}</Badge>
-                        </div>
+                <CardContent className='p-6 h-full flex flex-col'>
+                  <div className='flex items-start space-x-4 mb-4'>
+                    <Avatar className='h-12 w-12 bg-purple-100 text-purple-600 flex-shrink-0'>
+                      <AvatarFallback className='bg-purple-100 text-purple-600'>
+                        {group.image}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <h3 className='font-semibold text-gray-900 truncate'>
+                          {group.name}
+                        </h3>
+                        <Globe className='h-4 w-4 text-gray-500 flex-shrink-0' />
+                        {group.trending && (
+                          <Badge className='bg-orange-100 text-orange-700 flex items-center gap-1 text-xs'>
+                            <TrendingUp className='h-3 w-3' />
+                            Trending
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                    <div className='flex items-center gap-2'>
+                  </div>
+
+                  <p className='text-gray-600 text-sm mb-4 flex-1'>
+                    {group.description}
+                  </p>
+
+                  <div className='space-y-3'>
+                    <div className='flex items-center justify-between text-sm text-gray-500'>
+                      <div className='flex items-center gap-1'>
+                        <Users className='h-4 w-4' />
+                        {group.members} members
+                      </div>
+                      <Badge variant='outline' className='text-xs'>
+                        {group.category}
+                      </Badge>
+                    </div>
+
+                    <div className='flex gap-2 pt-2'>
                       <Button
                         variant='outline'
                         size='sm'
+                        className='flex-1 text-xs'
                         onClick={() => handlePreviewGroup(group)}
                       >
-                        <Eye className='h-4 w-4 mr-2' />
+                        <Eye className='h-3 w-3 mr-1' />
                         Preview
                       </Button>
                       <Button
                         size='sm'
-                        className='bg-green-600 hover:bg-green-700'
+                        className='bg-green-600 hover:bg-green-700 text-xs flex-1'
                         onClick={() => handleJoinGroup(group)}
                       >
-                        <Plus className='h-4 w-4 mr-2' />
-                        Join Group
+                        <Plus className='h-3 w-3 mr-1' />
+                        Join
                       </Button>
                     </div>
                   </div>

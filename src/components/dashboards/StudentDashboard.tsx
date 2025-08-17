@@ -71,6 +71,7 @@ const StudentDashboard = () => {
     title: 'Computer Science',
     university: 'University of Technology',
     location: 'Bangladesh',
+    country: 'Bangladesh',
     rating: 4.0,
     profileViews: 26,
     role: 'student',
@@ -298,49 +299,6 @@ const StudentDashboard = () => {
 
       {/* Right Sidebar */}
       <div className='lg:col-span-4 space-y-4'>
-        {/* Quick Actions */}
-        <Card className='bg-white border border-gray-200 shadow-sm'>
-          <CardHeader className='pb-3'>
-            <CardTitle className='text-lg font-semibold text-gray-900'>
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-2'>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/field-of-study')}
-            >
-              <BookOpen className='h-4 w-4 mr-3' />
-              Field of Study
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/mentorship')}
-            >
-              <Heart className='h-4 w-4 mr-3' />
-              Find Mentors
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/career-exploration')}
-            >
-              <Briefcase className='h-4 w-4 mr-3' />
-              Career Center
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/scholarships')}
-            >
-              <Award className='h-4 w-4 mr-3' />
-              Scholarships
-            </Button>
-          </CardContent>
-        </Card>
-
         {/* Academic Progress */}
         <Card className='bg-white border border-gray-200 shadow-sm'>
           <CardHeader className='pb-3'>

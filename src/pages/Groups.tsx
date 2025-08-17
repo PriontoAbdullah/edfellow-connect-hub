@@ -180,17 +180,20 @@ const Groups = () => {
               group.description.toLowerCase().includes(searchTerm.toLowerCase())
           )
           .map((group) => (
-            <Card key={group.id} className='hover:shadow-md transition-shadow'>
-              <CardHeader>
+            <Card
+              key={group.id}
+              className='hover:shadow-md transition-shadow h-full flex flex-col'
+            >
+              <CardHeader className='flex-shrink-0'>
                 <div className='flex items-start justify-between'>
-                  <div className='flex items-center gap-3'>
-                    <Avatar className='h-12 w-12'>
+                  <div className='flex items-center gap-3 w-full'>
+                    <Avatar className='h-12 w-12 flex-shrink-0'>
                       <AvatarFallback className='text-lg font-semibold'>
                         {group.avatar}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex-1 min-w-0'>
-                      <CardTitle className='text-lg truncate'>
+                      <CardTitle className='text-lg break-words line-clamp-2'>
                         {group.name}
                       </CardTitle>
                       <CardDescription className='flex items-center gap-1 mt-1'>
@@ -212,7 +215,7 @@ const Groups = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='space-y-4'>
+              <CardContent className='space-y-4 flex-grow'>
                 <p className='text-sm text-gray-600 line-clamp-2'>
                   {group.description}
                 </p>
@@ -247,7 +250,7 @@ const Groups = () => {
                   </span>
                 </div>
 
-                <div className='flex gap-2'>
+                <div className='flex gap-2 mt-auto'>
                   {activeTab === 'my-groups' ? (
                     <>
                       <Button variant='outline' size='sm' className='flex-1'>

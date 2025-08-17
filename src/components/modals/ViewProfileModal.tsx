@@ -19,6 +19,12 @@ import {
   BookOpen,
   Award,
   Users,
+  Globe,
+  Briefcase,
+  FolderOpen,
+  Heart,
+  Lightbulb,
+  Target,
 } from 'lucide-react';
 
 interface ViewProfileModalProps {
@@ -132,18 +138,36 @@ const ViewProfileModal = ({
           <div className='grid md:grid-cols-2 gap-6'>
             {/* Left Column */}
             <div className='space-y-4'>
+              {/* About Section */}
               <div>
-                <h4 className='font-medium text-gray-900 mb-2'>About</h4>
-                <p className='text-gray-600 text-sm'>{profileData.bio}</p>
+                <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                  <User className='h-4 w-4 text-blue-600' />
+                  About
+                </h4>
+                <p className='text-gray-600 text-sm leading-relaxed'>
+                  {profileData.bio}
+                </p>
               </div>
 
+              {/* Interests/Expertise Section */}
               <div>
-                <h4 className='font-medium text-gray-900 mb-2'>
-                  {userType === 'student'
-                    ? 'Interests'
-                    : userType === 'professor'
-                    ? 'Expertise'
-                    : 'Programs'}
+                <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                  {userType === 'student' ? (
+                    <>
+                      <Heart className='h-4 w-4 text-red-500' />
+                      Interests
+                    </>
+                  ) : userType === 'professor' ? (
+                    <>
+                      <Lightbulb className='h-4 w-4 text-yellow-500' />
+                      Expertise
+                    </>
+                  ) : (
+                    <>
+                      <BookOpen className='h-4 w-4 text-green-500' />
+                      Programs
+                    </>
+                  )}
                 </h4>
                 <div className='flex flex-wrap gap-2'>
                   {(
@@ -159,13 +183,106 @@ const ViewProfileModal = ({
                 </div>
               </div>
 
+              {/* Education Section */}
               {userType !== 'university' && (
                 <div>
-                  <h4 className='font-medium text-gray-900 mb-2'>Education</h4>
-                  <div className='space-y-1 text-sm text-gray-600'>
+                  <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                    <GraduationCap className='h-4 w-4 text-purple-600' />
+                    Education
+                  </h4>
+                  <div className='space-y-2'>
                     {(profileData.education || []).map(
                       (edu: string, index: number) => (
-                        <div key={index}>• {edu}</div>
+                        <div
+                          key={index}
+                          className='text-sm text-gray-600 bg-gray-50 p-2 rounded'
+                        >
+                          • {edu}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Skills Section */}
+              {profileData.skills && profileData.skills.length > 0 && (
+                <div>
+                  <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                    <Target className='h-4 w-4 text-orange-600' />
+                    Skills
+                  </h4>
+                  <div className='flex flex-wrap gap-2'>
+                    {profileData.skills.map((skill: string, index: number) => (
+                      <Badge key={index} variant='outline' className='text-xs'>
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Languages Section */}
+              {profileData.languages && profileData.languages.length > 0 && (
+                <div>
+                  <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                    <Globe className='h-4 w-4 text-blue-600' />
+                    Languages
+                  </h4>
+                  <div className='flex flex-wrap gap-2'>
+                    {profileData.languages.map(
+                      (language: string, index: number) => (
+                        <Badge
+                          key={index}
+                          variant='outline'
+                          className='text-xs'
+                        >
+                          {language}
+                        </Badge>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Experience Section */}
+              {profileData.experience && profileData.experience.length > 0 && (
+                <div>
+                  <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                    <Briefcase className='h-4 w-4 text-green-600' />
+                    Experience
+                  </h4>
+                  <div className='space-y-2'>
+                    {profileData.experience.map(
+                      (exp: string, index: number) => (
+                        <div
+                          key={index}
+                          className='text-sm text-gray-600 bg-gray-50 p-2 rounded'
+                        >
+                          • {exp}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Projects Section */}
+              {profileData.projects && profileData.projects.length > 0 && (
+                <div>
+                  <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                    <FolderOpen className='h-4 w-4 text-indigo-600' />
+                    Projects
+                  </h4>
+                  <div className='space-y-2'>
+                    {profileData.projects.map(
+                      (project: string, index: number) => (
+                        <div
+                          key={index}
+                          className='text-sm text-gray-600 bg-gray-50 p-2 rounded'
+                        >
+                          • {project}
+                        </div>
                       )
                     )}
                   </div>
@@ -275,6 +392,104 @@ const ViewProfileModal = ({
                     ))}
                 </div>
               </div>
+
+              {/* Certifications Section */}
+              {profileData.certifications &&
+                profileData.certifications.length > 0 && (
+                  <div>
+                    <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                      <Award className='h-4 w-4 text-purple-500' />
+                      Certifications
+                    </h4>
+                    <div className='space-y-2'>
+                      {profileData.certifications
+                        .slice(0, 3)
+                        .map((cert: any, index: number) => (
+                          <div
+                            key={index}
+                            className='text-sm text-gray-600 bg-gray-50 p-2 rounded'
+                          >
+                            <div className='font-medium text-gray-900'>
+                              {cert.name}
+                            </div>
+                            <div className='text-xs'>
+                              {cert.issuer} • {cert.year}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Volunteer Experience */}
+              {profileData.volunteer && profileData.volunteer.length > 0 && (
+                <div>
+                  <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                    <Heart className='h-4 w-4 text-red-500' />
+                    Volunteer Experience
+                  </h4>
+                  <div className='space-y-2'>
+                    {profileData.volunteer
+                      .slice(0, 2)
+                      .map((vol: any, index: number) => (
+                        <div
+                          key={index}
+                          className='text-sm text-gray-600 bg-gray-50 p-2 rounded'
+                        >
+                          <div className='font-medium text-gray-900'>
+                            {vol.role}
+                          </div>
+                          <div className='text-xs'>
+                            {vol.organization} • {vol.duration}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommendations */}
+              {profileData.recommendations &&
+                profileData.recommendations.length > 0 && (
+                  <div>
+                    <h4 className='font-medium text-gray-900 mb-2 flex items-center gap-2'>
+                      <Star className='h-4 w-4 text-yellow-500' />
+                      Recommendations
+                    </h4>
+                    <div className='space-y-2'>
+                      {profileData.recommendations
+                        .slice(0, 2)
+                        .map((rec: any, index: number) => (
+                          <div
+                            key={index}
+                            className='border border-gray-200 rounded-lg p-3'
+                          >
+                            <div className='flex items-center gap-2 mb-2'>
+                              <Avatar className='h-6 w-6'>
+                                <AvatarFallback className='text-xs'>
+                                  {rec.recommender
+                                    .split(' ')
+                                    .map((n: string) => n[0])
+                                    .join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className='text-sm font-medium text-gray-900'>
+                                  {rec.recommender}
+                                </div>
+                                <div className='text-xs text-gray-600'>
+                                  {rec.title}
+                                </div>
+                              </div>
+                            </div>
+                            <p className='text-xs text-gray-600 italic'>
+                              "{rec.text}"
+                            </p>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
 

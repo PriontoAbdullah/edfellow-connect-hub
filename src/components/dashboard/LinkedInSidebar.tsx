@@ -2,6 +2,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { useToast } from '@/hooks/use-toast';
+import { getCountryCode } from '@/lib/countries';
 import {
   Bookmark,
   Users,
@@ -33,6 +36,8 @@ import {
   Bell,
   Search,
   Plus,
+  ExternalLink,
+  BarChart3,
 } from 'lucide-react';
 
 interface LinkedInSidebarProps {
@@ -44,12 +49,15 @@ interface LinkedInSidebarProps {
     university?: string;
     location?: string;
     profileViews?: number;
+    country?: string;
+    rating?: number;
   };
 }
 
 export function LinkedInSidebar({ user }: LinkedInSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -89,9 +97,99 @@ export function LinkedInSidebar({ user }: LinkedInSidebarProps) {
     return false;
   };
 
-  const renderStudentNavigation = () => (
+  return (
     <div className='space-y-4'>
-      {/* Dashboard */}
+      {/* Profile Card */}
+      <Card className='bg-white border border-gray-200 shadow-sm'>
+        <CardContent className='p-4'>
+          <div className='text-center'>
+            <div className='relative inline-block mb-3'>
+              <Avatar className='h-16 w-16 mx-auto'>
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className='bg-gray-100 text-gray-600'>
+                  {user.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
+                </AvatarFallback>
+              </Avatar>
+              {/* Online status indicator */}
+              <div className='absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white'></div>
+            </div>
+            <h3 className='font-bold text-gray-900 mb-1'>{user.name}</h3>
+            <p className='text-sm text-gray-600 mb-1'>
+              {user.title || 'Computer Science'}
+            </p>
+            <p className='text-sm text-gray-600 mb-2'>
+              {user.university || 'University of Technology'}
+            </p>
+            <div className='flex items-center justify-center gap-1 mb-3'>
+              <CountryFlag
+                code={getCountryCode(user.country || '')}
+                size={16}
+                className='rounded-sm'
+              />
+              <span className='text-sm text-gray-600'>
+                {user.country || 'Bangladesh'}
+              </span>
+            </div>
+            <div className='flex items-center justify-center gap-1 mb-4'>
+              <div className='flex'>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-4 w-4 ${
+                      star <= (user.rating || 4)
+                        ? 'text-yellow-400 fill-current'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className='text-sm font-medium text-gray-900 ml-1'>
+                {user.rating || 4.0}
+              </span>
+            </div>
+            <Button
+              variant='outline'
+              className='w-full border-gray-300 text-gray-900 hover:bg-gray-50'
+              onClick={() => navigate('/dashboard/profile')}
+            >
+              <ExternalLink className='h-4 w-4 mr-2' />
+              View Digital Portfolio
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Profile Metrics */}
+      <Card className='bg-white border border-gray-200 shadow-sm'>
+        <CardContent className='p-4'>
+          <div className='space-y-3'>
+            <div className='flex items-center justify-between text-sm'>
+              <span className='text-gray-600'>Profile viewers</span>
+              <span className='font-semibold text-gray-900'>
+                {user.profileViews || 26}
+              </span>
+            </div>
+            <Button
+              variant='ghost'
+              className='w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+              onClick={() => {
+                toast({
+                  title: 'Analytics Dashboard',
+                  description: 'Opening analytics dashboard...',
+                });
+                navigate('/dashboard/analytics');
+              }}
+            >
+              View all analytics
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Main Navigation */}
       <Card className='bg-white border border-gray-200 shadow-sm'>
         <CardContent className='p-4'>
           <div className='space-y-2'>
@@ -178,268 +276,6 @@ export function LinkedInSidebar({ user }: LinkedInSidebarProps) {
             >
               <FileText className='h-4 w-4 mr-3' />
               Digital Portfolio Builder
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
-        <CardContent className='p-4'>
-          <h4 className='font-semibold text-gray-900 mb-3'>Quick Actions</h4>
-          <div className='space-y-2'>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/field-of-study')}
-            >
-              <BookOpen className='h-4 w-4 mr-3' />
-              Field of Study
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/mentorship')}
-            >
-              <Heart className='h-4 w-4 mr-3' />
-              Find Mentors
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/career-exploration')}
-            >
-              <Briefcase className='h-4 w-4 mr-3' />
-              Career Center
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/scholarships')}
-            >
-              <Award className='h-4 w-4 mr-3' />
-              Scholarships
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderProfessorNavigation = () => (
-    <div className='space-y-4'>
-      {/* Professor Navigation */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
-        <CardContent className='p-4'>
-          <div className='space-y-2'>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard')}
-            >
-              <Home className='h-4 w-4 mr-3' />
-              Dashboard
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/subject-groups')}
-            >
-              <Users className='h-4 w-4 mr-3' />
-              Subject Groups
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/mentorship')}
-            >
-              <Heart className='h-4 w-4 mr-3' />
-              Mentorship Requests
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/professor-chat')}
-            >
-              <MessageSquare className='h-4 w-4 mr-3' />
-              Messages
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/research')}
-            >
-              <BookOpen className='h-4 w-4 mr-3' />
-              Research Projects
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/publications')}
-            >
-              <FileText className='h-4 w-4 mr-3' />
-              Publications
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderUniversityNavigation = () => (
-    <div className='space-y-4'>
-      {/* University Navigation */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
-        <CardContent className='p-4'>
-          <div className='space-y-2'>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard')}
-            >
-              <Home className='h-4 w-4 mr-3' />
-              Dashboard
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/programs')}
-            >
-              <BookOpen className='h-4 w-4 mr-3' />
-              Programs
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/submit-program')}
-            >
-              <Plus className='h-4 w-4 mr-3' />
-              Submit Program
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/messages')}
-            >
-              <MessageSquare className='h-4 w-4 mr-3' />
-              Messages
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/analytics')}
-            >
-              <TrendingUp className='h-4 w-4 mr-3' />
-              Analytics
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/settings')}
-            >
-              <Settings className='h-4 w-4 mr-3' />
-              Settings
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  return (
-    <div className='space-y-4'>
-      {/* Profile Card */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
-        <CardContent className='p-4'>
-          <div className='text-center'>
-            <div className='relative inline-block mb-3'>
-              <Avatar className='h-16 w-16 mx-auto'>
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className={getRoleColor(user.role)}>
-                  {user.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-            <h3 className='font-semibold text-gray-900 mb-1'>{user.name}</h3>
-            <p className='text-sm text-gray-600 mb-1'>
-              {user.title || user.role}
-            </p>
-            <p className='text-sm text-gray-600 mb-2 flex items-center justify-center gap-1'>
-              <Globe className='h-3 w-3' />
-              {user.location || 'Location'}
-            </p>
-            <p className='text-sm text-gray-600 mb-3 flex items-center justify-center gap-1'>
-              <Building className='h-3 w-3' />
-              {user.university || 'University'}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Profile Metrics */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
-        <CardContent className='p-4'>
-          <div className='space-y-3'>
-            <div className='flex items-center justify-between text-sm'>
-              <span className='text-gray-600'>Profile viewers</span>
-              <span className='font-semibold text-gray-900'>
-                {user.profileViews || 26}
-              </span>
-            </div>
-            <Button
-              variant='ghost'
-              className='w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50'
-            >
-              View all analytics
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Role-Specific Navigation */}
-      {user.role === 'student' && renderStudentNavigation()}
-      {user.role === 'professor' && renderProfessorNavigation()}
-      {user.role === 'university' && renderUniversityNavigation()}
-
-      {/* Quick Actions */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
-        <CardContent className='p-4'>
-          <h4 className='font-semibold text-gray-900 mb-3'>Quick Actions</h4>
-          <div className='space-y-2'>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/field-of-study')}
-            >
-              <BookOpen className='h-4 w-4 mr-3' />
-              Field of Study
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/mentorship')}
-            >
-              <Heart className='h-4 w-4 mr-3' />
-              Find Mentors
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/career-exploration')}
-            >
-              <Briefcase className='h-4 w-4 mr-3' />
-              Career Center
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              onClick={() => navigate('/dashboard/scholarships')}
-            >
-              <Award className='h-4 w-4 mr-3' />
-              Scholarships
             </Button>
           </div>
         </CardContent>

@@ -290,11 +290,14 @@ const StudentChat = () => {
         </Button>
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]'>
+      <div className='grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]'>
         {/* Conversations List */}
-        <Card className='lg:col-span-1'>
+        <Card className='lg:col-span-1 overflow-hidden'>
           <CardHeader className='pb-3'>
-            <CardTitle className='text-lg'>Conversations</CardTitle>
+            <CardTitle className='text-lg flex items-center gap-2'>
+              <MessageSquare className='h-5 w-5 text-blue-600' />
+              Conversations
+            </CardTitle>
             <div className='relative'>
               <Search className='absolute left-3 top-3 h-4 w-4 text-gray-400' />
               <Input placeholder='Search conversations...' className='pl-10' />
@@ -314,9 +317,9 @@ const StudentChat = () => {
                     onClick={() => setSelectedChat(conv.id)}
                   >
                     <div className='flex items-start space-x-3'>
-                      <div className='relative'>
-                        <Avatar className='h-10 w-10'>
-                          <AvatarFallback className='bg-gray-100 text-gray-600'>
+                      <div className='relative flex-shrink-0'>
+                        <Avatar className='h-12 w-12'>
+                          <AvatarFallback className='bg-gray-100 text-gray-600 text-sm font-medium'>
                             {conv.avatar}
                           </AvatarFallback>
                         </Avatar>
@@ -326,25 +329,33 @@ const StudentChat = () => {
                       </div>
                       <div className='flex-1 min-w-0'>
                         <div className='flex items-center justify-between mb-1'>
-                          <p className='font-medium text-gray-900 truncate'>
+                          <p className='font-semibold text-gray-900 truncate text-sm'>
                             {conv.name}
                           </p>
-                          {conv.country && (
-                            <CountryFlag
-                              code={getCountryCode(conv.country) || ''}
-                              size={16}
-                            />
-                          )}
+                          <div className='flex items-center gap-1'>
+                            {conv.country && (
+                              <CountryFlag
+                                code={getCountryCode(conv.country) || ''}
+                                size={14}
+                              />
+                            )}
+                            <span className='text-xs text-gray-500'>
+                              {conv.time}
+                            </span>
+                          </div>
                         </div>
-                        <p className='text-sm text-gray-600 truncate mb-1'>
+                        <p className='text-sm text-gray-600 truncate mb-2 leading-relaxed'>
                           {conv.lastMessage}
                         </p>
                         <div className='flex items-center justify-between'>
-                          <Badge variant='outline' className='text-xs'>
+                          <Badge
+                            variant='outline'
+                            className='text-xs px-2 py-1'
+                          >
                             {conv.role}
                           </Badge>
                           {conv.unread > 0 && (
-                            <Badge className='bg-blue-600 text-white text-xs'>
+                            <Badge className='bg-blue-600 text-white text-xs px-2 py-1'>
                               {conv.unread}
                             </Badge>
                           )}
@@ -359,7 +370,7 @@ const StudentChat = () => {
         </Card>
 
         {/* Chat Area */}
-        <Card className='lg:col-span-2'>
+        <Card className='lg:col-span-3'>
           {selectedConversation ? (
             <>
               <CardHeader className='pb-3 border-b'>

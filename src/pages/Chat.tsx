@@ -154,9 +154,9 @@ const Chat = () => {
   const RoleIcon = currentChat ? getRoleIcon(currentChat.role) : User;
 
   return (
-    <div className='h-[calc(100vh-120px)] flex'>
+    <div className='h-[calc(100vh-120px)] flex bg-white rounded-lg border border-gray-200 overflow-hidden'>
       {/* Conversations Sidebar */}
-      <div className='w-80 border-r border-gray-200 flex flex-col'>
+      <div className='w-80 border-r border-gray-200 flex flex-col bg-gray-50'>
         <div className='p-4 border-b border-gray-200'>
           <h2 className='text-lg font-semibold text-gray-900 flex items-center gap-2'>
             <MessageSquare className='h-5 w-5 text-blue-600' />
@@ -173,10 +173,10 @@ const Chat = () => {
             {conversations.map((conversation) => (
               <div
                 key={conversation.id}
-                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                className={`p-3 rounded-lg cursor-pointer transition-colors border border-transparent ${
                   selectedChat === conversation.id
-                    ? 'bg-blue-50 border border-blue-200'
-                    : 'hover:bg-gray-50'
+                    ? 'bg-blue-50 border-blue-200 shadow-sm'
+                    : 'hover:bg-white hover:border-gray-200'
                 }`}
                 onClick={() => setSelectedChat(conversation.id)}
               >
@@ -196,11 +196,11 @@ const Chat = () => {
                       <h4 className='font-medium text-gray-900 truncate'>
                         {conversation.name}
                       </h4>
-                      <span className='text-xs text-gray-500'>
+                      <span className='text-xs text-gray-500 flex-shrink-0 ml-2'>
                         {conversation.time}
                       </span>
                     </div>
-                    <p className='text-sm text-gray-600 truncate'>
+                    <p className='text-sm text-gray-600 truncate max-w-full'>
                       {conversation.lastMessage}
                     </p>
                   </div>
@@ -215,7 +215,7 @@ const Chat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className='flex-1 flex flex-col'>
+      <div className='flex-1 flex flex-col bg-white'>
         {currentChat ? (
           <>
             {/* Chat Header */}

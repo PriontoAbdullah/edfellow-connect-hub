@@ -132,6 +132,7 @@ export const countries = [
   { name: 'Malaysia', code: 'my' },
   { name: 'Indonesia', code: 'id' },
   { name: 'Philippines', code: 'ph' },
+  { name: 'Bangladesh', code: 'bd' },
   { name: 'Brunei', code: 'bn' },
   { name: 'East Timor', code: 'tl' },
   { name: 'Papua New Guinea', code: 'pg' },

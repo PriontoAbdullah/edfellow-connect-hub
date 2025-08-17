@@ -105,9 +105,11 @@ export function DashboardHeader({
             <div className='flex items-center gap-4'>
               {/* Logo */}
               <div className='flex items-center gap-2'>
-                <div className='w-8 h-8 bg-blue-600 rounded flex items-center justify-center'>
-                  <GraduationCap className='h-5 w-5 text-white' />
-                </div>
+                <img
+                  src='/logo.png'
+                  alt='Edfellow'
+                  className='w-12 rounded-full'
+                />
                 <span className='text-xl font-bold text-gray-900'>
                   Edfellow
                 </span>
