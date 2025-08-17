@@ -11,6 +11,21 @@ import StudentCareerExploration from '@/components/dashboards/student/StudentCar
 import StudentMentorship from '@/components/dashboards/student/StudentMentorship';
 import StudentScholarships from '@/components/dashboards/student/StudentScholarships';
 import StudentPortfolio from '@/components/dashboards/student/StudentPortfolio';
+import ProfessorCourses from '@/components/dashboards/professor/ProfessorCourses';
+import ProfessorFieldOfStudy from '@/components/dashboards/professor/ProfessorFieldOfStudy';
+import ProfessorAnnouncements from '@/components/dashboards/professor/ProfessorAnnouncements';
+import ProfessorResearchAssistant from '@/components/dashboards/professor/ProfessorResearchAssistant';
+import ProfessorAdmissionAdvisory from '@/components/dashboards/professor/ProfessorAdmissionAdvisory';
+import ProfessorPortfolio from '@/components/dashboards/professor/ProfessorPortfolio';
+// University Components
+import UniversityInstitutionDashboard from '@/components/dashboards/university/UniversityInstitutionDashboard';
+import UniversityPrograms from '@/components/dashboards/university/UniversityPrograms';
+import UniversityStudentRequirement from '@/components/dashboards/university/UniversityStudentRequirement';
+import UniversityProfessorRequirement from '@/components/dashboards/university/UniversityProfessorRequirement';
+import UniversityAlumniEngagement from '@/components/dashboards/university/UniversityAlumniEngagement';
+import UniversityLiveSessions from '@/components/dashboards/university/UniversityLiveSessions';
+import UniversityProfile from '@/components/dashboards/university/UniversityProfile';
+import UniversityMessages from '@/components/dashboards/university/UniversityMessages';
 import Notifications from '@/pages/Notifications';
 import Profile from '@/pages/Profile';
 import Chat from '@/pages/Chat';
@@ -21,17 +36,148 @@ import Analytics from '@/pages/Analytics';
 const Dashboard = () => {
   const location = useLocation();
 
-  // Mock user data - in real app, this would come from context or auth
-  const user = {
-    name: 'Zunnun Zihan',
-    avatar: '/api/placeholder/40/40',
-    title: 'Computer Science',
-    university: 'University of Technology',
-    location: 'Bangladesh',
-    country: 'Bangladesh',
-    rating: 4.0,
-    profileViews: 26,
-    role: 'student', // This would determine which dashboard to show
+  // Mock user data - in a real app, this would come from context/API
+  const getCurrentUser = () => {
+    const path = location.pathname;
+
+    // Determine role based on current route
+    if (
+      path.includes('/university') ||
+      path.includes('/institution') ||
+      path.includes('/programs') ||
+      path.includes('/student-requirement') ||
+      path.includes('/professor-requirement') ||
+      path.includes('/alumni-engagement') ||
+      path.includes('/live-sessions') ||
+      path.includes('/messages')
+    ) {
+      return {
+        name: 'MIT University',
+        role: 'university',
+        avatar: '/api/placeholder/40/40',
+        title: 'University Administrator',
+        university: 'Massachusetts Institute of Technology',
+        location: 'Cambridge, MA',
+        profileViews: 234,
+        country: 'USA',
+        rating: 4.9,
+      };
+    } else if (
+      path.includes('/professor') ||
+      path.includes('/courses') ||
+      path.includes('/research-assistant') ||
+      path.includes('/admission-advisory')
+    ) {
+      return {
+        name: 'Dr. Sarah Johnson',
+        role: 'professor',
+        avatar: '/api/placeholder/40/40',
+        title: 'Professor of Computer Science',
+        university: 'MIT',
+        location: 'Cambridge, MA',
+        profileViews: 156,
+        country: 'USA',
+        rating: 4.8,
+      };
+    } else {
+      return {
+        name: 'Alex Chen',
+        role: 'student',
+        avatar: '/api/placeholder/40/40',
+        title: 'Computer Science Student',
+        university: 'MIT',
+        location: 'Cambridge, MA',
+        profileViews: 89,
+        country: 'USA',
+        rating: 4.5,
+      };
+    }
+  };
+
+  const user = getCurrentUser();
+
+  // Get the current page title based on the route
+  const getPageTitle = () => {
+    const path = location.pathname;
+    // Student routes
+    if (path.includes('/courses')) return 'Courses';
+    if (path.includes('/field-of-study')) return 'Field of Study';
+    if (path.includes('/announcements')) return 'Announcements';
+    if (path.includes('/research-assistant'))
+      return 'Research Assistant Portal';
+    if (path.includes('/admission-advisory'))
+      return 'Admission & Academic Advisory';
+    if (path.includes('/portfolio')) return 'Digital Portfolio Builder';
+    if (path.includes('/mentorship')) return 'Mentorship';
+    if (path.includes('/career-exploration'))
+      return 'Career Exploration Center';
+    if (path.includes('/scholarships')) return 'Scholarship & Internship Board';
+    if (path.includes('/portfolio')) return 'Digital Portfolio Builder';
+    // University routes
+    if (path.includes('/institution')) return 'Institution Dashboard';
+    if (path.includes('/programs')) return 'My Programs';
+    if (path.includes('/student-requirement')) return 'Student Requirements';
+    if (path.includes('/professor-requirement'))
+      return 'Professor Requirements';
+    if (path.includes('/alumni-engagement')) return 'Alumni Engagement';
+    if (path.includes('/live-sessions')) return 'Live Sessions';
+    if (path.includes('/messages')) return 'Messages';
+    // Common routes
+    if (path.includes('/notifications')) return 'Notifications';
+    if (path.includes('/profile')) return 'Profile';
+    if (path.includes('/chat')) return 'Messages';
+    if (path.includes('/groups')) return 'Study Groups';
+    if (path.includes('/explore')) return 'Explore';
+    if (path.includes('/analytics')) return 'Analytics';
+    return 'Dashboard';
+  };
+
+  const getPageSubtitle = () => {
+    const path = location.pathname;
+    // Student routes
+    if (path.includes('/courses'))
+      return 'Manage your courses and track student progress';
+    if (path.includes('/field-of-study'))
+      return 'Manage your research areas and academic focus';
+    if (path.includes('/announcements'))
+      return 'Create and manage announcements for your courses and department';
+    if (path.includes('/research-assistant'))
+      return 'Manage your research assistants and projects';
+    if (path.includes('/admission-advisory'))
+      return 'Manage applications and provide academic guidance';
+    if (path.includes('/portfolio'))
+      return 'Showcase your research, publications, and academic achievements';
+    if (path.includes('/mentorship')) return 'Connect with mentors and mentees';
+    if (path.includes('/career-exploration'))
+      return 'Explore career opportunities and paths';
+    if (path.includes('/scholarships'))
+      return 'Find and apply for scholarships and internships';
+    if (path.includes('/portfolio'))
+      return 'Build and showcase your digital portfolio';
+    // University routes
+    if (path.includes('/institution'))
+      return 'Manage your institution dashboard and analytics';
+    if (path.includes('/programs'))
+      return 'Manage and track your academic programs';
+    if (path.includes('/student-requirement'))
+      return 'Manage student requirements and applications';
+    if (path.includes('/professor-requirement'))
+      return 'Manage professor requirements and recruitment';
+    if (path.includes('/alumni-engagement'))
+      return 'Engage with alumni and manage networking events';
+    if (path.includes('/live-sessions'))
+      return 'Manage and host live sessions for students and faculty';
+    if (path.includes('/messages'))
+      return 'Manage communications and inquiries';
+    // Common routes
+    if (path.includes('/notifications'))
+      return 'Stay updated with notifications';
+    if (path.includes('/profile')) return 'Manage your profile and settings';
+    if (path.includes('/chat')) return 'Connect with your network';
+    if (path.includes('/groups')) return 'Join and manage study groups';
+    if (path.includes('/explore')) return 'Discover new opportunities';
+    if (path.includes('/analytics')) return 'View your analytics and insights';
+    return 'Welcome to your academic journey';
   };
 
   // Scroll to top on route change
@@ -40,11 +186,11 @@ const Dashboard = () => {
   }, [location.pathname]);
 
   return (
-    <div className='min-h-screen flex flex-col bg-gray-50'>
+    <div className='min-h-screen bg-gray-50'>
       <DashboardHeader
         user={user}
-        title='Student Dashboard'
-        subtitle='Welcome to your academic journey'
+        title={getPageTitle()}
+        subtitle={getPageSubtitle()}
       />
       <div className='max-w-7xl mx-auto px-4 py-6'>
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
@@ -65,6 +211,27 @@ const Dashboard = () => {
               <Route path='/scholarships' element={<StudentScholarships />} />
               <Route path='/portfolio' element={<StudentPortfolio />} />
 
+              {/* Professor Routes */}
+              <Route path='/professor' element={<ProfessorDashboard />} />
+              <Route path='/courses' element={<ProfessorCourses />} />
+              <Route
+                path='/field-of-study'
+                element={<ProfessorFieldOfStudy />}
+              />
+              <Route
+                path='/announcements'
+                element={<ProfessorAnnouncements />}
+              />
+              <Route
+                path='/research-assistant'
+                element={<ProfessorResearchAssistant />}
+              />
+              <Route
+                path='/admission-advisory'
+                element={<ProfessorAdmissionAdvisory />}
+              />
+              <Route path='/portfolio' element={<ProfessorPortfolio />} />
+
               {/* Top Navigation Routes */}
               <Route path='/notifications' element={<Notifications />} />
               <Route path='/profile' element={<Profile />} />
@@ -73,11 +240,31 @@ const Dashboard = () => {
               <Route path='/explore' element={<Explore />} />
               <Route path='/analytics' element={<Analytics />} />
 
-              {/* Professor Routes */}
-              <Route path='/professor' element={<ProfessorDashboard />} />
-
               {/* University Routes */}
               <Route path='/university' element={<UniversityDashboard />} />
+              <Route
+                path='/institution'
+                element={<UniversityInstitutionDashboard />}
+              />
+              <Route path='/programs' element={<UniversityPrograms />} />
+              <Route
+                path='/student-requirement'
+                element={<UniversityStudentRequirement />}
+              />
+              <Route
+                path='/professor-requirement'
+                element={<UniversityProfessorRequirement />}
+              />
+              <Route
+                path='/alumni-engagement'
+                element={<UniversityAlumniEngagement />}
+              />
+              <Route
+                path='/live-sessions'
+                element={<UniversityLiveSessions />}
+              />
+              <Route path='/messages' element={<UniversityMessages />} />
+              <Route path='/profile' element={<UniversityProfile />} />
             </Routes>
           </div>
         </div>

@@ -45,6 +45,40 @@ import {
 import { useNavigate } from 'react-router-dom';
 import GlobalNavbar from '@/components/GlobalNavbar';
 import { LandingFooter } from '@/components/LandingFooter';
+import { motion } from 'framer-motion';
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const fadeInScale = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+  transition: { duration: 0.5, ease: 'easeOut' },
+};
+
+const slideInLeft = {
+  initial: { opacity: 0, x: -60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
+
+const slideInRight = {
+  initial: { opacity: 0, x: 60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
 
 const Mentorship = () => {
   const navigate = useNavigate();
@@ -163,7 +197,11 @@ const Mentorship = () => {
       rating: 4.6,
       reviews: 76,
       hourlyRate: 55,
-      specialties: ['Clinical Psychology', 'Cognitive Science', 'Research Methods'],
+      specialties: [
+        'Clinical Psychology',
+        'Cognitive Science',
+        'Research Methods',
+      ],
       sessions: 389,
       availability: 'Next Available: Friday',
       color: 'orange',
@@ -238,26 +276,57 @@ const Mentorship = () => {
       <GlobalNavbar />
 
       {/* Hero Section */}
-      <section className='relative py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'>
-        <div className='max-w-6xl mx-auto text-center'>
-          <Badge className='bg-white/90 backdrop-blur-sm text-[#007BFF] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg'>
-            Expert Mentorship
-          </Badge>
-          <h1 className='text-5xl sm:text-6xl font-extrabold text-[#0B1B4D] mb-8 leading-tight'>
+      <motion.section
+        className='relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex items-center justify-center'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+      >
+        {/* Globe SVG Background */}
+        <motion.img
+          src='/globe.svg'
+          alt='Global Network Globe'
+          className='absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none select-none z-0'
+          style={{ objectPosition: 'center top' }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.35 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+        />
+        {/* Overlay for readability */}
+        <div className='absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/30 to-indigo-100/40 z-10' />
+        <motion.div
+          className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'
+          variants={staggerContainer}
+        >
+          <motion.div variants={fadeInUp}>
+            <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
+              Expert Mentorship
+            </Badge>
+          </motion.div>
+          <motion.h2
+            className='text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight'
+            variants={fadeInUp}
+          >
             Learn from the{' '}
-            <span className='bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
-              Best Professors
-            </span>
-          </h1>
-          <p className='text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed'>
-            Connect with world-class professors for personalized guidance, academic support, and career mentorship.
-            Get expert advice from leading researchers and educators.
-          </p>
-          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+            <span className='text-[#0A66C2]'>Best Professors</span>
+          </motion.h2>
+          <motion.p
+            className='text-base text-gray-600 leading-relaxed max-w-2xl mx-auto'
+            variants={fadeInUp}
+          >
+            Connect with world-class professors for personalized guidance,
+            academic support, and career mentorship. Get expert advice from
+            leading researchers and educators.
+          </motion.p>
+          <motion.div
+            className='flex flex-col sm:flex-row gap-4 justify-center mt-8'
+            variants={fadeInUp}
+          >
             <Button
               size='lg'
               onClick={() => navigate('/signup')}
-              className='bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
             >
               Start Your Journey
               <ArrowRight className='ml-2 h-5 w-5' />
@@ -265,24 +334,39 @@ const Mentorship = () => {
             <Button
               size='lg'
               variant='outline'
-              className='border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white px-8 py-4 text-lg font-semibold'
+              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-8 py-4 text-lg font-semibold'
             >
               Learn More
             </Button>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
       {/* Stats Section */}
-      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-16 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-6xl mx-auto'>
-          <div className='grid md:grid-cols-4 gap-8'>
+          <motion.div
+            className='grid md:grid-cols-4 gap-8'
+            variants={staggerContainer}
+          >
             {mentorshipStats.map((stat) => {
               const IconComponent = stat.icon;
               return (
-                <div key={stat.label} className='text-center'>
+                <motion.div
+                  key={stat.label}
+                  className='text-center'
+                  variants={fadeInScale}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <div className='flex justify-center mb-4'>
-                    <div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg'>
+                    <div className='w-16 h-16 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-2xl flex items-center justify-center text-white shadow-lg'>
                       <IconComponent className='h-8 w-8' />
                     </div>
                   </div>
@@ -293,33 +377,55 @@ const Mentorship = () => {
                     {stat.label}
                   </div>
                   <div className='text-gray-600'>{stat.description}</div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* How It Works Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-6xl mx-auto'>
-          <div className='text-center mb-16'>
-            <h2 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+          <motion.div className='text-center mb-16' variants={staggerContainer}>
+            <motion.h2
+              className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'
+              variants={fadeInUp}
+            >
               How Mentorship Works
-            </h2>
-            <p className='text-lg text-gray-600 max-w-3xl mx-auto'>
-              Get personalized guidance from world-class professors in just four simple steps
-            </p>
-          </div>
+            </motion.h2>
+            <motion.p
+              className='text-lg text-gray-600 max-w-3xl mx-auto'
+              variants={fadeInUp}
+            >
+              Get personalized guidance from world-class professors in just four
+              simple steps
+            </motion.p>
+          </motion.div>
 
-          <div className='grid md:grid-cols-4 gap-8'>
+          <motion.div
+            className='grid md:grid-cols-4 gap-8'
+            variants={staggerContainer}
+          >
             {howItWorks.map((step) => {
               const IconComponent = step.icon;
               return (
-                <div key={step.step} className='relative group'>
-                  <div className='bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100'>
+                <motion.div
+                  key={step.step}
+                  className='relative group'
+                  variants={fadeInScale}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className='bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200'>
                     <div className='relative mb-6'>
-                      <div className='w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300'>
+                      <div className='w-20 h-20 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-2xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300'>
                         <IconComponent className='h-10 w-10' />
                       </div>
                       <div className='absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold'>
@@ -333,27 +439,43 @@ const Mentorship = () => {
                       {step.description}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Search and Filter Section */}
-      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-16 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-6xl mx-auto'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl font-bold text-[#0B1B4D] mb-6'>
+          <motion.div className='text-center mb-12' variants={staggerContainer}>
+            <motion.h2
+              className='text-3xl font-bold text-[#0B1B4D] mb-6'
+              variants={fadeInUp}
+            >
               Find Your Perfect Mentor
-            </h2>
-            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
-              Browse through our network of expert professors and find the perfect mentor for your academic journey
-            </p>
-          </div>
+            </motion.h2>
+            <motion.p
+              className='text-lg text-gray-600 max-w-2xl mx-auto'
+              variants={fadeInUp}
+            >
+              Browse through our network of expert professors and find the
+              perfect mentor for your academic journey
+            </motion.p>
+          </motion.div>
 
           {/* Search and Filters */}
-          <div className='bg-white rounded-2xl shadow-xl p-6 mb-8'>
+          <motion.div
+            className='bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-200'
+            variants={fadeInScale}
+          >
             <div className='grid md:grid-cols-4 gap-4'>
               <div>
                 <Label htmlFor='search'>Search Mentors</Label>
@@ -373,18 +495,25 @@ const Mentorship = () => {
                     <SelectValue placeholder='Select field' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='computer-science'>Computer Science</SelectItem>
+                    <SelectItem value='computer-science'>
+                      Computer Science
+                    </SelectItem>
                     <SelectItem value='engineering'>Engineering</SelectItem>
                     <SelectItem value='economics'>Economics</SelectItem>
                     <SelectItem value='psychology'>Psychology</SelectItem>
                     <SelectItem value='physics'>Physics</SelectItem>
-                    <SelectItem value='international-relations'>International Relations</SelectItem>
+                    <SelectItem value='international-relations'>
+                      International Relations
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label htmlFor='experience'>Experience Level</Label>
-                <Select value={selectedExperience} onValueChange={setSelectedExperience}>
+                <Select
+                  value={selectedExperience}
+                  onValueChange={setSelectedExperience}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder='Select experience' />
                   </SelectTrigger>
@@ -411,118 +540,141 @@ const Mentorship = () => {
                 </Select>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Mentors Grid */}
-          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-8'>
+          <motion.div
+            className='grid md:grid-cols-2 lg:grid-cols-3 gap-8'
+            variants={staggerContainer}
+          >
             {professors.map((professor) => (
-              <Card
+              <motion.div
                 key={professor.id}
-                className='border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-white overflow-hidden'
+                variants={fadeInScale}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
               >
-                <CardHeader className='text-center pb-4'>
-                  <div className='relative mb-4'>
-                    <img
-                      src={professor.avatar}
-                      alt={professor.name}
-                      className='w-24 h-24 rounded-full mx-auto border-4 border-gray-100 shadow-lg'
-                    />
-                    <div className='absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-2 border-white flex items-center justify-center'>
-                      <div className='w-2 h-2 bg-white rounded-full'></div>
-                    </div>
-                  </div>
-                  <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
-                    {professor.name}
-                  </CardTitle>
-                  <CardDescription className='text-gray-600 mb-2'>
-                    {professor.title}
-                  </CardDescription>
-                  <CardDescription className='text-gray-600 mb-3'>
-                    {professor.university}
-                  </CardDescription>
-                  <div className='flex items-center justify-center gap-1 mb-3'>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < Math.floor(professor.rating)
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
-                        }`}
+                <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white rounded-lg overflow-hidden'>
+                  <CardHeader className='text-center pb-4'>
+                    <div className='relative mb-4'>
+                      <img
+                        src={professor.avatar}
+                        alt={professor.name}
+                        className='w-24 h-24 rounded-full mx-auto border-4 border-gray-100 shadow-lg'
                       />
-                    ))}
-                    <span className='text-sm text-gray-600 ml-1'>
-                      {professor.rating} ({professor.reviews})
-                    </span>
-                  </div>
-                  <div className='text-2xl font-bold text-[#007BFF] mb-3'>
-                    ${professor.hourlyRate}/hour
-                  </div>
-                  <div className='flex flex-wrap gap-2 justify-center mb-3'>
-                    {professor.specialties.map((specialty, index) => (
-                      <Badge
-                        key={index}
-                        className='bg-blue-100 text-blue-700 border-0 text-xs'
+                      <div className='absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-2 border-white flex items-center justify-center'>
+                        <div className='w-2 h-2 bg-white rounded-full'></div>
+                      </div>
+                    </div>
+                    <CardTitle className='text-xl font-bold text-[#0B1B4D] mb-2'>
+                      {professor.name}
+                    </CardTitle>
+                    <CardDescription className='text-gray-600 mb-2'>
+                      {professor.title}
+                    </CardDescription>
+                    <CardDescription className='text-gray-600 mb-3'>
+                      {professor.university}
+                    </CardDescription>
+                    <div className='flex items-center justify-center gap-1 mb-3'>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < Math.floor(professor.rating)
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className='text-sm text-gray-600 ml-1'>
+                        {professor.rating} ({professor.reviews})
+                      </span>
+                    </div>
+                    <div className='text-2xl font-bold text-[#0A66C2] mb-3'>
+                      ${professor.hourlyRate}/hour
+                    </div>
+                    <div className='flex flex-wrap gap-2 justify-center mb-3'>
+                      {professor.specialties.map((specialty, index) => (
+                        <Badge
+                          key={index}
+                          className='bg-blue-100 text-blue-700 border-0 text-xs'
+                        >
+                          {specialty}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className='flex items-center justify-center gap-4 text-sm text-gray-500 mb-3'>
+                      <div className='flex items-center gap-1'>
+                        <MapPin className='h-4 w-4' />
+                        <span>{professor.location}</span>
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <Clock className='h-4 w-4' />
+                        <span>{professor.sessions} sessions</span>
+                      </div>
+                    </div>
+                    <div className='text-sm text-green-600 font-medium mb-4'>
+                      {professor.availability}
+                    </div>
+                  </CardHeader>
+                  <CardContent className='space-y-3'>
+                    <p className='text-gray-600 text-sm leading-relaxed'>
+                      {professor.description}
+                    </p>
+                    <div className='flex items-center gap-2 text-sm text-gray-500'>
+                      <Globe className='h-4 w-4' />
+                      <span>{professor.languages.join(', ')}</span>
+                    </div>
+                    <div className='flex gap-2'>
+                      <Button className='flex-1 bg-[#0A66C2] hover:bg-[#084482] text-white'>
+                        Book Session
+                      </Button>
+                      <Button
+                        variant='outline'
+                        size='icon'
+                        className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
                       >
-                        {specialty}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className='flex items-center justify-center gap-4 text-sm text-gray-500 mb-3'>
-                    <div className='flex items-center gap-1'>
-                      <MapPin className='h-4 w-4' />
-                      <span>{professor.location}</span>
+                        <MessageCircle className='h-4 w-4' />
+                      </Button>
                     </div>
-                    <div className='flex items-center gap-1'>
-                      <Clock className='h-4 w-4' />
-                      <span>{professor.sessions} sessions</span>
-                    </div>
-                  </div>
-                  <div className='text-sm text-green-600 font-medium mb-4'>
-                    {professor.availability}
-                  </div>
-                </CardHeader>
-                <CardContent className='space-y-3'>
-                  <p className='text-gray-600 text-sm leading-relaxed'>
-                    {professor.description}
-                  </p>
-                  <div className='flex items-center gap-2 text-sm text-gray-500'>
-                    <Globe className='h-4 w-4' />
-                    <span>{professor.languages.join(', ')}</span>
-                  </div>
-                  <div className='flex gap-2'>
-                    <Button className='flex-1 bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white'>
-                      Book Session
-                    </Button>
-                    <Button
-                      variant='outline'
-                      size='icon'
-                      className='border-gray-300 hover:border-[#007BFF] hover:text-[#007BFF]'
-                    >
-                      <MessageCircle className='h-4 w-4' />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'>
+      <motion.section
+        className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-4xl mx-auto text-center'>
-          <h2 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+          <motion.h2
+            className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'
+            variants={fadeInUp}
+          >
             Ready to Start Your Mentorship Journey?
-          </h2>
-          <p className='text-lg text-gray-600 mb-10 max-w-2xl mx-auto'>
-            Join thousands of students who have transformed their academic and professional lives through expert mentorship.
-          </p>
-          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+          </motion.h2>
+          <motion.p
+            className='text-lg text-gray-600 mb-10 max-w-2xl mx-auto'
+            variants={fadeInUp}
+          >
+            Join thousands of students who have transformed their academic and
+            professional lives through expert mentorship.
+          </motion.p>
+          <motion.div
+            className='flex flex-col sm:flex-row gap-4 justify-center'
+            variants={fadeInUp}
+          >
             <Button
               size='lg'
               onClick={() => navigate('/signup')}
-              className='bg-gradient-to-r from-[#007BFF] to-[#0B1B4D] hover:from-[#0056b3] hover:to-[#0B1B4D] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
             >
               Get Started Today
               <ArrowRight className='ml-2 h-5 w-5' />
@@ -530,17 +682,17 @@ const Mentorship = () => {
             <Button
               size='lg'
               variant='outline'
-              className='border-[#007BFF] text-[#007BFF] hover:bg-[#007BFF] hover:text-white px-8 py-4 text-lg font-semibold'
+              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-8 py-4 text-lg font-semibold'
             >
               Learn More
             </Button>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       <LandingFooter />
     </div>
   );
 };
 
-export default Mentorship; 
+export default Mentorship;

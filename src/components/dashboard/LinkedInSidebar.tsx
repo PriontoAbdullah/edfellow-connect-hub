@@ -129,9 +129,7 @@ export function LinkedInSidebar({ user }: LinkedInSidebarProps) {
                 size={16}
                 className='rounded-sm'
               />
-              <span className='text-sm text-gray-600'>
-                {user.country || 'Bangladesh'}
-              </span>
+              <span className='text-sm text-gray-600'>{user.country}</span>
             </div>
             <div className='flex items-center justify-center gap-1 mb-4'>
               <div className='flex'>
@@ -205,78 +203,176 @@ export function LinkedInSidebar({ user }: LinkedInSidebarProps) {
               <Home className='h-4 w-4 mr-3' />
               Dashboard
             </Button>
-            <Button
-              variant={isActive('/field-of-study') ? 'default' : 'ghost'}
-              className={`w-full justify-start ${
-                isActive('/field-of-study')
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              onClick={() => navigate('/dashboard/field-of-study')}
-            >
-              <BookOpen className='h-4 w-4 mr-3' />
-              Field of Study
-            </Button>
-            <Button
-              variant={isActive('/mentorship') ? 'default' : 'ghost'}
-              className={`w-full justify-start ${
-                isActive('/mentorship')
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              onClick={() => navigate('/dashboard/mentorship')}
-            >
-              <Heart className='h-4 w-4 mr-3' />
-              Mentorship
-            </Button>
-            <Button
-              variant={isActive('/announcements') ? 'default' : 'ghost'}
-              className={`w-full justify-start ${
-                isActive('/announcements')
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              onClick={() => navigate('/dashboard/announcements')}
-            >
-              <Megaphone className='h-4 w-4 mr-3' />
-              Announcements
-            </Button>
-            <Button
-              variant={isActive('/career-exploration') ? 'default' : 'ghost'}
-              className={`w-full justify-start ${
-                isActive('/career-exploration')
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              onClick={() => navigate('/dashboard/career-exploration')}
-            >
-              <Briefcase className='h-4 w-4 mr-3' />
-              Career Exploration Center
-            </Button>
-            <Button
-              variant={isActive('/scholarships') ? 'default' : 'ghost'}
-              className={`w-full justify-start ${
-                isActive('/scholarships')
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              onClick={() => navigate('/dashboard/scholarships')}
-            >
-              <Award className='h-4 w-4 mr-3' />
-              Scholarship & Internship Board
-            </Button>
-            <Button
-              variant={isActive('/portfolio') ? 'default' : 'ghost'}
-              className={`w-full justify-start ${
-                isActive('/portfolio')
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              onClick={() => navigate('/dashboard/portfolio')}
-            >
-              <FileText className='h-4 w-4 mr-3' />
-              Digital Portfolio Builder
-            </Button>
+            {user.role === 'student' && (
+              <>
+                <Button
+                  variant={isActive('/field-of-study') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/field-of-study')
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/field-of-study')}
+                >
+                  <BookOpen className='h-4 w-4 mr-3' />
+                  Field of Study
+                </Button>
+                <Button
+                  variant={isActive('/mentorship') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/mentorship')
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/mentorship')}
+                >
+                  <Heart className='h-4 w-4 mr-3' />
+                  Mentorship
+                </Button>
+                <Button
+                  variant={isActive('/announcements') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/announcements')
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/announcements')}
+                >
+                  <Megaphone className='h-4 w-4 mr-3' />
+                  Announcements
+                </Button>
+                <Button
+                  variant={
+                    isActive('/career-exploration') ? 'default' : 'ghost'
+                  }
+                  className={`w-full justify-start ${
+                    isActive('/career-exploration')
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/career-exploration')}
+                >
+                  <Briefcase className='h-4 w-4 mr-3' />
+                  Career Exploration Center
+                </Button>
+                <Button
+                  variant={isActive('/scholarships') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/scholarships')
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/scholarships')}
+                >
+                  <Award className='h-4 w-4 mr-3' />
+                  Scholarship & Internship Board
+                </Button>
+                <Button
+                  variant={isActive('/portfolio') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/portfolio')
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/portfolio')}
+                >
+                  <FileText className='h-4 w-4 mr-3' />
+                  Digital Portfolio Builder
+                </Button>
+              </>
+            )}
+            {user.role === 'professor' && (
+              <>
+                <Button
+                  variant={isActive('/courses') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/courses')
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/courses')}
+                >
+                  <BookOpen className='h-4 w-4 mr-3' />
+                  Courses
+                </Button>
+                <Button
+                  variant={isActive('/field-of-study') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/field-of-study')
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/field-of-study')}
+                >
+                  <Target className='h-4 w-4 mr-3' />
+                  Field of Study
+                </Button>
+                <Button
+                  variant={isActive('/mentorship') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/mentorship')
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/mentorship')}
+                >
+                  <Heart className='h-4 w-4 mr-3' />
+                  Mentorship
+                </Button>
+                <Button
+                  variant={isActive('/announcements') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/announcements')
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/announcements')}
+                >
+                  <Megaphone className='h-4 w-4 mr-3' />
+                  Announcements
+                </Button>
+                <Button
+                  variant={
+                    isActive('/research-assistant') ? 'default' : 'ghost'
+                  }
+                  className={`w-full justify-start ${
+                    isActive('/research-assistant')
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/research-assistant')}
+                >
+                  <Lightbulb className='h-4 w-4 mr-3' />
+                  Research Assistant Portal
+                </Button>
+                <Button
+                  variant={
+                    isActive('/admission-advisory') ? 'default' : 'ghost'
+                  }
+                  className={`w-full justify-start ${
+                    isActive('/admission-advisory')
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/admission-advisory')}
+                >
+                  <UserCheck className='h-4 w-4 mr-3' />
+                  Admission & Academic Advisory
+                </Button>
+                <Button
+                  variant={isActive('/portfolio') ? 'default' : 'ghost'}
+                  className={`w-full justify-start ${
+                    isActive('/portfolio')
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                  onClick={() => navigate('/dashboard/portfolio')}
+                >
+                  <FileText className='h-4 w-4 mr-3' />
+                  Digital Portfolio Builder
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -39,6 +39,8 @@ import {
   FileText,
   Send,
   Newspaper,
+  FolderOpen,
+  ClipboardList,
 } from 'lucide-react';
 
 interface AppSidebarProps {
@@ -70,30 +72,58 @@ const getMenuItems = (role: string) => {
 
   if (role === 'professor') {
     return [
-      { title: 'Home', url: '/dashboard', icon: Home },
-      { title: 'Subject Groups', url: '/dashboard/groups', icon: Users },
-      { title: 'Chat', url: '/dashboard/chat', icon: MessageSquare },
+      { title: 'Dashboard', url: '/dashboard', icon: Home },
+      { title: 'Courses', url: '/dashboard/courses', icon: BookOpen },
       {
-        title: 'Recent Posts',
-        url: '/dashboard/recent-posts',
-        icon: Newspaper,
+        title: 'Field of Study',
+        url: '/dashboard/field-of-study',
+        icon: GraduationCap,
       },
       { title: 'Mentorship', url: '/dashboard/mentorship', icon: Heart },
-      { title: 'My Profile', url: '/dashboard/profile', icon: UserCheck },
+      { title: 'Announcements', url: '/dashboard/announcements', icon: Bell },
+      {
+        title: 'Research Assistant Portal',
+        url: '/dashboard/research-assistant',
+        icon: Target,
+      },
+      {
+        title: 'Admission & Academic Advisory',
+        url: '/dashboard/admission-advisory',
+        icon: ClipboardList,
+      },
+      {
+        title: 'Digital Portfolio Builder',
+        url: '/dashboard/portfolio',
+        icon: FolderOpen,
+      },
     ];
   }
 
   if (role === 'university') {
     return [
-      { title: 'Home', url: '/dashboard', icon: Home },
-      { title: 'Submit Program', url: '/dashboard/submit-program', icon: Send },
-      { title: 'My Programs', url: '/dashboard/programs', icon: BookOpen },
-      { title: 'Messages', url: '/dashboard/messages', icon: MessageSquare },
+      { title: 'Dashboard', url: '/dashboard', icon: Home },
       {
-        title: 'Recent Posts',
-        url: '/dashboard/recent-posts',
-        icon: Newspaper,
+        title: 'Institution Dashboard',
+        url: '/dashboard/institution',
+        icon: Building2,
       },
+      { title: 'My Programs', url: '/dashboard/programs', icon: BookOpen },
+      {
+        title: 'Student Requirement',
+        url: '/dashboard/student-requirement',
+        icon: GraduationCap,
+      },
+      {
+        title: 'Professor Requirement',
+        url: '/dashboard/professor-requirement',
+        icon: UserCheck,
+      },
+      {
+        title: 'Alumni Engagement',
+        url: '/dashboard/alumni-engagement',
+        icon: Users,
+      },
+      { title: 'Live Sessions', url: '/dashboard/live-sessions', icon: Video },
       { title: 'Profile', url: '/dashboard/profile', icon: Building2 },
     ];
   }

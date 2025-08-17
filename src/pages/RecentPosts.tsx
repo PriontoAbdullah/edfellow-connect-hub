@@ -51,6 +51,40 @@ import {
 import { useNavigate } from 'react-router-dom';
 import GlobalNavbar from '@/components/GlobalNavbar';
 import { LandingFooter } from '@/components/LandingFooter';
+import { motion } from 'framer-motion';
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const fadeInScale = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+  transition: { duration: 0.5, ease: 'easeOut' },
+};
+
+const slideInLeft = {
+  initial: { opacity: 0, x: -60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
+
+const slideInRight = {
+  initial: { opacity: 0, x: 60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' },
+};
 
 const RecentPosts = () => {
   const navigate = useNavigate();
@@ -230,28 +264,28 @@ const RecentPosts = () => {
       number: '10,000+',
       label: 'Posts Published',
       description: 'Updated daily',
-      gradient: 'from-blue-500 to-indigo-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       icon: Users,
       number: '50,000+',
       label: 'Active Readers',
       description: 'Global community',
-      gradient: 'from-green-500 to-emerald-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       icon: MessageSquare,
       number: '25,000+',
       label: 'Comments',
       description: 'Engaging discussions',
-      gradient: 'from-purple-500 to-pink-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       icon: Globe,
       number: '80+',
       label: 'Countries',
       description: 'Global reach',
-      gradient: 'from-orange-500 to-red-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
   ];
 
@@ -261,42 +295,42 @@ const RecentPosts = () => {
       icon: Briefcase,
       count: 234,
       color: 'blue',
-      gradient: 'from-blue-500 to-indigo-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       name: 'Scholarships',
       icon: Award,
       count: 189,
       color: 'green',
-      gradient: 'from-green-500 to-emerald-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       name: 'Notices',
       icon: Megaphone,
       count: 156,
       color: 'orange',
-      gradient: 'from-orange-500 to-amber-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       name: 'Research',
       icon: Microscope,
       count: 123,
       color: 'purple',
-      gradient: 'from-purple-500 to-pink-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       name: 'Events',
       icon: Calendar,
       count: 98,
       color: 'pink',
-      gradient: 'from-pink-500 to-rose-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
     {
       name: 'General',
       icon: MessageSquare,
       count: 67,
       color: 'gray',
-      gradient: 'from-gray-500 to-slate-600',
+      gradient: 'from-[#0A66C2] to-[#084482]',
     },
   ];
 
@@ -369,36 +403,60 @@ const RecentPosts = () => {
   const regularPosts = filteredPosts.filter((post) => !post.isHighlighted);
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100'>
+    <div className='min-h-screen bg-white'>
       <GlobalNavbar />
 
       {/* Hero Section */}
-      <section className='relative py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 overflow-hidden'>
-        {/* Background decorative elements */}
-        <div className='absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-pink-50/50' />
-        <div className='absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl' />
-        <div className='absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl' />
-
-        <div className='max-w-6xl mx-auto text-center relative z-10'>
-          <Badge className='bg-white/90 backdrop-blur-sm text-purple-600 border-purple-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg'>
-            <Sparkles className='h-4 w-4 mr-2' />
-            Latest Updates
-          </Badge>
-          <h1 className='text-5xl sm:text-6xl font-extrabold text-[#0B1B4D] mb-8 leading-tight'>
-            Recent{' '}
-            <span className='bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent'>
-              Academic Posts
-            </span>
-          </h1>
-          <p className='text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed'>
+      <motion.section
+        className='relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex items-center justify-center'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+      >
+        {/* Globe SVG Background */}
+        <motion.img
+          src='/globe.svg'
+          alt='Global Network Globe'
+          className='absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none select-none z-0'
+          style={{ objectPosition: 'center top' }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.35 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+        />
+        {/* Overlay for readability */}
+        <div className='absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/30 to-indigo-100/40 z-10' />
+        <motion.div
+          className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'
+          variants={staggerContainer}
+        >
+          <motion.div variants={fadeInUp}>
+            <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
+              <Sparkles className='h-4 w-4 mr-2' />
+              Latest Updates
+            </Badge>
+          </motion.div>
+          <motion.h2
+            className='text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight'
+            variants={fadeInUp}
+          >
+            Recent <span className='text-[#0A66C2]'>Academic Posts</span>
+          </motion.h2>
+          <motion.p
+            className='text-base text-gray-600 leading-relaxed max-w-2xl mx-auto'
+            variants={fadeInUp}
+          >
             Stay updated with the latest opportunities, scholarships,
             announcements, and academic discussions from the global community.
-          </p>
-          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+          </motion.p>
+          <motion.div
+            className='flex flex-col sm:flex-row gap-4 justify-center mt-8'
+            variants={fadeInUp}
+          >
             <Button
               size='lg'
               onClick={() => navigate('/signup')}
-              className='bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
             >
               Join the Community
               <ArrowRight className='ml-2 h-5 w-5' />
@@ -406,22 +464,37 @@ const RecentPosts = () => {
             <Button
               size='lg'
               variant='outline'
-              className='border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg font-semibold'
+              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-8 py-4 text-lg font-semibold'
             >
               Create Post
             </Button>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
       {/* Stats Section */}
-      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-16 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-6xl mx-auto'>
-          <div className='grid md:grid-cols-4 gap-8'>
+          <motion.div
+            className='grid md:grid-cols-4 gap-8'
+            variants={staggerContainer}
+          >
             {postStats.map((stat) => {
               const IconComponent = stat.icon;
               return (
-                <div key={stat.label} className='text-center group'>
+                <motion.div
+                  key={stat.label}
+                  className='text-center group'
+                  variants={fadeInScale}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <div className='flex justify-center mb-4'>
                     <div
                       className={`w-16 h-16 bg-gradient-to-br ${stat.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
@@ -436,58 +509,86 @@ const RecentPosts = () => {
                     {stat.label}
                   </div>
                   <div className='text-gray-600'>{stat.description}</div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Categories Section */}
-      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-blue-50'>
+      <motion.section
+        className='py-16 px-4 sm:px-6 lg:px-8 bg-gray-50'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-6xl mx-auto'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl font-bold text-[#0B1B4D] mb-6'>
+          <motion.div className='text-center mb-12' variants={staggerContainer}>
+            <motion.h2
+              className='text-3xl font-bold text-[#0B1B4D] mb-6'
+              variants={fadeInUp}
+            >
               Explore by Category
-            </h2>
-            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+            </motion.h2>
+            <motion.p
+              className='text-lg text-gray-600 max-w-2xl mx-auto'
+              variants={fadeInUp}
+            >
               Find posts in your area of interest
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className='grid md:grid-cols-3 lg:grid-cols-6 gap-6'>
+          <motion.div
+            className='grid md:grid-cols-3 lg:grid-cols-6 gap-6'
+            variants={staggerContainer}
+          >
             {categories.map((category) => {
               const IconComponent = category.icon;
               return (
-                <Card
+                <motion.div
                   key={category.name}
-                  className='border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white cursor-pointer group'
+                  variants={fadeInScale}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <CardContent className='p-6 text-center'>
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
-                    >
-                      <IconComponent className='h-6 w-6' />
-                    </div>
-                    <h3 className='font-semibold text-gray-900 mb-2'>
-                      {category.name}
-                    </h3>
-                    <p className='text-sm text-gray-600'>
-                      {category.count} posts
-                    </p>
-                  </CardContent>
-                </Card>
+                  <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white cursor-pointer group'>
+                    <CardContent className='p-6 text-center'>
+                      <div
+                        className={`w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
+                      >
+                        <IconComponent className='h-6 w-6' />
+                      </div>
+                      <h3 className='font-semibold text-gray-900 mb-2'>
+                        {category.name}
+                      </h3>
+                      <p className='text-sm text-gray-600'>
+                        {category.count} posts
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Posts Section */}
-      <section className='py-16 px-4 sm:px-6 lg:px-8 bg-white'>
+      <motion.section
+        className='py-16 px-4 sm:px-6 lg:px-8 bg-white'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-6xl mx-auto'>
-          <div className='flex items-center justify-between mb-12'>
-            <div>
+          <motion.div
+            className='flex items-center justify-between mb-12'
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp}>
               <h2 className='text-3xl font-bold text-[#0B1B4D] mb-4'>
                 Recent Posts
               </h2>
@@ -495,8 +596,8 @@ const RecentPosts = () => {
                 Stay updated with the latest academic opportunities and
                 discussions
               </p>
-            </div>
-            <div className='flex items-center gap-3'>
+            </motion.div>
+            <motion.div className='flex items-center gap-3' variants={fadeInUp}>
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
                 <Input
@@ -512,374 +613,905 @@ const RecentPosts = () => {
               </Button>
               <Button
                 onClick={() => navigate('/signup')}
-                className='bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
+                className='bg-[#0A66C2] hover:bg-[#084482]'
               >
                 <Plus className='h-4 w-4 mr-2' />
                 Create Post
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className='w-full'
-          >
-            <TabsList className='grid w-full grid-cols-4 bg-gray-100 p-1 rounded-lg'>
-              <TabsTrigger
-                value='all'
-                className='data-[state=active]:bg-white data-[state=active]:shadow-sm'
-              >
-                All Posts
-              </TabsTrigger>
-              <TabsTrigger
-                value='opportunity'
-                className='data-[state=active]:bg-white data-[state=active]:shadow-sm'
-              >
-                Opportunities
-              </TabsTrigger>
-              <TabsTrigger
-                value='scholarship'
-                className='data-[state=active]:bg-white data-[state=active]:shadow-sm'
-              >
-                Scholarships
-              </TabsTrigger>
-              <TabsTrigger
-                value='notice'
-                className='data-[state=active]:bg-white data-[state=active]:shadow-sm'
-              >
-                Notices
-              </TabsTrigger>
-            </TabsList>
+          <motion.div variants={fadeInScale}>
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className='w-full'
+            >
+              <TabsList className='grid w-full grid-cols-4 bg-gray-50 px-2 pt-3 pb-14 rounded-xl border border-gray-200 shadow-sm'>
+                <TabsTrigger
+                  value='all'
+                  className='data-[state=active]:bg-white data-[state=active]:text-[#0A66C2] data-[state=active]:font-semibold data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-[#0A66C2]/20 transition-all duration-200 hover:bg-gray-100 rounded-lg text-gray-600 font-medium py-3 px-4 text-sm'
+                >
+                  All Posts
+                </TabsTrigger>
+                <TabsTrigger
+                  value='opportunity'
+                  className='data-[state=active]:bg-white data-[state=active]:text-[#0A66C2] data-[state=active]:font-semibold data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-[#0A66C2]/20 transition-all duration-200 hover:bg-gray-100 rounded-lg text-gray-600 font-medium py-3 px-4 text-sm'
+                >
+                  Opportunities
+                </TabsTrigger>
+                <TabsTrigger
+                  value='scholarship'
+                  className='data-[state=active]:bg-white data-[state=active]:text-[#0A66C2] data-[state=active]:font-semibold data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-[#0A66C2]/20 transition-all duration-200 hover:bg-gray-100 rounded-lg text-gray-600 font-medium py-3 px-4 text-sm'
+                >
+                  Scholarships
+                </TabsTrigger>
+                <TabsTrigger
+                  value='notice'
+                  className='data-[state=active]:bg-white data-[state=active]:text-[#0A66C2] data-[state=active]:font-semibold data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-[#0A66C2]/20 transition-all duration-200 hover:bg-gray-100 rounded-lg text-gray-600 font-medium py-3 px-4 text-sm'
+                >
+                  Notices
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value={activeTab} className='space-y-6 mt-6'>
-              {/* Highlighted Posts - Notification Queue */}
-              {highlightedPosts.length > 0 && (
-                <div className='space-y-4'>
-                  <div className='flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200'>
-                    <div className='flex items-center gap-2'>
-                      <Bell className='h-5 w-5 text-yellow-600' />
+              <TabsContent value='all' className='space-y-6 mt-6'>
+                {/* All Posts Content */}
+                {/* Highlighted Posts - Notification Queue */}
+                {highlightedPosts.length > 0 && (
+                  <motion.div className='space-y-4' variants={staggerContainer}>
+                    <motion.div
+                      className='flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200'
+                      variants={fadeInUp}
+                    >
+                      <div className='flex items-center gap-2'>
+                        <Bell className='h-5 w-5 text-yellow-600' />
+                        <h3 className='text-lg font-semibold text-gray-900'>
+                          Highlighted Posts
+                        </h3>
+                        <Badge className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 flex items-center gap-1'>
+                          <Crown className='h-3 w-3' />
+                          Paid Promotion
+                        </Badge>
+                      </div>
+                      <div className='ml-auto'>
+                        <Badge className='bg-blue-100 text-blue-700 border-blue-200'>
+                          <Target className='h-3 w-3 mr-1' />
+                          University Program Promotions
+                        </Badge>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      className='grid gap-4'
+                      variants={staggerContainer}
+                    >
+                      {highlightedPosts.map((post) => (
+                        <motion.div
+                          key={post.id}
+                          variants={fadeInScale}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Card className='border-2 border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50 shadow-lg hover:shadow-xl transition-all duration-300'>
+                            <CardHeader className='pb-3'>
+                              <div className='flex items-start justify-between'>
+                                <div className='flex items-center gap-3'>
+                                  <div className='relative'>
+                                    <img
+                                      src={post.author.avatar}
+                                      alt={post.author.name}
+                                      className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
+                                    />
+                                    {post.author.verified && (
+                                      <div className='absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white'>
+                                        <CheckCircle className='h-3 w-3 text-white' />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div className='flex items-center gap-2'>
+                                      <span className='font-semibold text-gray-900'>
+                                        {post.author.name}
+                                      </span>
+                                      {getAuthorIcon(post.author.role)}
+                                      {post.author.verified && (
+                                        <Badge className='bg-blue-100 text-blue-700 border-blue-200 text-xs'>
+                                          Verified
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div className='text-sm text-gray-600'>
+                                      {post.author.institution}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  <Badge
+                                    className={getCategoryColor(post.category)}
+                                  >
+                                    {getCategoryIcon(post.category)}
+                                    {post.type}
+                                  </Badge>
+                                  <span className='text-xs text-gray-500'>
+                                    {post.createdAt}
+                                  </span>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                              <div>
+                                <h4 className='text-lg font-semibold text-gray-900 mb-2'>
+                                  {post.title}
+                                </h4>
+                                <p className='text-gray-600 mb-3'>
+                                  {post.description}
+                                </p>
+                              </div>
+
+                              <div className='flex flex-wrap gap-2'>
+                                {post.tags.map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant='outline'
+                                    className='text-xs'
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+
+                              <div className='flex items-center justify-between text-sm text-gray-500'>
+                                <div className='flex items-center gap-4'>
+                                  {post.location && (
+                                    <div className='flex items-center gap-1'>
+                                      <MapPin className='h-4 w-4' />
+                                      <span>{post.location}</span>
+                                    </div>
+                                  )}
+                                  {post.deadline && (
+                                    <div className='flex items-center gap-1'>
+                                      <Clock className='h-4 w-4' />
+                                      <span>Deadline: {post.deadline}</span>
+                                    </div>
+                                  )}
+                                  {post.amount && (
+                                    <div className='flex items-center gap-1'>
+                                      <DollarSign className='h-4 w-4' />
+                                      <span>{post.amount}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <Badge
+                                  className={getEngagementColor(
+                                    post.engagement
+                                  )}
+                                >
+                                  <Zap className='h-3 w-3 mr-1' />
+                                  {post.engagement} Engagement
+                                </Badge>
+                              </div>
+
+                              <div className='flex items-center justify-between pt-3 border-t border-gray-200'>
+                                <div className='flex items-center gap-4'>
+                                  <button
+                                    onClick={() => handleLike(post.id)}
+                                    className='flex items-center gap-1 text-sm transition-colors text-gray-500 hover:text-red-500'
+                                  >
+                                    <Heart className='h-4 w-4' />
+                                    {post.likes}
+                                  </button>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <MessageCircle className='h-4 w-4' />
+                                    {post.comments}
+                                  </div>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <Share2 className='h-4 w-4' />
+                                    {post.shares}
+                                  </div>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  <button
+                                    onClick={() => handleSave(post.id)}
+                                    className='p-2 rounded-full transition-colors text-gray-400 hover:text-[#0A66C2] hover:bg-[#0A66C2]/10'
+                                  >
+                                    <Bookmark className='h-4 w-4' />
+                                  </button>
+                                  <Button size='sm' variant='outline'>
+                                    <ExternalLink className='h-4 w-4 mr-1' />
+                                    Apply
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                )}
+
+                {/* Regular Posts */}
+                <motion.div className='space-y-4' variants={staggerContainer}>
+                  {highlightedPosts.length > 0 && (
+                    <motion.div
+                      className='flex items-center gap-2 mb-4'
+                      variants={fadeInUp}
+                    >
+                      <Clock className='h-5 w-5 text-gray-600' />
                       <h3 className='text-lg font-semibold text-gray-900'>
-                        Highlighted Posts
+                        Recent Posts
                       </h3>
-                      <Badge className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 flex items-center gap-1'>
-                        <Crown className='h-3 w-3' />
-                        Paid Promotion
-                      </Badge>
-                    </div>
-                    <div className='ml-auto'>
-                      <Badge className='bg-blue-100 text-blue-700 border-blue-200'>
-                        <Target className='h-3 w-3 mr-1' />
-                        University Program Promotions
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className='grid gap-4'>
-                    {highlightedPosts.map((post) => (
-                      <Card
+                    </motion.div>
+                  )}
+                  <motion.div
+                    className='grid gap-4'
+                    variants={staggerContainer}
+                  >
+                    {regularPosts.map((post) => (
+                      <motion.div
                         key={post.id}
-                        className='border-2 border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50 shadow-lg hover:shadow-xl transition-all duration-300'
+                        variants={fadeInScale}
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.3 }}
                       >
-                        <CardHeader className='pb-3'>
-                          <div className='flex items-start justify-between'>
-                            <div className='flex items-center gap-3'>
-                              <div className='relative'>
-                                <img
-                                  src={post.author.avatar}
-                                  alt={post.author.name}
-                                  className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
-                                />
-                                {post.author.verified && (
-                                  <div className='absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white'>
-                                    <CheckCircle className='h-3 w-3 text-white' />
+                        <Card className='hover:shadow-md transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200'>
+                          <CardHeader className='pb-3'>
+                            <div className='flex items-start justify-between'>
+                              <div className='flex items-center gap-3'>
+                                <div className='relative'>
+                                  <img
+                                    src={post.author.avatar}
+                                    alt={post.author.name}
+                                    className='w-10 h-10 rounded-full border-2 border-white shadow-lg'
+                                  />
+                                  {post.author.verified && (
+                                    <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center border border-white'>
+                                      <CheckCircle className='h-2 w-2 text-white' />
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <div className='flex items-center gap-2'>
+                                    <span className='font-semibold text-gray-900'>
+                                      {post.author.name}
+                                    </span>
+                                    {getAuthorIcon(post.author.role)}
+                                    {post.author.verified && (
+                                      <Badge className='bg-blue-100 text-blue-700 border-blue-200 text-xs'>
+                                        Verified
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className='text-sm text-gray-600'>
+                                    {post.author.institution}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                <Badge
+                                  className={getCategoryColor(post.category)}
+                                >
+                                  {getCategoryIcon(post.category)}
+                                  {post.type}
+                                </Badge>
+                                <span className='text-xs text-gray-500'>
+                                  {post.createdAt}
+                                </span>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className='space-y-4'>
+                            <div>
+                              <h4 className='text-lg font-semibold text-gray-900 mb-2'>
+                                {post.title}
+                              </h4>
+                              <p className='text-gray-600 mb-3'>
+                                {post.description}
+                              </p>
+                            </div>
+
+                            <div className='flex flex-wrap gap-2'>
+                              {post.tags.map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant='outline'
+                                  className='text-xs'
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+
+                            <div className='flex items-center justify-between text-sm text-gray-500'>
+                              <div className='flex items-center gap-4'>
+                                {post.location && (
+                                  <div className='flex items-center gap-1'>
+                                    <MapPin className='h-4 w-4' />
+                                    <span>{post.location}</span>
+                                  </div>
+                                )}
+                                {post.deadline && (
+                                  <div className='flex items-center gap-1'>
+                                    <Clock className='h-4 w-4' />
+                                    <span>Deadline: {post.deadline}</span>
+                                  </div>
+                                )}
+                                {post.amount && (
+                                  <div className='flex items-center gap-1'>
+                                    <DollarSign className='h-4 w-4' />
+                                    <span>{post.amount}</span>
                                   </div>
                                 )}
                               </div>
-                              <div>
+                              <Badge
+                                className={getEngagementColor(post.engagement)}
+                              >
+                                <Zap className='h-3 w-3 mr-1' />
+                                {post.engagement} Engagement
+                              </Badge>
+                            </div>
+
+                            <div className='flex items-center justify-between pt-3 border-t border-gray-200'>
+                              <div className='flex items-center gap-4'>
+                                <button
+                                  onClick={() => handleLike(post.id)}
+                                  className='flex items-center gap-1 text-sm transition-colors text-gray-500 hover:text-red-500'
+                                >
+                                  <Heart className='h-4 w-4' />
+                                  {post.likes}
+                                </button>
+                                <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                  <MessageCircle className='h-4 w-4' />
+                                  {post.comments}
+                                </div>
+                                <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                  <Share2 className='h-4 w-4' />
+                                  {post.shares}
+                                </div>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                <button
+                                  onClick={() => handleSave(post.id)}
+                                  className='p-2 rounded-full transition-colors text-gray-400 hover:text-[#0A66C2] hover:bg-[#0A66C2]/10'
+                                >
+                                  <Bookmark className='h-4 w-4' />
+                                </button>
+                                <Button size='sm' variant='outline'>
+                                  <ExternalLink className='h-4 w-4 mr-1' />
+                                  Apply
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value='opportunity' className='space-y-6 mt-6'>
+                {/* Opportunities Content */}
+                <motion.div className='space-y-4' variants={staggerContainer}>
+                  <motion.div
+                    className='flex items-center gap-2 mb-4'
+                    variants={fadeInUp}
+                  >
+                    <Briefcase className='h-5 w-5 text-gray-600' />
+                    <h3 className='text-lg font-semibold text-gray-900'>
+                      Opportunities
+                    </h3>
+                  </motion.div>
+                  <motion.div
+                    className='grid gap-4'
+                    variants={staggerContainer}
+                  >
+                    {regularPosts
+                      .filter((post) => post.category === 'opportunity')
+                      .map((post) => (
+                        <motion.div
+                          key={post.id}
+                          variants={fadeInScale}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Card className='hover:shadow-md transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200'>
+                            <CardHeader className='pb-3'>
+                              <div className='flex items-start justify-between'>
+                                <div className='flex items-center gap-3'>
+                                  <div className='relative'>
+                                    <img
+                                      src={post.author.avatar}
+                                      alt={post.author.name}
+                                      className='w-10 h-10 rounded-full border-2 border-white shadow-lg'
+                                    />
+                                    {post.author.verified && (
+                                      <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center border border-white'>
+                                        <CheckCircle className='h-2 w-2 text-white' />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div className='flex items-center gap-2'>
+                                      <span className='font-semibold text-gray-900'>
+                                        {post.author.name}
+                                      </span>
+                                      {getAuthorIcon(post.author.role)}
+                                      {post.author.verified && (
+                                        <Badge className='bg-blue-100 text-blue-700 border-blue-200 text-xs'>
+                                          Verified
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div className='text-sm text-gray-600'>
+                                      {post.author.institution}
+                                    </div>
+                                  </div>
+                                </div>
                                 <div className='flex items-center gap-2'>
-                                  <span className='font-semibold text-gray-900'>
-                                    {post.author.name}
+                                  <Badge
+                                    className={getCategoryColor(post.category)}
+                                  >
+                                    {getCategoryIcon(post.category)}
+                                    {post.type}
+                                  </Badge>
+                                  <span className='text-xs text-gray-500'>
+                                    {post.createdAt}
                                   </span>
-                                  {getAuthorIcon(post.author.role)}
-                                  {post.author.verified && (
-                                    <Badge className='bg-blue-100 text-blue-700 border-blue-200 text-xs'>
-                                      Verified
-                                    </Badge>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                              <div>
+                                <h4 className='text-lg font-semibold text-gray-900 mb-2'>
+                                  {post.title}
+                                </h4>
+                                <p className='text-gray-600 mb-3'>
+                                  {post.description}
+                                </p>
+                              </div>
+
+                              <div className='flex flex-wrap gap-2'>
+                                {post.tags.map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant='outline'
+                                    className='text-xs'
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+
+                              <div className='flex items-center justify-between text-sm text-gray-500'>
+                                <div className='flex items-center gap-4'>
+                                  {post.location && (
+                                    <div className='flex items-center gap-1'>
+                                      <MapPin className='h-4 w-4' />
+                                      <span>{post.location}</span>
+                                    </div>
+                                  )}
+                                  {post.deadline && (
+                                    <div className='flex items-center gap-1'>
+                                      <Clock className='h-4 w-4' />
+                                      <span>Deadline: {post.deadline}</span>
+                                    </div>
+                                  )}
+                                  {post.amount && (
+                                    <div className='flex items-center gap-1'>
+                                      <DollarSign className='h-4 w-4' />
+                                      <span>{post.amount}</span>
+                                    </div>
                                   )}
                                 </div>
-                                <div className='text-sm text-gray-600'>
-                                  {post.author.institution}
+                                <Badge
+                                  className={getEngagementColor(
+                                    post.engagement
+                                  )}
+                                >
+                                  <Zap className='h-3 w-3 mr-1' />
+                                  {post.engagement} Engagement
+                                </Badge>
+                              </div>
+
+                              <div className='flex items-center justify-between pt-3 border-t border-gray-200'>
+                                <div className='flex items-center gap-4'>
+                                  <button
+                                    onClick={() => handleLike(post.id)}
+                                    className='flex items-center gap-1 text-sm transition-colors text-gray-500 hover:text-red-500'
+                                  >
+                                    <Heart className='h-4 w-4' />
+                                    {post.likes}
+                                  </button>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <MessageCircle className='h-4 w-4' />
+                                    {post.comments}
+                                  </div>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <Share2 className='h-4 w-4' />
+                                    {post.shares}
+                                  </div>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  <button
+                                    onClick={() => handleSave(post.id)}
+                                    className='p-2 rounded-full transition-colors text-gray-400 hover:text-[#0A66C2] hover:bg-[#0A66C2]/10'
+                                  >
+                                    <Bookmark className='h-4 w-4' />
+                                  </button>
+                                  <Button size='sm' variant='outline'>
+                                    <ExternalLink className='h-4 w-4 mr-1' />
+                                    Apply
+                                  </Button>
                                 </div>
                               </div>
-                            </div>
-                            <div className='flex items-center gap-2'>
-                              <Badge
-                                className={getCategoryColor(post.category)}
-                              >
-                                {getCategoryIcon(post.category)}
-                                {post.type}
-                              </Badge>
-                              <span className='text-xs text-gray-500'>
-                                {post.createdAt}
-                              </span>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent className='space-y-4'>
-                          <div>
-                            <h4 className='text-lg font-semibold text-gray-900 mb-2'>
-                              {post.title}
-                            </h4>
-                            <p className='text-gray-600 mb-3'>
-                              {post.description}
-                            </p>
-                          </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                  </motion.div>
+                </motion.div>
+              </TabsContent>
 
-                          <div className='flex flex-wrap gap-2'>
-                            {post.tags.map((tag) => (
-                              <Badge
-                                key={tag}
-                                variant='outline'
-                                className='text-xs'
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-
-                          <div className='flex items-center justify-between text-sm text-gray-500'>
-                            <div className='flex items-center gap-4'>
-                              {post.location && (
-                                <div className='flex items-center gap-1'>
-                                  <MapPin className='h-4 w-4' />
-                                  <span>{post.location}</span>
-                                </div>
-                              )}
-                              {post.deadline && (
-                                <div className='flex items-center gap-1'>
-                                  <Clock className='h-4 w-4' />
-                                  <span>Deadline: {post.deadline}</span>
-                                </div>
-                              )}
-                              {post.amount && (
-                                <div className='flex items-center gap-1'>
-                                  <DollarSign className='h-4 w-4' />
-                                  <span>{post.amount}</span>
-                                </div>
-                              )}
-                            </div>
-                            <Badge
-                              className={getEngagementColor(post.engagement)}
-                            >
-                              <Zap className='h-3 w-3 mr-1' />
-                              {post.engagement} Engagement
-                            </Badge>
-                          </div>
-
-                          <div className='flex items-center justify-between pt-3 border-t border-gray-200'>
-                            <div className='flex items-center gap-4'>
-                              <button
-                                onClick={() => handleLike(post.id)}
-                                className='flex items-center gap-1 text-sm transition-colors text-gray-500 hover:text-red-500'
-                              >
-                                <Heart className='h-4 w-4' />
-                                {post.likes}
-                              </button>
-                              <div className='flex items-center gap-1 text-sm text-gray-500'>
-                                <MessageCircle className='h-4 w-4' />
-                                {post.comments}
-                              </div>
-                              <div className='flex items-center gap-1 text-sm text-gray-500'>
-                                <Share2 className='h-4 w-4' />
-                                {post.shares}
-                              </div>
-                            </div>
-                            <div className='flex items-center gap-2'>
-                              <button
-                                onClick={() => handleSave(post.id)}
-                                className='p-2 rounded-full transition-colors text-gray-400 hover:text-purple-500 hover:bg-purple-50'
-                              >
-                                <Bookmark className='h-4 w-4' />
-                              </button>
-                              <Button size='sm' variant='outline'>
-                                <ExternalLink className='h-4 w-4 mr-1' />
-                                Apply
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Regular Posts */}
-              <div className='space-y-4'>
-                {highlightedPosts.length > 0 && (
-                  <div className='flex items-center gap-2 mb-4'>
-                    <Clock className='h-5 w-5 text-gray-600' />
+              <TabsContent value='scholarship' className='space-y-6 mt-6'>
+                {/* Scholarships Content */}
+                <motion.div className='space-y-4' variants={staggerContainer}>
+                  <motion.div
+                    className='flex items-center gap-2 mb-4'
+                    variants={fadeInUp}
+                  >
+                    <GraduationCap className='h-5 w-5 text-gray-600' />
                     <h3 className='text-lg font-semibold text-gray-900'>
-                      Recent Posts
+                      Scholarships
                     </h3>
-                  </div>
-                )}
-                <div className='grid gap-4'>
-                  {regularPosts.map((post) => (
-                    <Card
-                      key={post.id}
-                      className='hover:shadow-md transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-100'
-                    >
-                      <CardHeader className='pb-3'>
-                        <div className='flex items-start justify-between'>
-                          <div className='flex items-center gap-3'>
-                            <div className='relative'>
-                              <img
-                                src={post.author.avatar}
-                                alt={post.author.name}
-                                className='w-10 h-10 rounded-full border-2 border-white shadow-lg'
-                              />
-                              {post.author.verified && (
-                                <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center border border-white'>
-                                  <CheckCircle className='h-2 w-2 text-white' />
+                  </motion.div>
+                  <motion.div
+                    className='grid gap-4'
+                    variants={staggerContainer}
+                  >
+                    {regularPosts
+                      .filter((post) => post.category === 'scholarship')
+                      .map((post) => (
+                        <motion.div
+                          key={post.id}
+                          variants={fadeInScale}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Card className='hover:shadow-md transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200'>
+                            <CardHeader className='pb-3'>
+                              <div className='flex items-start justify-between'>
+                                <div className='flex items-center gap-3'>
+                                  <div className='relative'>
+                                    <img
+                                      src={post.author.avatar}
+                                      alt={post.author.name}
+                                      className='w-10 h-10 rounded-full border-2 border-white shadow-lg'
+                                    />
+                                    {post.author.verified && (
+                                      <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center border border-white'>
+                                        <CheckCircle className='h-2 w-2 text-white' />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div className='flex items-center gap-2'>
+                                      <span className='font-semibold text-gray-900'>
+                                        {post.author.name}
+                                      </span>
+                                      {getAuthorIcon(post.author.role)}
+                                      {post.author.verified && (
+                                        <Badge className='bg-blue-100 text-blue-700 border-blue-200 text-xs'>
+                                          Verified
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div className='text-sm text-gray-600'>
+                                      {post.author.institution}
+                                    </div>
+                                  </div>
                                 </div>
-                              )}
-                            </div>
-                            <div>
-                              <div className='flex items-center gap-2'>
-                                <span className='font-semibold text-gray-900'>
-                                  {post.author.name}
-                                </span>
-                                {getAuthorIcon(post.author.role)}
-                                {post.author.verified && (
-                                  <Badge className='bg-blue-100 text-blue-700 border-blue-200 text-xs'>
-                                    Verified
+                                <div className='flex items-center gap-2'>
+                                  <Badge
+                                    className={getCategoryColor(post.category)}
+                                  >
+                                    {getCategoryIcon(post.category)}
+                                    {post.type}
                                   </Badge>
-                                )}
+                                  <span className='text-xs text-gray-500'>
+                                    {post.createdAt}
+                                  </span>
+                                </div>
                               </div>
-                              <div className='text-sm text-gray-600'>
-                                {post.author.institution}
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                              <div>
+                                <h4 className='text-lg font-semibold text-gray-900 mb-2'>
+                                  {post.title}
+                                </h4>
+                                <p className='text-gray-600 mb-3'>
+                                  {post.description}
+                                </p>
                               </div>
-                            </div>
-                          </div>
-                          <div className='flex items-center gap-2'>
-                            <Badge className={getCategoryColor(post.category)}>
-                              {getCategoryIcon(post.category)}
-                              {post.type}
-                            </Badge>
-                            <span className='text-xs text-gray-500'>
-                              {post.createdAt}
-                            </span>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className='space-y-4'>
-                        <div>
-                          <h4 className='text-lg font-semibold text-gray-900 mb-2'>
-                            {post.title}
-                          </h4>
-                          <p className='text-gray-600 mb-3'>
-                            {post.description}
-                          </p>
-                        </div>
 
-                        <div className='flex flex-wrap gap-2'>
-                          {post.tags.map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant='outline'
-                              className='text-xs'
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
+                              <div className='flex flex-wrap gap-2'>
+                                {post.tags.map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant='outline'
+                                    className='text-xs'
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
 
-                        <div className='flex items-center justify-between text-sm text-gray-500'>
-                          <div className='flex items-center gap-4'>
-                            {post.location && (
-                              <div className='flex items-center gap-1'>
-                                <MapPin className='h-4 w-4' />
-                                <span>{post.location}</span>
+                              <div className='flex items-center justify-between text-sm text-gray-500'>
+                                <div className='flex items-center gap-4'>
+                                  {post.location && (
+                                    <div className='flex items-center gap-1'>
+                                      <MapPin className='h-4 w-4' />
+                                      <span>{post.location}</span>
+                                    </div>
+                                  )}
+                                  {post.deadline && (
+                                    <div className='flex items-center gap-1'>
+                                      <Clock className='h-4 w-4' />
+                                      <span>Deadline: {post.deadline}</span>
+                                    </div>
+                                  )}
+                                  {post.amount && (
+                                    <div className='flex items-center gap-1'>
+                                      <DollarSign className='h-4 w-4' />
+                                      <span>{post.amount}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <Badge
+                                  className={getEngagementColor(
+                                    post.engagement
+                                  )}
+                                >
+                                  <Zap className='h-3 w-3 mr-1' />
+                                  {post.engagement} Engagement
+                                </Badge>
                               </div>
-                            )}
-                            {post.deadline && (
-                              <div className='flex items-center gap-1'>
-                                <Clock className='h-4 w-4' />
-                                <span>Deadline: {post.deadline}</span>
-                              </div>
-                            )}
-                            {post.amount && (
-                              <div className='flex items-center gap-1'>
-                                <DollarSign className='h-4 w-4' />
-                                <span>{post.amount}</span>
-                              </div>
-                            )}
-                          </div>
-                          <Badge
-                            className={getEngagementColor(post.engagement)}
-                          >
-                            <Zap className='h-3 w-3 mr-1' />
-                            {post.engagement} Engagement
-                          </Badge>
-                        </div>
 
-                        <div className='flex items-center justify-between pt-3 border-t border-gray-200'>
-                          <div className='flex items-center gap-4'>
-                            <button
-                              onClick={() => handleLike(post.id)}
-                              className='flex items-center gap-1 text-sm transition-colors text-gray-500 hover:text-red-500'
-                            >
-                              <Heart className='h-4 w-4' />
-                              {post.likes}
-                            </button>
-                            <div className='flex items-center gap-1 text-sm text-gray-500'>
-                              <MessageCircle className='h-4 w-4' />
-                              {post.comments}
-                            </div>
-                            <div className='flex items-center gap-1 text-sm text-gray-500'>
-                              <Share2 className='h-4 w-4' />
-                              {post.shares}
-                            </div>
-                          </div>
-                          <div className='flex items-center gap-2'>
-                            <button
-                              onClick={() => handleSave(post.id)}
-                              className='p-2 rounded-full transition-colors text-gray-400 hover:text-purple-500 hover:bg-purple-50'
-                            >
-                              <Bookmark className='h-4 w-4' />
-                            </button>
-                            <Button size='sm' variant='outline'>
-                              <ExternalLink className='h-4 w-4 mr-1' />
-                              Apply
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+                              <div className='flex items-center justify-between pt-3 border-t border-gray-200'>
+                                <div className='flex items-center gap-4'>
+                                  <button
+                                    onClick={() => handleLike(post.id)}
+                                    className='flex items-center gap-1 text-sm transition-colors text-gray-500 hover:text-red-500'
+                                  >
+                                    <Heart className='h-4 w-4' />
+                                    {post.likes}
+                                  </button>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <MessageCircle className='h-4 w-4' />
+                                    {post.comments}
+                                  </div>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <Share2 className='h-4 w-4' />
+                                    {post.shares}
+                                  </div>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  <button
+                                    onClick={() => handleSave(post.id)}
+                                    className='p-2 rounded-full transition-colors text-gray-400 hover:text-[#0A66C2] hover:bg-[#0A66C2]/10'
+                                  >
+                                    <Bookmark className='h-4 w-4' />
+                                  </button>
+                                  <Button size='sm' variant='outline'>
+                                    <ExternalLink className='h-4 w-4 mr-1' />
+                                    Apply
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                  </motion.div>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value='notice' className='space-y-6 mt-6'>
+                {/* Notices Content */}
+                <motion.div className='space-y-4' variants={staggerContainer}>
+                  <motion.div
+                    className='flex items-center gap-2 mb-4'
+                    variants={fadeInUp}
+                  >
+                    <Bell className='h-5 w-5 text-gray-600' />
+                    <h3 className='text-lg font-semibold text-gray-900'>
+                      Notices
+                    </h3>
+                  </motion.div>
+                  <motion.div
+                    className='grid gap-4'
+                    variants={staggerContainer}
+                  >
+                    {regularPosts
+                      .filter((post) => post.category === 'notice')
+                      .map((post) => (
+                        <motion.div
+                          key={post.id}
+                          variants={fadeInScale}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Card className='hover:shadow-md transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200'>
+                            <CardHeader className='pb-3'>
+                              <div className='flex items-start justify-between'>
+                                <div className='flex items-center gap-3'>
+                                  <div className='relative'>
+                                    <img
+                                      src={post.author.avatar}
+                                      alt={post.author.name}
+                                      className='w-10 h-10 rounded-full border-2 border-white shadow-lg'
+                                    />
+                                    {post.author.verified && (
+                                      <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center border border-white'>
+                                        <CheckCircle className='h-2 w-2 text-white' />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div className='flex items-center gap-2'>
+                                      <span className='font-semibold text-gray-900'>
+                                        {post.author.name}
+                                      </span>
+                                      {getAuthorIcon(post.author.role)}
+                                      {post.author.verified && (
+                                        <Badge className='bg-blue-100 text-blue-700 border-blue-200 text-xs'>
+                                          Verified
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div className='text-sm text-gray-600'>
+                                      {post.author.institution}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  <Badge
+                                    className={getCategoryColor(post.category)}
+                                  >
+                                    {getCategoryIcon(post.category)}
+                                    {post.type}
+                                  </Badge>
+                                  <span className='text-xs text-gray-500'>
+                                    {post.createdAt}
+                                  </span>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                              <div>
+                                <h4 className='text-lg font-semibold text-gray-900 mb-2'>
+                                  {post.title}
+                                </h4>
+                                <p className='text-gray-600 mb-3'>
+                                  {post.description}
+                                </p>
+                              </div>
+
+                              <div className='flex flex-wrap gap-2'>
+                                {post.tags.map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant='outline'
+                                    className='text-xs'
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+
+                              <div className='flex items-center justify-between text-sm text-gray-500'>
+                                <div className='flex items-center gap-4'>
+                                  {post.location && (
+                                    <div className='flex items-center gap-1'>
+                                      <MapPin className='h-4 w-4' />
+                                      <span>{post.location}</span>
+                                    </div>
+                                  )}
+                                  {post.deadline && (
+                                    <div className='flex items-center gap-1'>
+                                      <Clock className='h-4 w-4' />
+                                      <span>Deadline: {post.deadline}</span>
+                                    </div>
+                                  )}
+                                  {post.amount && (
+                                    <div className='flex items-center gap-1'>
+                                      <DollarSign className='h-4 w-4' />
+                                      <span>{post.amount}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <Badge
+                                  className={getEngagementColor(
+                                    post.engagement
+                                  )}
+                                >
+                                  <Zap className='h-3 w-3 mr-1' />
+                                  {post.engagement} Engagement
+                                </Badge>
+                              </div>
+
+                              <div className='flex items-center justify-between pt-3 border-t border-gray-200'>
+                                <div className='flex items-center gap-4'>
+                                  <button
+                                    onClick={() => handleLike(post.id)}
+                                    className='flex items-center gap-1 text-sm transition-colors text-gray-500 hover:text-red-500'
+                                  >
+                                    <Heart className='h-4 w-4' />
+                                    {post.likes}
+                                  </button>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <MessageCircle className='h-4 w-4' />
+                                    {post.comments}
+                                  </div>
+                                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                                    <Share2 className='h-4 w-4' />
+                                    {post.shares}
+                                  </div>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  <button
+                                    onClick={() => handleSave(post.id)}
+                                    className='p-2 rounded-full transition-colors text-gray-400 hover:text-[#0A66C2] hover:bg-[#0A66C2]/10'
+                                  >
+                                    <Bookmark className='h-4 w-4' />
+                                  </button>
+                                  <Button size='sm' variant='outline'>
+                                    <ExternalLink className='h-4 w-4 mr-1' />
+                                    Apply
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                  </motion.div>
+                </motion.div>
+              </TabsContent>
+            </Tabs>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA Section */}
-      <section className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50'>
+      <motion.section
+        className='py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
+        initial='initial'
+        whileInView='animate'
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeInUp}
+      >
         <div className='max-w-4xl mx-auto text-center'>
-          <h2 className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'>
+          <motion.h2
+            className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'
+            variants={fadeInUp}
+          >
             Stay Updated with Latest Posts
-          </h2>
-          <p className='text-lg text-gray-600 mb-10 max-w-2xl mx-auto'>
+          </motion.h2>
+          <motion.p
+            className='text-lg text-gray-600 mb-10 max-w-2xl mx-auto'
+            variants={fadeInUp}
+          >
             Join thousands of students and professionals who stay informed about
             the latest academic opportunities and discussions.
-          </p>
-          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+          </motion.p>
+          <motion.div
+            className='flex flex-col sm:flex-row gap-4 justify-center'
+            variants={fadeInUp}
+          >
             <Button
               size='lg'
               onClick={() => navigate('/signup')}
-              className='bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
             >
               Join the Community
               <ArrowRight className='ml-2 h-5 w-5' />
@@ -887,13 +1519,13 @@ const RecentPosts = () => {
             <Button
               size='lg'
               variant='outline'
-              className='border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg font-semibold'
+              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-8 py-4 text-lg font-semibold'
             >
               Create Post
             </Button>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       <LandingFooter />
     </div>
