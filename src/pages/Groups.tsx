@@ -130,44 +130,46 @@ const Groups = () => {
   const CategoryIcon = getCategoryIcon('Academic');
 
   return (
-    <div className='p-6 space-y-6'>
-      <div className='flex items-center justify-between'>
+    <div className='p-4 sm:p-6 space-y-4 sm:space-y-6'>
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900 flex items-center gap-2'>
-            <Users className='h-6 w-6 text-blue-600' />
+          <h1 className='text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2'>
+            <Users className='h-5 w-5 sm:h-6 sm:w-6 text-blue-600' />
             Study Groups
           </h1>
-          <p className='text-gray-600'>
+          <p className='text-sm sm:text-base text-gray-600'>
             Connect with peers and join academic communities
           </p>
         </div>
-        <Button className='bg-blue-600 hover:bg-blue-700'>
-          <Plus className='h-4 w-4 mr-2' />
+        <Button className='bg-blue-600 hover:bg-blue-700 text-sm sm:text-base'>
+          <Plus className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
           Create Group
         </Button>
       </div>
 
       {/* Search and Tabs */}
-      <div className='flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between'>
+      <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between'>
         <div className='relative flex-1 max-w-md'>
           <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
           <Input
             placeholder='Search groups...'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className='pl-10'
+            className='pl-10 text-sm sm:text-base'
           />
         </div>
         <div className='flex gap-2'>
           <Button
             variant={activeTab === 'my-groups' ? 'default' : 'outline'}
             onClick={() => setActiveTab('my-groups')}
+            className='text-xs sm:text-sm'
           >
             My Groups
           </Button>
           <Button
             variant={activeTab === 'suggested' ? 'default' : 'outline'}
             onClick={() => setActiveTab('suggested')}
+            className='text-xs sm:text-sm'
           >
             Suggested Groups
           </Button>
@@ -175,7 +177,7 @@ const Groups = () => {
       </div>
 
       {/* Groups Grid */}
-      <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+      <div className='grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
         {(activeTab === 'my-groups' ? myGroups : suggestedGroups)
           .filter(
             (group) =>
@@ -187,20 +189,20 @@ const Groups = () => {
               key={group.id}
               className='hover:shadow-md transition-shadow h-full flex flex-col'
             >
-              <CardHeader className='flex-shrink-0'>
+              <CardHeader className='flex-shrink-0 pb-3 sm:pb-4'>
                 <div className='flex items-start justify-between'>
-                  <div className='flex items-center gap-3 w-full'>
-                    <Avatar className='h-12 w-12 flex-shrink-0'>
-                      <AvatarFallback className='text-lg font-semibold'>
+                  <div className='flex items-center gap-2 sm:gap-3 w-full'>
+                    <Avatar className='h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0'>
+                      <AvatarFallback className='text-sm sm:text-lg font-semibold'>
                         {group.avatar}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex-1 min-w-0'>
-                      <CardTitle className='text-lg break-words line-clamp-2'>
+                      <CardTitle className='text-base sm:text-lg break-words line-clamp-2'>
                         {group.name}
                       </CardTitle>
-                      <CardDescription className='flex items-center gap-1 mt-1'>
-                        <CategoryIcon className='h-3 w-3' />
+                      <CardDescription className='flex items-center gap-1 mt-1 text-xs sm:text-sm'>
+                        <CategoryIcon className='h-2 w-2 sm:h-3 sm:w-3' />
                         {group.category}
                       </CardDescription>
                     </div>
@@ -208,18 +210,22 @@ const Groups = () => {
                   <div className='flex items-center gap-1'>
                     {group.isAdmin && (
                       <Badge variant='secondary' className='text-xs'>
-                        <Crown className='h-3 w-3 mr-1' />
+                        <Crown className='h-2 w-2 sm:h-3 sm:w-3 mr-1' />
                         Admin
                       </Badge>
                     )}
-                    <Button variant='ghost' size='sm'>
-                      <MoreHorizontal className='h-4 w-4' />
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className='h-8 w-8 sm:h-10 sm:w-10'
+                    >
+                      <MoreHorizontal className='h-3 w-3 sm:h-4 sm:w-4' />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='space-y-4 flex-grow'>
-                <p className='text-sm text-gray-600 line-clamp-2'>
+              <CardContent className='space-y-3 sm:space-y-4 flex-grow'>
+                <p className='text-xs sm:text-sm text-gray-600 line-clamp-2'>
                   {group.description}
                 </p>
 
@@ -236,19 +242,19 @@ const Groups = () => {
                   )}
                 </div>
 
-                <div className='flex items-center justify-between text-sm text-gray-500'>
-                  <div className='flex items-center gap-4'>
+                <div className='flex items-center justify-between text-xs sm:text-sm text-gray-500'>
+                  <div className='flex items-center gap-2 sm:gap-4'>
                     <span className='flex items-center gap-1'>
-                      <Users className='h-3 w-3' />
+                      <Users className='h-2 w-2 sm:h-3 sm:w-3' />
                       {group.members}
                     </span>
                     <span className='flex items-center gap-1'>
-                      <MessageSquare className='h-3 w-3' />
+                      <MessageSquare className='h-2 w-2 sm:h-3 sm:w-3' />
                       {group.posts}
                     </span>
                   </div>
                   <span className='flex items-center gap-1'>
-                    <Calendar className='h-3 w-3' />
+                    <Calendar className='h-2 w-2 sm:h-3 sm:w-3' />
                     {group.lastActivity}
                   </span>
                 </div>
@@ -256,13 +262,21 @@ const Groups = () => {
                 <div className='flex gap-2 mt-auto'>
                   {activeTab === 'my-groups' ? (
                     <>
-                      <Button variant='outline' size='sm' className='flex-1'>
-                        <MessageSquare className='h-4 w-4 mr-2' />
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        className='flex-1 text-xs sm:text-sm'
+                      >
+                        <MessageSquare className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
                         View
                       </Button>
                       {group.isAdmin && (
-                        <Button variant='outline' size='sm'>
-                          <Settings className='h-4 w-4' />
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className='text-xs sm:text-sm'
+                        >
+                          <Settings className='h-3 w-3 sm:h-4 sm:w-4' />
                         </Button>
                       )}
                     </>
@@ -270,13 +284,17 @@ const Groups = () => {
                     <>
                       <Button
                         size='sm'
-                        className='flex-1 bg-blue-600 hover:bg-blue-700'
+                        className='flex-1 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm'
                       >
-                        <UserPlus className='h-4 w-4 mr-2' />
+                        <UserPlus className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
                         Join Group
                       </Button>
-                      <Button variant='outline' size='sm'>
-                        <Eye className='h-4 w-4' />
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        className='text-xs sm:text-sm'
+                      >
+                        <Eye className='h-3 w-3 sm:h-4 sm:w-4' />
                       </Button>
                     </>
                   )}
@@ -292,9 +310,9 @@ const Groups = () => {
           group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           group.description.toLowerCase().includes(searchTerm.toLowerCase())
       ).length === 0 && (
-        <div className='text-center py-12'>
-          <Users className='h-12 w-12 text-gray-400 mx-auto mb-4' />
-          <h3 className='text-lg font-medium text-gray-900 mb-2'>
+        <div className='text-center py-8 sm:py-12'>
+          <Users className='h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4' />
+          <h3 className='text-base sm:text-lg font-medium text-gray-900 mb-2'>
             {searchTerm
               ? 'No groups found'
               : `No ${
@@ -303,7 +321,7 @@ const Groups = () => {
                     : 'suggested groups'
                 }`}
           </h3>
-          <p className='text-gray-600 mb-4'>
+          <p className='text-sm sm:text-base text-gray-600 mb-4'>
             {searchTerm
               ? 'Try adjusting your search terms'
               : activeTab === 'my-groups'
@@ -311,7 +329,10 @@ const Groups = () => {
               : 'Check back later for new group suggestions'}
           </p>
           {activeTab === 'my-groups' && (
-            <Button onClick={() => setActiveTab('suggested')}>
+            <Button
+              onClick={() => setActiveTab('suggested')}
+              className='text-sm'
+            >
               Browse Suggested Groups
             </Button>
           )}

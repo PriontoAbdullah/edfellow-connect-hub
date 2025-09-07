@@ -19,37 +19,48 @@ import {
   Award,
   CheckCircle,
   ArrowRight,
+  Loader2,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { updateUserData } from '@/lib/auth';
 import ForumAutoJoin from '@/components/ForumAutoJoin';
 
 interface ProfileData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  country: string;
   bio: string;
-  institution: string;
-  department: string;
   academicInterests: string[];
   skills: string[];
   languages: string[];
   experience: string;
   mentorshipInterests: string[];
+  portfolio: {
+    projects: Array<{
+      title: string;
+      description: string;
+      technologies: string[];
+      url?: string;
+    }>;
+    achievements: Array<{
+      title: string;
+      description: string;
+      date: string;
+    }>;
+  };
 }
 
 const CompleteProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user, userData, refreshUserData } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileComplete, setProfileComplete] = useState(false);
   const [showForumModal, setShowForumModal] = useState(false);
   const [updatedUser, setUpdatedUser] = useState<any>(null);
 
-  const [user, setUser] = useState(() => {
+  const [localUser, setLocalUser] = useState(() => {
     const locationState = location.state as any;
     return (
       locationState?.user || { name: 'New User', role: 'student', email: '' }
@@ -61,24 +72,16 @@ const CompleteProfile = () => {
     const registrationData = locationState?.user?.registrationData;
 
     return {
-      firstName: registrationData?.firstName || '',
-      lastName: registrationData?.lastName || '',
-      email: registrationData?.email || user.email || '',
-      country: registrationData?.country || '',
       bio: '',
-      institution:
-        registrationData?.institutionAffiliation ||
-        registrationData?.universityName ||
-        '',
-      department: registrationData?.department || '',
-      academicInterests:
-        registrationData?.areasOfInterest ||
-        registrationData?.researchInterests ||
-        [],
+      academicInterests: [],
       skills: [],
       languages: [],
       experience: '',
       mentorshipInterests: [],
+      portfolio: {
+        projects: [],
+        achievements: [],
+      },
     };
   });
 
@@ -182,25 +185,25 @@ const CompleteProfile = () => {
     let completed = 0;
     let total = 0;
 
-    if (profileData.firstName) completed++;
-    if (profileData.lastName) completed++;
-    if (profileData.email) completed++;
-    if (profileData.country) completed++;
+    // Step 1: Bio and basic info
     if (profileData.bio) completed++;
-    total += 5;
+    total += 1;
 
-    if (profileData.institution) completed++;
-    if (profileData.department) completed++;
+    // Step 2: Academic interests
     if (profileData.academicInterests.length > 0) completed++;
-    total += 3;
+    total += 1;
 
+    // Step 3: Skills and experience
     if (profileData.skills.length > 0) completed++;
     if (profileData.languages.length > 0) completed++;
     if (profileData.experience) completed++;
     total += 3;
 
+    // Step 4: Mentorship and portfolio
     if (profileData.mentorshipInterests.length > 0) completed++;
-    total += 1;
+    if (profileData.portfolio.projects.length > 0) completed++;
+    if (profileData.portfolio.achievements.length > 0) completed++;
+    total += 3;
 
     return Math.round((completed / total) * 100);
   };
@@ -208,24 +211,14 @@ const CompleteProfile = () => {
   const canProceedToNext = () => {
     switch (currentStep) {
       case 1:
-        return (
-          profileData.firstName &&
-          profileData.lastName &&
-          profileData.email &&
-          profileData.country &&
-          profileData.bio
-        );
+        return profileData.bio.length > 50; // Require meaningful bio
       case 2:
-        return (
-          profileData.institution &&
-          profileData.department &&
-          profileData.academicInterests.length > 0
-        );
+        return profileData.academicInterests.length > 0;
       case 3:
         return (
           profileData.skills.length > 0 &&
           profileData.languages.length > 0 &&
-          profileData.experience
+          profileData.experience.length > 20
         );
       case 4:
         return profileData.mentorshipInterests.length > 0;
@@ -235,19 +228,43 @@ const CompleteProfile = () => {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please log in to complete your profile.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Update user data in Supabase
+      const { error } = await updateUserData(user.id, {
+        bio: profileData.bio,
+        academicInterests: profileData.academicInterests,
+        skills: profileData.skills,
+        languages: profileData.languages,
+        experience: profileData.experience,
+        mentorshipInterests: profileData.mentorshipInterests,
+        profileCompleted: true,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Refresh user data from Supabase
+      await refreshUserData();
 
       const updatedUser = {
-        ...user,
-        name: `${profileData.firstName} ${profileData.lastName}`,
+        ...localUser,
+        name: localUser.name || 'User',
         profileComplete: true,
         profileData,
       };
 
-      localStorage.setItem('edfellow_user', JSON.stringify(updatedUser));
       setUpdatedUser(updatedUser);
 
       toast({
@@ -269,6 +286,7 @@ const CompleteProfile = () => {
         }
       }, 5000);
     } catch (error) {
+      console.error('Error completing profile:', error);
       toast({
         title: 'Error',
         description: 'Failed to save profile. Please try again.',
@@ -282,13 +300,13 @@ const CompleteProfile = () => {
   const getStepTitle = (step: number) => {
     switch (step) {
       case 1:
-        return 'Basic Information';
+        return 'Tell Us About Yourself';
       case 2:
-        return 'Academic Background';
+        return 'Academic Interests';
       case 3:
-        return 'Professional Details';
+        return 'Skills & Experience';
       case 4:
-        return 'Preferences & Interests';
+        return 'Portfolio & Mentorship';
       default:
         return '';
     }
@@ -301,74 +319,14 @@ const CompleteProfile = () => {
           <User className='h-8 w-8 text-white' />
         </div>
         <CardTitle className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
-          Basic Information
+          Tell Us About Yourself
         </CardTitle>
         <CardDescription className='text-lg text-gray-600 mt-2'>
-          Tell us about yourself
+          Share your story and what makes you unique
         </CardDescription>
       </CardHeader>
       <CardContent className='px-8 pb-8'>
         <form className='space-y-6'>
-          <div className='grid md:grid-cols-2 gap-4'>
-            <div>
-              <Label htmlFor='firstName'>First Name *</Label>
-              <Input
-                id='firstName'
-                value={profileData.firstName}
-                onChange={(e) =>
-                  setProfileData((prev) => ({
-                    ...prev,
-                    firstName: e.target.value,
-                  }))
-                }
-                required
-                className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
-              />
-            </div>
-            <div>
-              <Label htmlFor='lastName'>Last Name *</Label>
-              <Input
-                id='lastName'
-                value={profileData.lastName}
-                onChange={(e) =>
-                  setProfileData((prev) => ({
-                    ...prev,
-                    lastName: e.target.value,
-                  }))
-                }
-                required
-                className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor='email'>Email Address *</Label>
-            <Input
-              id='email'
-              type='email'
-              value={profileData.email}
-              onChange={(e) =>
-                setProfileData((prev) => ({ ...prev, email: e.target.value }))
-              }
-              required
-              className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
-            />
-          </div>
-
-          <div>
-            <Label htmlFor='country'>Country/Region *</Label>
-            <Input
-              id='country'
-              value={profileData.country}
-              onChange={(e) =>
-                setProfileData((prev) => ({ ...prev, country: e.target.value }))
-              }
-              required
-              className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
-            />
-          </div>
-
           <div>
             <Label htmlFor='bio'>Bio/About Me *</Label>
             <Textarea
@@ -377,10 +335,24 @@ const CompleteProfile = () => {
               onChange={(e) =>
                 setProfileData((prev) => ({ ...prev, bio: e.target.value }))
               }
-              placeholder="Tell us about yourself, your interests, and what you're looking for..."
-              className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] min-h-[100px]'
+              placeholder="Tell us about yourself, your academic journey, interests, and what you're looking for in this community..."
+              className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] min-h-[150px]'
               required
             />
+            <p className='text-sm text-gray-500 mt-2'>
+              {profileData.bio.length}/500 characters (minimum 50 required)
+            </p>
+          </div>
+
+          {/* Suggestions for bio */}
+          <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+            <h4 className='font-semibold text-blue-800 mb-2'>💡 Bio Tips:</h4>
+            <ul className='text-sm text-blue-700 space-y-1'>
+              <li>• Mention your academic background and current studies</li>
+              <li>• Share your career goals and aspirations</li>
+              <li>• Include your interests and hobbies</li>
+              <li>• Explain what you hope to gain from this community</li>
+            </ul>
           </div>
         </form>
       </CardContent>
@@ -394,50 +366,22 @@ const CompleteProfile = () => {
           <GraduationCap className='h-8 w-8 text-white' />
         </div>
         <CardTitle className='text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent'>
-          Academic Background
+          Academic Interests
         </CardTitle>
         <CardDescription className='text-lg text-gray-600 mt-2'>
-          Share your academic information
+          What subjects and areas interest you most?
         </CardDescription>
       </CardHeader>
       <CardContent className='px-8 pb-8'>
         <form className='space-y-6'>
           <div>
-            <Label htmlFor='institution'>Institution/University *</Label>
-            <Input
-              id='institution'
-              value={profileData.institution}
-              onChange={(e) =>
-                setProfileData((prev) => ({
-                  ...prev,
-                  institution: e.target.value,
-                }))
-              }
-              required
-              className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
-            />
-          </div>
-
-          <div>
-            <Label htmlFor='department'>Department/Field *</Label>
-            <Input
-              id='department'
-              value={profileData.department}
-              onChange={(e) =>
-                setProfileData((prev) => ({
-                  ...prev,
-                  department: e.target.value,
-                }))
-              }
-              required
-              className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
-            />
-          </div>
-
-          <div>
             <Label className='text-base font-semibold text-gray-700 mb-3 block'>
-              Academic Interests *
+              Select Your Academic Interests *
             </Label>
+            <p className='text-sm text-gray-600 mb-4'>
+              Choose the subjects and areas that interest you most. This helps
+              us connect you with relevant content and people.
+            </p>
             <div className='flex flex-wrap gap-2'>
               {academicInterests.map((interest) => (
                 <Badge
@@ -460,6 +404,19 @@ const CompleteProfile = () => {
                 </Badge>
               ))}
             </div>
+            <p className='text-sm text-gray-500 mt-3'>
+              Selected: {profileData.academicInterests.length} interests
+            </p>
+          </div>
+
+          {/* Suggestions */}
+          <div className='p-4 bg-green-50 border border-green-200 rounded-lg'>
+            <h4 className='font-semibold text-green-800 mb-2'>🎯 Pro Tip:</h4>
+            <p className='text-sm text-green-700'>
+              Select 3-5 interests that best represent your academic focus. This
+              helps us personalize your feed and connect you with like-minded
+              peers and mentors.
+            </p>
           </div>
         </form>
       </CardContent>
@@ -559,18 +516,21 @@ const CompleteProfile = () => {
           <Award className='h-8 w-8 text-white' />
         </div>
         <CardTitle className='text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent'>
-          Preferences & Interests
+          Portfolio & Mentorship
         </CardTitle>
         <CardDescription className='text-lg text-gray-600 mt-2'>
-          Tell us what you're looking for
+          Showcase your work and mentorship preferences
         </CardDescription>
       </CardHeader>
       <CardContent className='px-8 pb-8'>
         <form className='space-y-6'>
           <div>
             <Label className='text-base font-semibold text-gray-700 mb-3 block'>
-              Mentorship Interests
+              Mentorship Interests *
             </Label>
+            <p className='text-sm text-gray-600 mb-4'>
+              What kind of mentorship are you looking for or willing to provide?
+            </p>
             <div className='flex flex-wrap gap-2'>
               {mentorshipInterests.map((interest) => (
                 <Badge
@@ -592,6 +552,31 @@ const CompleteProfile = () => {
                   {interest}
                 </Badge>
               ))}
+            </div>
+            <p className='text-sm text-gray-500 mt-3'>
+              Selected: {profileData.mentorshipInterests.length} interests
+            </p>
+          </div>
+
+          {/* Portfolio Section */}
+          <div className='border-t pt-6'>
+            <h3 className='text-lg font-semibold text-gray-800 mb-4'>
+              Digital Portfolio (Optional)
+            </h3>
+            <p className='text-sm text-gray-600 mb-4'>
+              You can add projects and achievements later in your profile. For
+              now, let's focus on completing your basic profile.
+            </p>
+            <div className='p-4 bg-teal-50 border border-teal-200 rounded-lg'>
+              <h4 className='font-semibold text-teal-800 mb-2'>
+                🚀 Coming Soon:
+              </h4>
+              <ul className='text-sm text-teal-700 space-y-1'>
+                <li>• Project showcase with links and descriptions</li>
+                <li>• Achievement gallery with certificates and awards</li>
+                <li>• Skills verification and endorsements</li>
+                <li>• Portfolio sharing and collaboration features</li>
+              </ul>
             </div>
           </div>
         </form>
@@ -715,7 +700,7 @@ const CompleteProfile = () => {
             >
               {isSubmitting ? (
                 <>
-                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                  <Loader2 className='h-4 w-4 animate-spin mr-2' />
                   Completing Profile...
                 </>
               ) : (

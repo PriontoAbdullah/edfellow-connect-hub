@@ -532,7 +532,7 @@ const Index = () => {
 
       {/* Hero Section */}
       <motion.section
-        className='relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex items-center justify-center'
+        className='relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[500px] sm:min-h-[600px] flex items-center justify-center'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.3 }}
@@ -551,28 +551,28 @@ const Index = () => {
         {/* Overlay for readability */}
         <div className='absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/30 to-indigo-100/40 z-10' />
         <motion.div
-          className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'
+          className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2 px-4'
           variants={staggerContainer}
         >
           <motion.div variants={fadeInUp}>
-            <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
+            <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-6 sm:mb-8 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
               Global Academic Network
             </Badge>
           </motion.div>
           <motion.h2
-            className='text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight'
+            className='text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2'
             variants={fadeInUp}
           >
             Welcome to <span className='text-[#0A66C2]'>Edfellow</span>
           </motion.h2>
           <motion.h3
-            className='text-xl sm:text-2xl font-semibold text-gray-700 mb-6'
+            className='text-lg sm:text-xl lg:text-2xl font-semibold text-gray-700 mb-4 sm:mb-6 px-2'
             variants={fadeInUp}
           >
             Your Global Hub for Learning, Connecting, and Limitless Opportunity
           </motion.h3>
           <motion.p
-            className='text-base text-gray-600 leading-relaxed max-w-2xl mx-auto'
+            className='text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto px-2'
             variants={fadeInUp}
           >
             Connect with a worldwide academic community built for collaboration,
@@ -583,29 +583,32 @@ const Index = () => {
 
       {/* Role Teaser Section */}
       <motion.section
-        className='py-20 px-4 sm:px-6 lg:px-8 bg-white'
+        className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.2 }}
         variants={fadeInUp}
       >
         <div className='max-w-6xl mx-auto'>
-          <motion.div className='text-center mb-16' variants={staggerContainer}>
+          <motion.div
+            className='text-center mb-12 sm:mb-16'
+            variants={staggerContainer}
+          >
             <motion.h3
-              className='text-2xl sm:text-3xl font-bold text-gray-900 mb-4'
+              className='text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4'
               variants={fadeInUp}
             >
               How Edfellow Empowers You
             </motion.h3>
             <motion.p
-              className='text-base text-gray-600 max-w-3xl mx-auto mb-4'
+              className='text-sm sm:text-base text-gray-600 max-w-3xl mx-auto mb-3 sm:mb-4 px-4'
               variants={fadeInUp}
             >
               Choose your path and unlock a world of knowledge, mentorship, and
               global opportunity.
             </motion.p>
             <motion.p
-              className='text-sm text-gray-500 max-w-3xl mx-auto'
+              className='text-xs sm:text-sm text-gray-500 max-w-3xl mx-auto px-4'
               variants={fadeInUp}
             >
               At Edfellow, we believe education should be more than lectures and
@@ -619,7 +622,7 @@ const Index = () => {
           </motion.div>
 
           <motion.div
-            className='grid md:grid-cols-3 gap-8'
+            className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8'
             variants={staggerContainer}
           >
             {roles.map((role, index) => {
@@ -628,35 +631,35 @@ const Index = () => {
                 <motion.div
                   key={role.id}
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white rounded-lg p-2'>
-                    <CardHeader className='text-center pb-6'>
+                  <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white rounded-lg p-2 h-full'>
+                    <CardHeader className='text-center pb-4 sm:pb-6'>
                       <motion.div
-                        className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${role.color} rounded-2xl mb-6 mx-auto shadow-lg`}
+                        className={`inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${role.color} rounded-2xl mb-4 sm:mb-6 mx-auto shadow-lg`}
                         whileHover={{ rotate: 5, scale: 1.1 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <IconComponent className='h-10 w-10 text-white' />
+                        <IconComponent className='h-8 w-8 sm:h-10 sm:w-10 text-white' />
                       </motion.div>
-                      <CardTitle className='text-xl font-bold text-gray-900 mb-2'>
+                      <CardTitle className='text-lg sm:text-xl font-bold text-gray-900 mb-2'>
                         {role.title}
                       </CardTitle>
-                      <div className='text-[#0A66C2] font-semibold text-base pb-2'>
+                      <div className='text-[#0A66C2] font-semibold text-sm sm:text-base pb-2'>
                         {role.tagline}
                       </div>
                       <ul className='text-left space-y-2 mb-2'>
                         {role.features.map((feature, idx) => (
                           <motion.li
                             key={idx}
-                            className='flex items-start gap-2 text-gray-600 text-sm'
+                            className='flex items-start gap-2 text-gray-600 text-xs sm:text-sm'
                             initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.1 }}
                             viewport={{ once: true }}
                           >
-                            <CheckCircle className='h-4 w-4 text-[#0A66C2] mt-0.5 flex-shrink-0' />
+                            <CheckCircle className='h-3 w-3 sm:h-4 sm:w-4 text-[#0A66C2] mt-0.5 flex-shrink-0' />
                             <span>{feature}</span>
                           </motion.li>
                         ))}
@@ -667,10 +670,10 @@ const Index = () => {
                         onClick={() =>
                           navigate('/signup', { state: { role: role.id } })
                         }
-                        className='bg-[#0A66C2] hover:bg-[#084482] hover:shadow-md transition-all duration-200 w-full text-white font-semibold py-3 rounded-md'
+                        className='bg-[#0A66C2] hover:bg-[#084482] hover:shadow-md transition-all duration-200 w-full text-white font-semibold py-2 sm:py-3 rounded-md text-sm sm:text-base'
                       >
                         Explore More
-                        <ArrowRight className='ml-2 h-4 w-4' />
+                        <ArrowRight className='ml-2 h-3 w-3 sm:h-4 sm:w-4' />
                       </Button>
                     </CardContent>
                   </Card>
@@ -683,7 +686,7 @@ const Index = () => {
 
       {/* Featured Programs Section */}
       <motion.section
-        className='py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'
+        className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.2 }}
@@ -691,14 +694,14 @@ const Index = () => {
       >
         <div className='max-w-8xl mx-auto'>
           <motion.div
-            className='flex justify-between items-center mb-16 px-12'
+            className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 sm:mb-16 px-4 sm:px-12'
             variants={staggerContainer}
           >
-            <motion.div variants={fadeInUp}>
-              <h3 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
+            <motion.div variants={fadeInUp} className='mb-4 sm:mb-0'>
+              <h3 className='text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2'>
                 Featured Programs
               </h3>
-              <p className='text-base text-gray-600'>
+              <p className='text-sm sm:text-base text-gray-600'>
                 Discover world-class academic programs from top institutions
               </p>
             </motion.div>
@@ -712,9 +715,9 @@ const Index = () => {
                   )
                 }
                 disabled={featuredProgramsIndex === 0}
-                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2] h-8 w-8 sm:h-10 sm:w-10'
               >
-                <ArrowLeft className='h-4 w-4' />
+                <ArrowLeft className='h-3 w-3 sm:h-4 sm:w-4' />
               </Button>
               <Button
                 variant='outline'
@@ -722,97 +725,121 @@ const Index = () => {
                 onClick={() =>
                   setFeaturedProgramsIndex(
                     Math.min(
-                      Math.max(0, featuredPrograms.length - 4),
+                      Math.max(
+                        0,
+                        featuredPrograms.length -
+                          (window.innerWidth >= 1024
+                            ? 4
+                            : window.innerWidth >= 768
+                            ? 2
+                            : 1)
+                      ),
                       featuredProgramsIndex + 1
                     )
                   )
                 }
                 disabled={
                   featuredProgramsIndex >=
-                  Math.max(0, featuredPrograms.length - 4)
+                  Math.max(
+                    0,
+                    featuredPrograms.length -
+                      (window.innerWidth >= 1024
+                        ? 4
+                        : window.innerWidth >= 768
+                        ? 2
+                        : 1)
+                  )
                 }
-                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
+                className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2] h-8 w-8 sm:h-10 sm:w-10'
               >
-                <ArrowRight className='h-4 w-4' />
+                <ArrowRight className='h-3 w-3 sm:h-4 sm:w-4' />
               </Button>
             </motion.div>
           </motion.div>
 
-          <div className='relative overflow-hidden px-12'>
+          <div className='relative overflow-hidden px-4 sm:px-12'>
             <div
               className='flex transition-transform duration-300 ease-in-out pb-8'
               style={{
-                transform: `translateX(-${featuredProgramsIndex * 25}%)`,
+                transform: `translateX(-${
+                  featuredProgramsIndex *
+                  (100 /
+                    (window.innerWidth >= 1024
+                      ? 4
+                      : window.innerWidth >= 768
+                      ? 2
+                      : 1))
+                }%)`,
               }}
             >
               {featuredPrograms.map((program) => (
                 <div
                   key={program.id}
-                  className='w-full md:w-1/4 flex-shrink-0 pr-8'
+                  className='w-full sm:w-1/2 lg:w-1/4 flex-shrink-0 pr-4 sm:pr-8'
                 >
                   <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 bg-white rounded-lg overflow-hidden group'>
                     <div className='relative'>
                       <img
                         src={program.image}
                         alt={program.program}
-                        className='w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300'
+                        className='w-full h-32 sm:h-48 object-cover group-hover:scale-105 transition-transform duration-300'
                       />
-                      <Badge className='absolute top-4 right-4 bg-blue-100 text-blue-700 border-0 font-semibold'>
+                      <Badge className='absolute top-2 sm:top-4 right-2 sm:right-4 bg-blue-100 text-blue-700 border-0 font-semibold text-xs sm:text-sm'>
                         {program.tag}
                       </Badge>
-                      <div className='absolute bottom-4 left-4'>
+                      <div className='absolute bottom-2 sm:bottom-4 left-2 sm:left-4'>
                         <img
                           src={program.logo}
                           alt={program.university}
-                          className='w-12 h-12 rounded-full border-2 border-white shadow-lg'
+                          className='w-8 h-8 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-lg'
                         />
                       </div>
                       <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent' />
                     </div>
-                    <CardHeader className='pb-4 pt-6'>
-                      <CardTitle className='text-lg font-bold text-gray-900 mb-2'>
+                    <CardHeader className='pb-3 sm:pb-4 pt-4 sm:pt-6'>
+                      <CardTitle className='text-sm sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2'>
                         {program.program}
                       </CardTitle>
-                      <CardDescription className='text-gray-600 mb-4 font-medium'>
+                      <CardDescription className='text-gray-600 mb-2 sm:mb-4 font-medium text-xs sm:text-sm'>
                         {program.university}
                       </CardDescription>
-                      <div className='flex items-center space-x-1 mb-4'>
+                      <div className='flex items-center space-x-1 mb-2 sm:mb-4'>
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${
+                            className={`h-3 w-3 sm:h-4 sm:w-4 ${
                               i < Math.floor(program.rating)
                                 ? 'text-yellow-400 fill-current'
                                 : 'text-gray-300'
                             }`}
                           />
                         ))}
-                        <span className='text-sm text-gray-600 ml-1'>
+                        <span className='text-xs sm:text-sm text-gray-600 ml-1'>
                           {program.rating}
                         </span>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
+                      <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 space-y-1 sm:space-y-0'>
                         <div className='flex items-center gap-1'>
-                          <MapPin className='h-4 w-4' />
+                          <MapPin className='h-3 w-3 sm:h-4 sm:w-4' />
                           <span>{program.location}</span>
                         </div>
                         <div className='flex items-center gap-1'>
-                          <Clock className='h-4 w-4' />
+                          <Clock className='h-3 w-3 sm:h-4 sm:w-4' />
                           <span>{program.duration}</span>
                         </div>
                         <div className='flex items-center gap-1'>
-                          <Users className='h-4 w-4' />
+                          <Users className='h-3 w-3 sm:h-4 sm:w-4' />
                           <span>{program.capacity}</span>
                         </div>
                       </div>
-                      <div className='text-lg font-semibold text-[#0A66C2] mb-4'>
+                      <div className='text-sm sm:text-lg font-semibold text-[#0A66C2] mb-3 sm:mb-4'>
                         {program.cost}
                       </div>
-                      <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-3 rounded-md transition-all duration-200 hover:shadow-md'>
+                      <Button className='w-full bg-[#0A66C2] hover:bg-[#084482] text-white font-semibold py-2 sm:py-3 rounded-md transition-all duration-200 hover:shadow-md text-xs sm:text-sm'>
                         Learn More
-                        <ExternalLink className='ml-2 h-4 w-4' />
+                        <ExternalLink className='ml-2 h-3 w-3 sm:h-4 sm:w-4' />
                       </Button>
                     </CardContent>
                   </Card>
@@ -1816,10 +1843,10 @@ const Index = () => {
           <motion.div className='text-center mt-12' variants={fadeInUp}>
             <Button
               size='lg'
-              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-md transition-all duration-200 hover:shadow-lg rounded-md'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-md transition-all duration-200 hover:shadow-lg rounded-md w-full sm:w-auto'
             >
               Start Your Mentorship Journey
-              <ArrowRight className='ml-2 h-5 w-5' />
+              <ArrowRight className='ml-2 h-4 w-4 sm:h-5 sm:w-5' />
             </Button>
           </motion.div>
         </div>

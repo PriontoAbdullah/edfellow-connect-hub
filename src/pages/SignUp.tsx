@@ -26,14 +26,23 @@ import {
   Lock,
   CheckCircle,
   AlertCircle,
+  Loader2,
+  Eye,
+  EyeOff,
+  Phone,
+  Shield,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { registerUser } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
+import InteractiveLoading from '@/components/InteractiveLoading';
 
 interface FormData {
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber: string;
   password: string;
   confirmPassword: string;
   country: string;
@@ -44,13 +53,13 @@ interface FormData {
   // Student fields
   universityName: string;
   degreeLevel: string;
-  areasOfInterest: string[];
+  major: string;
 
   // Professor fields
   institutionAffiliation: string;
   department: string;
   position: string;
-  researchInterests: string[];
+  subjectsTaught: string[];
 
   // University fields
   officialUniversityName: string;
@@ -63,17 +72,20 @@ const SignUp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [emailVerified, setEmailVerified] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [registeredUser, setRegisteredUser] = useState<any>(null);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     email: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
     country: '',
@@ -82,11 +94,11 @@ const SignUp = () => {
     userType: 'student',
     universityName: '',
     degreeLevel: '',
-    areasOfInterest: [],
+    major: '',
     institutionAffiliation: '',
     department: '',
     position: '',
-    researchInterests: [],
+    subjectsTaught: [],
     officialUniversityName: '',
     accreditationNumber: '',
     websiteUrl: '',
@@ -141,41 +153,28 @@ const SignUp = () => {
     'Other',
   ];
 
-  const interestTags = [
+  const subjectsTaught = [
     'Computer Science',
-    'Engineering',
-    'Medical',
-    'Economics',
-    'Business',
     'Mathematics',
     'Physics',
     'Chemistry',
     'Biology',
+    'Engineering',
+    'Economics',
+    'Business Administration',
     'Psychology',
-    'Art & Design',
     'Literature',
     'History',
     'Philosophy',
+    'Art & Design',
     'Data Science',
     'Artificial Intelligence',
     'Machine Learning',
     'Cybersecurity',
     'Robotics',
-  ];
-
-  const researchTags = [
-    'Artificial Intelligence',
-    'Machine Learning',
-    'Data Science',
-    'Cybersecurity',
-    'Robotics',
-    'Computer Vision',
-    'Natural Language Processing',
-    'Bioinformatics',
-    'Quantum Computing',
-    'Blockchain',
-    'IoT',
-    'Cloud Computing',
+    'Medicine',
+    'Law',
+    'Education',
     'Other',
   ];
 
@@ -217,112 +216,147 @@ const SignUp = () => {
       return;
     }
 
-    setOtpSent(true);
-    toast({
-      title: 'Verification Code Sent',
-      description: 'Please check your email for the verification code.',
-    });
-  };
-
-  const handleOtpVerification = () => {
     setEmailVerified(true);
     toast({
-      title: 'Email Verified',
-      description: 'Your email has been successfully verified.',
+      title: 'Email Validated',
+      description:
+        'Email format is valid. You will receive a verification email after registration.',
     });
   };
 
-  const handleInterestToggle = (interest: string) => {
+  const handleSubjectToggle = (subject: string) => {
     setFormData((prev) => ({
       ...prev,
-      areasOfInterest: prev.areasOfInterest.includes(interest)
-        ? prev.areasOfInterest.filter((i) => i !== interest)
-        : [...prev.areasOfInterest, interest],
-    }));
-  };
-
-  const handleResearchInterestToggle = (interest: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      researchInterests: prev.researchInterests.includes(interest)
-        ? prev.researchInterests.filter((i) => i !== interest)
-        : [...prev.researchInterests, interest],
+      subjectsTaught: prev.subjectsTaught.includes(subject)
+        ? prev.subjectsTaught.filter((s) => s !== subject)
+        : [...prev.subjectsTaught, subject],
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    if (!emailVerified) {
+    try {
+      // Only require email verification for professors and universities
+      if (
+        (formData.userType === 'professor' ||
+          formData.userType === 'university') &&
+        !emailVerified
+      ) {
+        toast({
+          title: 'Email Not Verified',
+          description:
+            'Please verify your institutional email address before proceeding.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Passwords Don't Match",
+          description: 'Please ensure both passwords are identical.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!formData.termsAccepted) {
+        toast({
+          title: 'Terms Not Accepted',
+          description: 'Please accept the terms and conditions.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Prepare user data for Firebase
+      const userData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        role: formData.userType,
+        country: formData.country,
+        city: formData.city,
+        // Role-specific data
+        ...(formData.userType === 'student' && {
+          university: formData.universityName,
+          degreeLevel: formData.degreeLevel,
+          major: formData.major,
+        }),
+        ...(formData.userType === 'professor' && {
+          institutionAffiliation: formData.institutionAffiliation,
+          department: formData.department,
+          position: formData.position,
+          subjectsTaught: formData.subjectsTaught,
+        }),
+        ...(formData.userType === 'university' && {
+          officialUniversityName: formData.officialUniversityName,
+          accreditationNumber: formData.accreditationNumber,
+          websiteUrl: formData.websiteUrl,
+          contactPerson: formData.contactPerson,
+        }),
+      };
+
+      // Register user with Supabase
+      const { user, error } = await registerUser(
+        formData.email,
+        formData.password,
+        userData
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      if (user) {
+        // Set up the registered user data for loading screen
+        const newUser = {
+          name: `${formData.firstName} ${formData.lastName}`,
+          role: formData.userType,
+          email: formData.email,
+          profileComplete: false,
+        };
+
+        setRegisteredUser(newUser);
+        setShowLoading(true);
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+
+      let errorMessage =
+        'An error occurred during registration. Please try again.';
+
+      if (error.message?.includes('User already registered')) {
+        errorMessage =
+          'An account with this email already exists. Please use a different email or try logging in.';
+      } else if (error.message?.includes('Password should be at least')) {
+        errorMessage =
+          'Password is too weak. Please choose a stronger password.';
+      } else if (error.message?.includes('Invalid email')) {
+        errorMessage = 'Invalid email address. Please enter a valid email.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
-        title: 'Email Not Verified',
-        description: 'Please verify your email address before proceeding.',
+        title: 'Registration Failed',
+        description: errorMessage,
         variant: 'destructive',
       });
-      return;
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Passwords Don't Match",
-        description: 'Please ensure both passwords are identical.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!formData.termsAccepted) {
-      toast({
-        title: 'Terms Not Accepted',
-        description: 'Please accept the terms and conditions.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    console.log('Registration data:', formData);
-
-    toast({
-      title: 'Registration Submitted',
-      description:
-        'Welcome to Edfellow! Your account has been created successfully. Please complete your profile to get started.',
-    });
-
-    // Navigate to complete profile page with minimum information
+  const handleLoadingComplete = () => {
+    setShowLoading(false);
     navigate('/complete-profile', {
       state: {
-        user: {
-          name: `${formData.firstName} ${formData.lastName}`,
-          email: formData.email,
-          role: formData.userType,
-          country: formData.country,
-          // Pass minimum registration data
-          registrationData: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            userType: formData.userType,
-            country: formData.country,
-            // Role-specific data
-            ...(formData.userType === 'student' && {
-              universityName: formData.universityName,
-              degreeLevel: formData.degreeLevel,
-              areasOfInterest: formData.areasOfInterest,
-            }),
-            ...(formData.userType === 'professor' && {
-              institutionAffiliation: formData.institutionAffiliation,
-              department: formData.department,
-              position: formData.position,
-              researchInterests: formData.researchInterests,
-            }),
-            ...(formData.userType === 'university' && {
-              officialUniversityName: formData.officialUniversityName,
-              accreditationNumber: formData.accreditationNumber,
-              websiteUrl: formData.websiteUrl,
-              contactPerson: formData.contactPerson,
-            }),
-          },
-        },
+        user: registeredUser,
+        fromSignup: true,
       },
     });
   };
@@ -357,6 +391,17 @@ const SignUp = () => {
     },
   ];
 
+  // Show loading screen after successful registration
+  if (showLoading && registeredUser) {
+    return (
+      <InteractiveLoading
+        userRole={registeredUser.role}
+        userName={registeredUser.name}
+        onComplete={handleLoadingComplete}
+      />
+    );
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4 relative overflow-hidden'>
       {/* Background decorative elements */}
@@ -366,47 +411,51 @@ const SignUp = () => {
 
       <div className='w-full max-w-4xl relative z-10'>
         {/* Header */}
-        <div className='text-center mb-8'>
+        <div className='text-center mb-6 sm:mb-8'>
           <div
-            className='flex items-center justify-center mb-4 cursor-pointer hover:opacity-80 transition-opacity'
+            className='flex items-center justify-center mb-3 sm:mb-4 cursor-pointer hover:opacity-80 transition-opacity'
             onClick={() => navigate('/')}
           >
-            <img src='/logo.png' alt='Edfellow' className='w-16 rounded-full' />
-            <span className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
+            <img
+              src='/logo.png'
+              alt='Edfellow'
+              className='w-12 sm:w-16 rounded-full'
+            />
+            <span className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'>
               Edfellow
             </span>
           </div>
-          <h1 className='text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-3'>
+          <h1 className='text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2 sm:mb-3'>
             Join Our Community
           </h1>
-          <p className='text-xl text-gray-600 font-medium'>
+          <p className='text-base sm:text-lg lg:text-xl text-gray-600 font-medium'>
             Complete your registration in one step
           </p>
         </div>
 
         <Card className='max-w-4xl mx-auto shadow-2xl border-0 bg-white/95 backdrop-blur-sm rounded-2xl'>
-          <CardHeader className='text-center pb-8'>
-            <CardTitle className='text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent'>
+          <CardHeader className='text-center pb-6 sm:pb-8'>
+            <CardTitle className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent'>
               Create Your Account
             </CardTitle>
-            <CardDescription className='text-lg text-gray-600 mt-2'>
+            <CardDescription className='text-base sm:text-lg text-gray-600 mt-2'>
               Fill in your details to get started
             </CardDescription>
           </CardHeader>
-          <CardContent className='px-8 pb-8'>
-            <form onSubmit={handleSubmit} className='space-y-8'>
+          <CardContent className='px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8'>
+            <form onSubmit={handleSubmit} className='space-y-6 sm:space-y-8'>
               {/* Role Selection */}
               <div>
-                <Label className='text-base font-semibold text-gray-700 mb-4 block'>
+                <Label className='text-sm sm:text-base font-semibold text-gray-700 mb-3 sm:mb-4 block'>
                   Choose Your Role *
                 </Label>
-                <div className='grid md:grid-cols-3 gap-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4'>
                   {userTypes.map((type) => {
                     const IconComponent = type.icon;
                     return (
                       <div
                         key={type.id}
-                        className={`cursor-pointer transition-all duration-300 border-2 rounded-lg p-4 group relative overflow-hidden ${
+                        className={`cursor-pointer transition-all duration-300 border-2 rounded-lg p-3 sm:p-4 group relative overflow-hidden ${
                           formData.userType === type.id
                             ? type.color
                             : 'border-gray-200 bg-white hover:bg-gray-50'
@@ -423,14 +472,14 @@ const SignUp = () => {
                         />
                         <div className='relative text-center'>
                           <div
-                            className={`w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br ${type.gradient} flex items-center justify-center shadow-lg`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 rounded-full bg-gradient-to-br ${type.gradient} flex items-center justify-center shadow-lg`}
                           >
-                            <IconComponent className='h-6 w-6 text-white' />
+                            <IconComponent className='h-5 w-5 sm:h-6 sm:w-6 text-white' />
                           </div>
-                          <h3 className='font-semibold text-gray-900 mb-1'>
+                          <h3 className='font-semibold text-gray-900 mb-1 text-sm sm:text-base'>
                             {type.title}
                           </h3>
-                          <p className='text-sm text-gray-600'>
+                          <p className='text-xs sm:text-sm text-gray-600'>
                             {type.description}
                           </p>
                         </div>
@@ -441,9 +490,11 @@ const SignUp = () => {
               </div>
 
               {/* Basic Information */}
-              <div className='grid md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                 <div>
-                  <Label htmlFor='firstName'>First Name *</Label>
+                  <Label htmlFor='firstName' className='text-sm sm:text-base'>
+                    First Name *
+                  </Label>
                   <Input
                     id='firstName'
                     value={formData.firstName}
@@ -454,11 +505,13 @@ const SignUp = () => {
                       }))
                     }
                     required
-                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                   />
                 </div>
                 <div>
-                  <Label htmlFor='lastName'>Last Name *</Label>
+                  <Label htmlFor='lastName' className='text-sm sm:text-base'>
+                    Last Name *
+                  </Label>
                   <Input
                     id='lastName'
                     value={formData.lastName}
@@ -469,15 +522,17 @@ const SignUp = () => {
                       }))
                     }
                     required
-                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                   />
                 </div>
               </div>
 
               {/* Email and Verification */}
               <div>
-                <Label htmlFor='email'>Email Address *</Label>
-                <div className='flex gap-2'>
+                <Label htmlFor='email' className='text-sm sm:text-base'>
+                  Email Address *
+                </Label>
+                <div className='flex flex-col sm:flex-row gap-2'>
                   <Input
                     id='email'
                     type='email'
@@ -489,7 +544,7 @@ const SignUp = () => {
                       }))
                     }
                     required
-                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                     placeholder={
                       formData.userType === 'professor' ||
                       formData.userType === 'university'
@@ -497,29 +552,33 @@ const SignUp = () => {
                         : 'your.email@example.com'
                     }
                   />
-                  <Button
-                    type='button'
-                    onClick={handleEmailVerification}
-                    disabled={!formData.email || emailVerified}
-                    className='bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg px-4'
-                  >
-                    {emailVerified ? (
-                      <>
-                        <CheckCircle className='h-4 w-4 mr-2' />
-                        Verified
-                      </>
-                    ) : (
-                      <>
-                        <Mail className='h-4 w-4 mr-2' />
-                        Verify
-                      </>
-                    )}
-                  </Button>
+                  {/* Only show verify button for professors and universities */}
+                  {(formData.userType === 'professor' ||
+                    formData.userType === 'university') && (
+                    <Button
+                      type='button'
+                      onClick={handleEmailVerification}
+                      disabled={!formData.email || emailVerified}
+                      className='bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg px-3 sm:px-4 text-sm sm:text-base'
+                    >
+                      {emailVerified ? (
+                        <>
+                          <CheckCircle className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
+                          Verified
+                        </>
+                      ) : (
+                        <>
+                          <Mail className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
+                          Verify
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
                 {!validateEmail(formData.email, formData.userType) &&
                   formData.email && (
-                    <p className='text-red-500 text-sm flex items-center gap-1 mt-1'>
-                      <AlertCircle className='h-4 w-4' />
+                    <p className='text-red-500 text-xs sm:text-sm flex items-center gap-1 mt-1'>
+                      <AlertCircle className='h-3 w-3 sm:h-4 sm:w-4' />
                       {formData.userType === 'professor' ||
                       formData.userType === 'university'
                         ? 'Please use an institutional email address'
@@ -528,33 +587,43 @@ const SignUp = () => {
                   )}
               </div>
 
-              {/* OTP Verification */}
-              {otpSent && !emailVerified && (
-                <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
-                  <Label htmlFor='otp'>Verification Code</Label>
-                  <div className='flex gap-2 mt-2'>
-                    <Input
-                      id='otp'
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                      placeholder='Enter 6-digit code'
-                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
-                    />
-                    <Button
-                      type='button'
-                      onClick={handleOtpVerification}
-                      className='bg-blue-600 hover:bg-blue-700'
-                    >
-                      Verify
-                    </Button>
-                  </div>
+              {/* Phone Number */}
+              <div>
+                <Label htmlFor='phoneNumber' className='text-sm sm:text-base'>
+                  Phone Number{' '}
+                  {formData.userType === 'professor' ||
+                  formData.userType === 'university'
+                    ? '*'
+                    : '(Optional)'}
+                </Label>
+                <div className='relative'>
+                  <Phone className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+                  <Input
+                    id='phoneNumber'
+                    type='tel'
+                    value={formData.phoneNumber}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        phoneNumber: e.target.value,
+                      }))
+                    }
+                    required={
+                      formData.userType === 'professor' ||
+                      formData.userType === 'university'
+                    }
+                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base pl-10'
+                    placeholder='+1 (555) 123-4567'
+                  />
                 </div>
-              )}
+              </div>
 
               {/* Password Fields */}
-              <div className='grid md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                 <div>
-                  <Label htmlFor='password'>Password *</Label>
+                  <Label htmlFor='password' className='text-sm sm:text-base'>
+                    Password *
+                  </Label>
                   <div className='relative'>
                     <Input
                       id='password'
@@ -562,7 +631,7 @@ const SignUp = () => {
                       value={formData.password}
                       onChange={(e) => handlePasswordChange(e.target.value)}
                       required
-                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] pr-10'
+                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] pr-10 text-sm sm:text-base'
                     />
                     <Button
                       type='button'
@@ -571,16 +640,20 @@ const SignUp = () => {
                       className='absolute right-0 top-0 h-full px-3'
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <Lock className='h-4 w-4' />
+                      {showPassword ? (
+                        <EyeOff className='h-3 w-3 sm:h-4 sm:w-4' />
+                      ) : (
+                        <Eye className='h-3 w-3 sm:h-4 sm:w-4' />
+                      )}
                     </Button>
                   </div>
                   <div className='mt-2'>
                     <div className='flex items-center justify-between mb-1'>
-                      <span className='text-sm font-medium text-gray-700'>
+                      <span className='text-xs sm:text-sm font-medium text-gray-700'>
                         Password Strength
                       </span>
                       <span
-                        className={`text-sm font-semibold ${
+                        className={`text-xs sm:text-sm font-semibold ${
                           passwordStrength < 25
                             ? 'text-red-500'
                             : passwordStrength < 50
@@ -616,7 +689,12 @@ const SignUp = () => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor='confirmPassword'>Confirm Password *</Label>
+                  <Label
+                    htmlFor='confirmPassword'
+                    className='text-sm sm:text-base'
+                  >
+                    Confirm Password *
+                  </Label>
                   <div className='relative'>
                     <Input
                       id='confirmPassword'
@@ -629,7 +707,7 @@ const SignUp = () => {
                         }))
                       }
                       required
-                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] pr-10'
+                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] pr-10 text-sm sm:text-base'
                     />
                     <Button
                       type='button'
@@ -640,13 +718,17 @@ const SignUp = () => {
                         setShowConfirmPassword(!showConfirmPassword)
                       }
                     >
-                      <Lock className='h-4 w-4' />
+                      {showConfirmPassword ? (
+                        <EyeOff className='h-3 w-3 sm:h-4 sm:w-4' />
+                      ) : (
+                        <Eye className='h-3 w-3 sm:h-4 sm:w-4' />
+                      )}
                     </Button>
                   </div>
                   {formData.password &&
                     formData.confirmPassword &&
                     formData.password !== formData.confirmPassword && (
-                      <p className='text-red-500 text-sm mt-1'>
+                      <p className='text-red-500 text-xs sm:text-sm mt-1'>
                         Passwords don't match
                       </p>
                     )}
@@ -654,15 +736,17 @@ const SignUp = () => {
               </div>
 
               {/* Location */}
-              <div className='grid md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                 <div>
-                  <Label htmlFor='country'>Country/Region *</Label>
+                  <Label htmlFor='country' className='text-sm sm:text-base'>
+                    Country/Region *
+                  </Label>
                   <Select
                     onValueChange={(value) =>
                       setFormData((prev) => ({ ...prev, country: value }))
                     }
                   >
-                    <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'>
+                    <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
                       <SelectValue placeholder='Select your country' />
                     </SelectTrigger>
                     <SelectContent>
@@ -675,14 +759,16 @@ const SignUp = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor='city'>City (Optional)</Label>
+                  <Label htmlFor='city' className='text-sm sm:text-base'>
+                    City (Optional)
+                  </Label>
                   <Input
                     id='city'
                     value={formData.city}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, city: e.target.value }))
                     }
-                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                    className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                   />
                 </div>
               </div>
@@ -691,7 +777,12 @@ const SignUp = () => {
               {formData.userType === 'student' && (
                 <div className='space-y-4'>
                   <div>
-                    <Label htmlFor='universityName'>University Name *</Label>
+                    <Label
+                      htmlFor='universityName'
+                      className='text-sm sm:text-base'
+                    >
+                      University Name *
+                    </Label>
                     <Select
                       onValueChange={(value) =>
                         setFormData((prev) => ({
@@ -700,7 +791,7 @@ const SignUp = () => {
                         }))
                       }
                     >
-                      <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'>
+                      <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
                         <SelectValue placeholder='Select your university' />
                       </SelectTrigger>
                       <SelectContent>
@@ -712,48 +803,51 @@ const SignUp = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor='degreeLevel'>Degree Level *</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, degreeLevel: value }))
-                      }
-                    >
-                      <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'>
-                        <SelectValue placeholder='Select degree level' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {degreeLevels.map((level) => (
-                          <SelectItem key={level} value={level}>
-                            {level}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className='text-base font-semibold text-gray-700 mb-3 block'>
-                      Areas of Interest (Select multiple)
-                    </Label>
-                    <div className='flex flex-wrap gap-3'>
-                      {interestTags.map((interest) => (
-                        <Badge
-                          key={interest}
-                          variant={
-                            formData.areasOfInterest.includes(interest)
-                              ? 'default'
-                              : 'outline'
-                          }
-                          className={`cursor-pointer px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${
-                            formData.areasOfInterest.includes(interest)
-                              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
-                              : 'border-2 border-gray-300 hover:border-indigo-400 text-gray-700 hover:text-indigo-600'
-                          }`}
-                          onClick={() => handleInterestToggle(interest)}
-                        >
-                          {interest}
-                        </Badge>
-                      ))}
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
+                    <div>
+                      <Label
+                        htmlFor='degreeLevel'
+                        className='text-sm sm:text-base'
+                      >
+                        Degree Level *
+                      </Label>
+                      <Select
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            degreeLevel: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
+                          <SelectValue placeholder='Select degree level' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {degreeLevels.map((level) => (
+                            <SelectItem key={level} value={level}>
+                              {level}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor='major' className='text-sm sm:text-base'>
+                        Major/Field of Study *
+                      </Label>
+                      <Input
+                        id='major'
+                        value={formData.major}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            major: e.target.value,
+                          }))
+                        }
+                        required
+                        className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
+                        placeholder='e.g., Computer Science'
+                      />
                     </div>
                   </div>
                 </div>
@@ -762,7 +856,10 @@ const SignUp = () => {
               {formData.userType === 'professor' && (
                 <div className='space-y-4'>
                   <div>
-                    <Label htmlFor='institutionAffiliation'>
+                    <Label
+                      htmlFor='institutionAffiliation'
+                      className='text-sm sm:text-base'
+                    >
                       University/Institution Affiliation *
                     </Label>
                     <Select
@@ -773,7 +870,7 @@ const SignUp = () => {
                         }))
                       }
                     >
-                      <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'>
+                      <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
                         <SelectValue placeholder='Select your institution' />
                       </SelectTrigger>
                       <SelectContent>
@@ -785,9 +882,14 @@ const SignUp = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className='grid md:grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                     <div>
-                      <Label htmlFor='department'>Department/Field *</Label>
+                      <Label
+                        htmlFor='department'
+                        className='text-sm sm:text-base'
+                      >
+                        Department/Field *
+                      </Label>
                       <Input
                         id='department'
                         value={formData.department}
@@ -798,17 +900,22 @@ const SignUp = () => {
                           }))
                         }
                         required
-                        className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                        className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                       />
                     </div>
                     <div>
-                      <Label htmlFor='position'>Position *</Label>
+                      <Label
+                        htmlFor='position'
+                        className='text-sm sm:text-base'
+                      >
+                        Position *
+                      </Label>
                       <Select
                         onValueChange={(value) =>
                           setFormData((prev) => ({ ...prev, position: value }))
                         }
                       >
-                        <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'>
+                        <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
                           <SelectValue placeholder='Select your position' />
                         </SelectTrigger>
                         <SelectContent>
@@ -822,26 +929,26 @@ const SignUp = () => {
                     </div>
                   </div>
                   <div>
-                    <Label className='text-base font-semibold text-gray-700 mb-3 block'>
-                      Research Interests (Select multiple)
+                    <Label className='text-sm sm:text-base font-semibold text-gray-700 mb-3 block'>
+                      Subjects You Teach (Select multiple)
                     </Label>
-                    <div className='flex flex-wrap gap-3'>
-                      {researchTags.map((interest) => (
+                    <div className='flex flex-wrap gap-2 sm:gap-3'>
+                      {subjectsTaught.map((subject) => (
                         <Badge
-                          key={interest}
+                          key={subject}
                           variant={
-                            formData.researchInterests.includes(interest)
+                            formData.subjectsTaught.includes(subject)
                               ? 'default'
                               : 'outline'
                           }
-                          className={`cursor-pointer px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${
-                            formData.researchInterests.includes(interest)
-                              ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg'
-                              : 'border-2 border-gray-300 hover:border-amber-400 text-gray-700 hover:text-amber-600'
+                          className={`cursor-pointer px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 ${
+                            formData.subjectsTaught.includes(subject)
+                              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg'
+                              : 'border-2 border-gray-300 hover:border-emerald-400 text-gray-700 hover:text-emerald-600'
                           }`}
-                          onClick={() => handleResearchInterestToggle(interest)}
+                          onClick={() => handleSubjectToggle(subject)}
                         >
-                          {interest}
+                          {subject}
                         </Badge>
                       ))}
                     </div>
@@ -852,7 +959,10 @@ const SignUp = () => {
               {formData.userType === 'university' && (
                 <div className='space-y-4'>
                   <div>
-                    <Label htmlFor='officialUniversityName'>
+                    <Label
+                      htmlFor='officialUniversityName'
+                      className='text-sm sm:text-base'
+                    >
                       Official University Name *
                     </Label>
                     <Input
@@ -865,12 +975,15 @@ const SignUp = () => {
                         }))
                       }
                       required
-                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                     />
                   </div>
-                  <div className='grid md:grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                     <div>
-                      <Label htmlFor='accreditationNumber'>
+                      <Label
+                        htmlFor='accreditationNumber'
+                        className='text-sm sm:text-base'
+                      >
                         Accreditation/License Number *
                       </Label>
                       <Input
@@ -883,11 +996,16 @@ const SignUp = () => {
                           }))
                         }
                         required
-                        className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                        className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                       />
                     </div>
                     <div>
-                      <Label htmlFor='websiteUrl'>Website URL *</Label>
+                      <Label
+                        htmlFor='websiteUrl'
+                        className='text-sm sm:text-base'
+                      >
+                        Website URL *
+                      </Label>
                       <Input
                         id='websiteUrl'
                         type='url'
@@ -900,12 +1018,15 @@ const SignUp = () => {
                         }
                         required
                         placeholder='https://www.university.edu'
-                        className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                        className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                       />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor='contactPerson'>
+                    <Label
+                      htmlFor='contactPerson'
+                      className='text-sm sm:text-base'
+                    >
                       Contact Person (Administrator) *
                     </Label>
                     <Input
@@ -918,8 +1039,39 @@ const SignUp = () => {
                         }))
                       }
                       required
-                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF]'
+                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* Verification Notice for Professors and Universities */}
+              {(formData.userType === 'professor' ||
+                formData.userType === 'university') && (
+                <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+                  <div className='flex items-start space-x-3'>
+                    <Shield className='h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0' />
+                    <div>
+                      <h4 className='font-semibold text-blue-800 mb-2'>
+                        Verification Required
+                      </h4>
+                      <p className='text-sm text-blue-700 mb-2'>
+                        To take advantage of an {formData.userType} account, we
+                        need to verify your role with your academic institution.
+                        Please provide the following details:
+                      </p>
+                      <ul className='text-sm text-blue-700 space-y-1 mb-3'>
+                        <li>• Your institutional email address</li>
+                        <li>• Your institution's official website</li>
+                        <li>• Your position/title at the institution</li>
+                      </ul>
+                      <p className='text-sm text-blue-700'>
+                        Once we receive this information, we will send a
+                        confirmation email after verification is complete. Thank
+                        you for helping us keep our platform secure and focused
+                        on educational excellence.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -936,7 +1088,7 @@ const SignUp = () => {
                     }))
                   }
                 />
-                <Label htmlFor='terms' className='text-sm'>
+                <Label htmlFor='terms' className='text-xs sm:text-sm'>
                   I agree to the{' '}
                   <a href='#' className='text-blue-600 hover:underline'>
                     Terms & Conditions
@@ -951,20 +1103,28 @@ const SignUp = () => {
               {/* Submit Button */}
               <Button
                 type='submit'
-                className='w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-8 py-3 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200'
+                disabled={isLoading}
+                className='w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-8 py-3 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
               >
-                Create Account
+                {isLoading ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        <div className='text-center mt-8'>
-          <p className='text-lg text-gray-600'>
+        <div className='text-center mt-6 sm:mt-8'>
+          <p className='text-base sm:text-lg text-gray-600'>
             Already have an account?{' '}
             <button
               onClick={() => navigate('/login')}
-              className='text-indigo-600 hover:text-indigo-700 font-semibold underline hover:no-underline transition-all duration-200'
+              className='text-indigo-600 hover:text-indigo-700 font-semibold underline hover:no-underline transition-all duration-200 text-base sm:text-lg'
             >
               Sign in here
             </button>

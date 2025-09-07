@@ -269,7 +269,7 @@ const Opportunities = () => {
 
       {/* Hero Section */}
       <motion.section
-        className='relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[600px] flex items-center justify-center'
+        className='relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[500px] sm:min-h-[600px] flex items-center justify-center'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.3 }}
@@ -288,23 +288,23 @@ const Opportunities = () => {
         {/* Overlay for readability */}
         <div className='absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/30 to-indigo-100/40 z-10' />
         <motion.div
-          className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2'
+          className='relative z-20 max-w-3xl mx-auto w-full flex flex-col items-center justify-center text-center mt-2 px-4'
           variants={staggerContainer}
         >
           <motion.div variants={fadeInUp}>
-            <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-8 px-6 py-3 text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
+            <Badge className='bg-white/90 backdrop-blur-sm text-[#0A66C2] border-blue-200 mb-6 sm:mb-8 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold shadow-lg mx-auto hover:bg-white/90'>
               Academic Opportunities
             </Badge>
           </motion.div>
           <motion.h2
-            className='text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight'
+            className='text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2'
             variants={fadeInUp}
           >
             Discover Your{' '}
             <span className='text-[#0A66C2]'>Next Opportunity</span>
           </motion.h2>
           <motion.p
-            className='text-base text-gray-600 leading-relaxed max-w-2xl mx-auto'
+            className='text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto px-2'
             variants={fadeInUp}
           >
             Find scholarships, internships, research positions, and academic
@@ -312,21 +312,21 @@ const Opportunities = () => {
             your academic and professional journey.
           </motion.p>
           <motion.div
-            className='flex flex-col sm:flex-row gap-4 justify-center mt-8'
+            className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8'
             variants={fadeInUp}
           >
             <Button
               size='lg'
               onClick={() => navigate('/signup')}
-              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
             >
               Start Exploring
-              <ArrowRight className='ml-2 h-5 w-5' />
+              <ArrowRight className='ml-2 h-4 w-4 sm:h-5 sm:w-5' />
             </Button>
             <Button
               size='lg'
               variant='outline'
-              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-8 py-4 text-lg font-semibold'
+              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold'
             >
               Learn More
             </Button>
@@ -336,7 +336,7 @@ const Opportunities = () => {
 
       {/* Stats Section */}
       <motion.section
-        className='py-16 px-4 sm:px-6 lg:px-8 bg-white'
+        className='py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.2 }}
@@ -344,7 +344,7 @@ const Opportunities = () => {
       >
         <div className='max-w-6xl mx-auto'>
           <motion.div
-            className='grid md:grid-cols-4 gap-8'
+            className='grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8'
             variants={staggerContainer}
           >
             {opportunityStats.map((stat) => {
@@ -354,21 +354,23 @@ const Opportunities = () => {
                   key={stat.label}
                   className='text-center'
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02, sm: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className='flex justify-center mb-4'>
-                    <div className='w-16 h-16 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-2xl flex items-center justify-center text-white shadow-lg'>
-                      <IconComponent className='h-8 w-8' />
+                  <div className='flex justify-center mb-3 sm:mb-4'>
+                    <div className='w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-2xl flex items-center justify-center text-white shadow-lg'>
+                      <IconComponent className='h-6 w-6 sm:h-8 sm:w-8' />
                     </div>
                   </div>
-                  <div className='text-3xl font-bold text-[#0B1B4D] mb-2'>
+                  <div className='text-2xl sm:text-3xl font-bold text-[#0B1B4D] mb-1 sm:mb-2'>
                     {stat.number}
                   </div>
-                  <div className='text-lg font-semibold text-gray-900 mb-2'>
+                  <div className='text-sm sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2'>
                     {stat.label}
                   </div>
-                  <div className='text-gray-600'>{stat.description}</div>
+                  <div className='text-xs sm:text-base text-gray-600'>
+                    {stat.description}
+                  </div>
                 </motion.div>
               );
             })}
@@ -378,22 +380,25 @@ const Opportunities = () => {
 
       {/* Categories Section */}
       <motion.section
-        className='py-16 px-4 sm:px-6 lg:px-8 bg-gray-50'
+        className='py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gray-50'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.2 }}
         variants={fadeInUp}
       >
         <div className='max-w-6xl mx-auto'>
-          <motion.div className='text-center mb-12' variants={staggerContainer}>
+          <motion.div
+            className='text-center mb-8 sm:mb-12'
+            variants={staggerContainer}
+          >
             <motion.h2
-              className='text-3xl font-bold text-[#0B1B4D] mb-6'
+              className='text-2xl sm:text-3xl font-bold text-[#0B1B4D] mb-4 sm:mb-6'
               variants={fadeInUp}
             >
               Explore by Category
             </motion.h2>
             <motion.p
-              className='text-lg text-gray-600 max-w-2xl mx-auto'
+              className='text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-4'
               variants={fadeInUp}
             >
               Find opportunities in your field of interest
@@ -401,7 +406,7 @@ const Opportunities = () => {
           </motion.div>
 
           <motion.div
-            className='grid md:grid-cols-3 lg:grid-cols-6 gap-6'
+            className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6'
             variants={staggerContainer}
           >
             {categories.map((category) => {
@@ -410,20 +415,20 @@ const Opportunities = () => {
                 <motion.div
                   key={category.name}
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02, sm: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
                   <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white cursor-pointer'>
-                    <CardContent className='p-6 text-center'>
+                    <CardContent className='p-4 sm:p-6 text-center'>
                       <div
-                        className={`w-12 h-12 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-xl flex items-center justify-center text-white mb-4 mx-auto shadow-lg`}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-xl flex items-center justify-center text-white mb-3 sm:mb-4 mx-auto shadow-lg`}
                       >
-                        <IconComponent className='h-6 w-6' />
+                        <IconComponent className='h-5 w-5 sm:h-6 sm:w-6' />
                       </div>
-                      <h3 className='font-semibold text-gray-900 mb-2'>
+                      <h3 className='font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base'>
                         {category.name}
                       </h3>
-                      <p className='text-sm text-gray-600'>
+                      <p className='text-xs sm:text-sm text-gray-600'>
                         {category.count} opportunities
                       </p>
                     </CardContent>
@@ -437,22 +442,25 @@ const Opportunities = () => {
 
       {/* Search and Filter Section */}
       <motion.section
-        className='py-16 px-4 sm:px-6 lg:px-8 bg-white'
+        className='py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.2 }}
         variants={fadeInUp}
       >
         <div className='max-w-6xl mx-auto'>
-          <motion.div className='text-center mb-12' variants={staggerContainer}>
+          <motion.div
+            className='text-center mb-8 sm:mb-12'
+            variants={staggerContainer}
+          >
             <motion.h2
-              className='text-3xl font-bold text-[#0B1B4D] mb-6'
+              className='text-2xl sm:text-3xl font-bold text-[#0B1B4D] mb-4 sm:mb-6'
               variants={fadeInUp}
             >
               Find Your Perfect Opportunity
             </motion.h2>
             <motion.p
-              className='text-lg text-gray-600 max-w-2xl mx-auto'
+              className='text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-4'
               variants={fadeInUp}
             >
               Search and filter through thousands of opportunities to find the
@@ -462,28 +470,32 @@ const Opportunities = () => {
 
           {/* Search and Filters */}
           <motion.div
-            className='bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-200'
+            className='bg-white rounded-2xl shadow-xl p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-200'
             variants={fadeInScale}
           >
-            <div className='grid md:grid-cols-4 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
               <div>
-                <Label htmlFor='search'>Search Opportunities</Label>
+                <Label htmlFor='search' className='text-sm sm:text-base'>
+                  Search Opportunities
+                </Label>
                 <div className='relative'>
                   <Search className='absolute left-3 top-3 h-4 w-4 text-gray-400' />
                   <Input
                     id='search'
                     placeholder='Search by title, organization, or keywords...'
-                    className='pl-10'
+                    className='pl-10 text-sm sm:text-base'
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor='category'>Category</Label>
+                <Label htmlFor='category' className='text-sm sm:text-base'>
+                  Category
+                </Label>
                 <Select
                   value={selectedCategory}
                   onValueChange={setSelectedCategory}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className='text-sm sm:text-base'>
                     <SelectValue placeholder='Select category' />
                   </SelectTrigger>
                   <SelectContent>
@@ -497,12 +509,14 @@ const Opportunities = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor='location'>Location</Label>
+                <Label htmlFor='location' className='text-sm sm:text-base'>
+                  Location
+                </Label>
                 <Select
                   value={selectedLocation}
                   onValueChange={setSelectedLocation}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className='text-sm sm:text-base'>
                     <SelectValue placeholder='Select location' />
                   </SelectTrigger>
                   <SelectContent>
@@ -516,9 +530,11 @@ const Opportunities = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor='type'>Opportunity Type</Label>
+                <Label htmlFor='type' className='text-sm sm:text-base'>
+                  Opportunity Type
+                </Label>
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger>
+                  <SelectTrigger className='text-sm sm:text-base'>
                     <SelectValue placeholder='Select type' />
                   </SelectTrigger>
                   <SelectContent>
@@ -536,7 +552,7 @@ const Opportunities = () => {
 
           {/* Opportunity Types */}
           <motion.div
-            className='grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8'
+            className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 mb-6 sm:mb-8'
             variants={staggerContainer}
           >
             {opportunityTypes.map((type) => {
@@ -545,15 +561,15 @@ const Opportunities = () => {
                 <motion.div
                   key={type.name}
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02, sm: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
                   <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white cursor-pointer'>
-                    <CardContent className='p-4 text-center'>
-                      <div className='w-10 h-10 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-xl flex items-center justify-center text-white mb-3 mx-auto shadow-lg'>
-                        <IconComponent className='h-5 w-5' />
+                    <CardContent className='p-3 sm:p-4 text-center'>
+                      <div className='w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#0A66C2] to-[#084482] rounded-xl flex items-center justify-center text-white mb-2 sm:mb-3 mx-auto shadow-lg'>
+                        <IconComponent className='h-4 w-4 sm:h-5 sm:w-5' />
                       </div>
-                      <h3 className='font-semibold text-gray-900 text-sm mb-1'>
+                      <h3 className='font-semibold text-gray-900 text-xs sm:text-sm mb-1'>
                         {type.name}
                       </h3>
                       <p className='text-xs text-gray-600'>
@@ -573,23 +589,31 @@ const Opportunities = () => {
               onValueChange={setActiveTab}
               className='w-full'
             >
-              <TabsList className='grid w-full grid-cols-4'>
-                <TabsTrigger value='all'>All Opportunities</TabsTrigger>
-                <TabsTrigger value='featured'>Featured</TabsTrigger>
-                <TabsTrigger value='recent'>Recent</TabsTrigger>
-                <TabsTrigger value='deadline'>Deadline Soon</TabsTrigger>
+              <TabsList className='grid w-full grid-cols-2 sm:grid-cols-4'>
+                <TabsTrigger value='all' className='text-xs sm:text-sm'>
+                  All Opportunities
+                </TabsTrigger>
+                <TabsTrigger value='featured' className='text-xs sm:text-sm'>
+                  Featured
+                </TabsTrigger>
+                <TabsTrigger value='recent' className='text-xs sm:text-sm'>
+                  Recent
+                </TabsTrigger>
+                <TabsTrigger value='deadline' className='text-xs sm:text-sm'>
+                  Deadline Soon
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value={activeTab} className='mt-6'>
+              <TabsContent value={activeTab} className='mt-4 sm:mt-6'>
                 <motion.div
-                  className='grid md:grid-cols-2 lg:grid-cols-3 gap-8'
+                  className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8'
                   variants={staggerContainer}
                 >
                   {opportunities.map((opportunity) => (
                     <motion.div
                       key={opportunity.id}
                       variants={fadeInScale}
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.02, sm: 1.05 }}
                       transition={{ duration: 0.3 }}
                     >
                       <Card
@@ -600,52 +624,52 @@ const Opportunities = () => {
                         }`}
                       >
                         {opportunity.isFeatured && (
-                          <div className='absolute top-4 left-4 z-10'>
-                            <Badge className='bg-gradient-to-r from-[#0A66C2] to-[#084482] text-white border-0 font-semibold'>
-                              <TrendingUp className='h-3 w-3 mr-1' />
+                          <div className='absolute top-2 sm:top-4 left-2 sm:left-4 z-10'>
+                            <Badge className='bg-gradient-to-r from-[#0A66C2] to-[#084482] text-white border-0 font-semibold text-xs sm:text-sm'>
+                              <TrendingUp className='h-2 w-2 sm:h-3 sm:w-3 mr-1' />
                               Featured
                             </Badge>
                           </div>
                         )}
-                        <CardHeader className='pb-4 pt-6'>
-                          <div className='flex items-start justify-between mb-4'>
-                            <div className='flex items-center gap-3'>
+                        <CardHeader className='pb-3 sm:pb-4 pt-4 sm:pt-6'>
+                          <div className='flex items-start justify-between mb-3 sm:mb-4'>
+                            <div className='flex items-center gap-2 sm:gap-3'>
                               <img
                                 src={opportunity.logo}
                                 alt={opportunity.organization}
-                                className='w-12 h-12 rounded-full'
+                                className='w-10 h-10 sm:w-12 sm:h-12 rounded-full'
                               />
                               <div>
-                                <div className='flex items-center gap-2'>
-                                  <span className='font-semibold text-gray-900'>
+                                <div className='flex items-center gap-1 sm:gap-2'>
+                                  <span className='font-semibold text-gray-900 text-sm sm:text-base'>
                                     {opportunity.organization}
                                   </span>
                                   <div className='flex items-center gap-1'>
-                                    <Star className='h-3 w-3 text-yellow-400 fill-current' />
+                                    <Star className='h-2 w-2 sm:h-3 sm:w-3 text-yellow-400 fill-current' />
                                     <span className='text-xs text-gray-600'>
                                       {opportunity.rating}
                                     </span>
                                   </div>
                                 </div>
-                                <div className='text-sm text-gray-600'>
+                                <div className='text-xs sm:text-sm text-gray-600'>
                                   {opportunity.location}
                                 </div>
                               </div>
                             </div>
-                            <div className='flex items-center gap-2'>
-                              <Badge className='bg-blue-100 text-blue-700 border-0'>
+                            <div className='flex items-center gap-1 sm:gap-2'>
+                              <Badge className='bg-blue-100 text-blue-700 border-0 text-xs'>
                                 {opportunity.type}
                               </Badge>
-                              <Bookmark className='h-4 w-4 text-gray-400 hover:text-[#0A66C2] cursor-pointer transition-colors' />
+                              <Bookmark className='h-3 w-3 sm:h-4 sm:w-4 text-gray-400 hover:text-[#0A66C2] cursor-pointer transition-colors' />
                             </div>
                           </div>
-                          <CardTitle className='text-lg font-bold text-[#0B1B4D] mb-2'>
+                          <CardTitle className='text-sm sm:text-lg font-bold text-[#0B1B4D] mb-1 sm:mb-2'>
                             {opportunity.title}
                           </CardTitle>
-                          <p className='text-sm text-gray-600 mb-4 leading-relaxed'>
+                          <p className='text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 leading-relaxed'>
                             {opportunity.description}
                           </p>
-                          <div className='flex flex-wrap gap-2 mb-4'>
+                          <div className='flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4'>
                             {opportunity.tags.map((tag, index) => (
                               <Badge
                                 key={index}
@@ -656,35 +680,35 @@ const Opportunities = () => {
                               </Badge>
                             ))}
                           </div>
-                          <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
-                            <div className='flex items-center gap-4'>
+                          <div className='flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 gap-1 sm:gap-4'>
+                            <div className='flex items-center gap-1 sm:gap-4'>
                               <div className='flex items-center gap-1'>
-                                <DollarSign className='h-4 w-4' />
+                                <DollarSign className='h-3 w-3 sm:h-4 sm:w-4' />
                                 <span>{opportunity.salary}</span>
                               </div>
                               <div className='flex items-center gap-1'>
-                                <Clock className='h-4 w-4' />
+                                <Clock className='h-3 w-3 sm:h-4 sm:w-4' />
                                 <span>{opportunity.duration}</span>
                               </div>
                               <div className='flex items-center gap-1'>
-                                <Users className='h-4 w-4' />
+                                <Users className='h-3 w-3 sm:h-4 sm:w-4' />
                                 <span>{opportunity.applications} applied</span>
                               </div>
                             </div>
                           </div>
-                          <div className='flex items-center justify-between text-sm text-red-600 font-medium mb-4'>
+                          <div className='flex items-center justify-between text-xs sm:text-sm text-red-600 font-medium mb-3 sm:mb-4'>
                             <div className='flex items-center gap-1'>
-                              <Calendar className='h-4 w-4' />
+                              <Calendar className='h-3 w-3 sm:h-4 sm:w-4' />
                               <span>Deadline: {opportunity.deadline}</span>
                             </div>
                           </div>
                         </CardHeader>
-                        <CardContent className='space-y-3'>
+                        <CardContent className='space-y-2 sm:space-y-3'>
                           <div>
-                            <h4 className='font-semibold text-gray-900 mb-2'>
+                            <h4 className='font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base'>
                               Requirements:
                             </h4>
-                            <div className='flex flex-wrap gap-2'>
+                            <div className='flex flex-wrap gap-1 sm:gap-2'>
                               {opportunity.requirements.map((req, index) => (
                                 <Badge
                                   key={index}
@@ -695,23 +719,23 @@ const Opportunities = () => {
                               ))}
                             </div>
                           </div>
-                          <div className='flex gap-2'>
-                            <Button className='flex-1 bg-[#0A66C2] hover:bg-[#084482] text-white'>
+                          <div className='flex gap-1 sm:gap-2'>
+                            <Button className='flex-1 bg-[#0A66C2] hover:bg-[#084482] text-white text-xs sm:text-sm'>
                               Apply Now
                             </Button>
                             <Button
                               variant='outline'
                               size='icon'
-                              className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
+                              className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2] h-8 w-8 sm:h-10 sm:w-10'
                             >
-                              <MessageCircle className='h-4 w-4' />
+                              <MessageCircle className='h-3 w-3 sm:h-4 sm:w-4' />
                             </Button>
                             <Button
                               variant='outline'
                               size='icon'
-                              className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2]'
+                              className='border-gray-300 hover:border-[#0A66C2] hover:text-[#0A66C2] h-8 w-8 sm:h-10 sm:w-10'
                             >
-                              <Share2 className='h-4 w-4' />
+                              <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
                             </Button>
                           </div>
                         </CardContent>
@@ -727,7 +751,7 @@ const Opportunities = () => {
 
       {/* CTA Section */}
       <motion.section
-        className='py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
+        className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.2 }}
@@ -735,34 +759,34 @@ const Opportunities = () => {
       >
         <div className='max-w-4xl mx-auto text-center'>
           <motion.h2
-            className='text-3xl sm:text-4xl font-bold text-[#0B1B4D] mb-6'
+            className='text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0B1B4D] mb-4 sm:mb-6'
             variants={fadeInUp}
           >
             Ready to Find Your Next Opportunity?
           </motion.h2>
           <motion.p
-            className='text-lg text-gray-600 mb-10 max-w-2xl mx-auto'
+            className='text-sm sm:text-base lg:text-lg text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto px-4'
             variants={fadeInUp}
           >
             Join thousands of students who have discovered life-changing
             opportunities through our platform.
           </motion.p>
           <motion.div
-            className='flex flex-col sm:flex-row gap-4 justify-center'
+            className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center'
             variants={fadeInUp}
           >
             <Button
               size='lg'
               onClick={() => navigate('/signup')}
-              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-8 py-4 text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
+              className='bg-[#0A66C2] hover:bg-[#084482] text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-xl transition-transform duration-200 hover:scale-105'
             >
               Start Your Search
-              <ArrowRight className='ml-2 h-5 w-5' />
+              <ArrowRight className='ml-2 h-4 w-4 sm:h-5 sm:w-5' />
             </Button>
             <Button
               size='lg'
               variant='outline'
-              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-8 py-4 text-lg font-semibold'
+              className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold'
             >
               Browse Categories
             </Button>

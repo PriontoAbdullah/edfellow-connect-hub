@@ -52,9 +52,10 @@ interface LinkedInSidebarProps {
     country?: string;
     rating?: number;
   };
+  onLogout?: () => void;
 }
 
-export function LinkedInSidebar({ user }: LinkedInSidebarProps) {
+export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();

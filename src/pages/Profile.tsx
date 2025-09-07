@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -11,8 +12,25 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { CountryFlag } from '@/components/ui/CountryFlag';
 import { getCountryCode } from '@/lib/countries';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  updateUserData,
+  getUserData,
+  UserData,
+  PortfolioItem,
+  PrivacySettings,
+} from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 import {
   User,
   Mail,
@@ -55,14 +73,120 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
+  Trash2,
+  Upload,
+  Download,
+  Lock,
+  Unlock,
+  Settings,
+  Loader2,
+  Image,
+  Video,
+  File,
+  Link,
+  Brain,
 } from 'lucide-react';
-import { useState } from 'react';
+
+// Extended user data interface
+interface ExtendedUserData extends UserData {
+  avatar?: string;
+  portfolio?: PortfolioItem[];
+  privacySettings?: PrivacySettings;
+  profileViews?: number;
+  connections?: number;
+  endorsements?: number;
+  socialLinks?: {
+    linkedin?: string;
+    github?: string;
+    twitter?: string;
+    website?: string;
+  };
+  // Portfolio sections
+  workExperience?: Array<{
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+    skills: string[];
+  }>;
+  education?: Array<{
+    id: string;
+    degree: string;
+    institution: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    gpa?: string;
+    description?: string;
+    courses?: string[];
+  }>;
+  certifications?: Array<{
+    id: string;
+    name: string;
+    issuer: string;
+    issueDate: string;
+    expiryDate?: string;
+    credentialId?: string;
+    url?: string;
+  }>;
+  publications?: Array<{
+    id: string;
+    title: string;
+    authors: string[];
+    journal: string;
+    publicationDate: string;
+    doi?: string;
+    abstract?: string;
+    citations?: number;
+  }>;
+  projects?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    technologies: string[];
+    githubUrl?: string;
+    liveUrl?: string;
+    status: 'completed' | 'in-progress' | 'planned';
+  }>;
+}
 
 const Profile = () => {
+  const { user, userData, refreshUserData } = useAuth();
+  const { toast } = useToast();
+
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [savingSection, setSavingSection] = useState<string | null>(null);
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
+  const [editingPortfolioItem, setEditingPortfolioItem] =
+    useState<PortfolioItem | null>(null);
+
+  // Modal states for different sections
+  const [showWorkExperienceModal, setShowWorkExperienceModal] = useState(false);
+  const [showEducationModal, setShowEducationModal] = useState(false);
+  const [showCertificationModal, setShowCertificationModal] = useState(false);
+  const [showPublicationModal, setShowPublicationModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showSkillsModal, setShowSkillsModal] = useState(false);
+  const [showInterestsModal, setShowInterestsModal] = useState(false);
+  const [showLanguagesModal, setShowLanguagesModal] = useState(false);
+
+  // Editing states for different sections
+  const [editingWorkExperience, setEditingWorkExperience] = useState<any>(null);
+  const [editingEducation, setEditingEducation] = useState<any>(null);
+  const [editingCertification, setEditingCertification] = useState<any>(null);
+  const [editingPublication, setEditingPublication] = useState<any>(null);
+  const [editingProject, setEditingProject] = useState<any>(null);
+
   const [expandedSections, setExpandedSections] = useState({
     about: true,
     experience: true,
+    workExperience: true,
     education: true,
     skills: true,
     certifications: true,
@@ -70,158 +194,638 @@ const Profile = () => {
     projects: true,
     languages: true,
     interests: true,
+    portfolio: true,
   });
 
-  const [profileData, setProfileData] = useState({
-    name: 'Zunnun Zihan',
-    email: 'zunnun.zihan@example.com',
-    phone: '+880 1234-567890',
-    location: 'Dhaka, Bangladesh',
-    country: 'Bangladesh',
-    university: 'University of Technology',
-    fieldOfStudy: 'Computer Science',
-    graduationYear: '2025',
-    bio: 'Passionate computer science student with a keen interest in artificial intelligence and machine learning. Always eager to learn new technologies and contribute to innovative projects.',
-    skills: [
-      { name: 'JavaScript', level: 'Advanced', category: 'Programming' },
-      { name: 'Python', level: 'Advanced', category: 'Programming' },
-      { name: 'React', level: 'Intermediate', category: 'Frontend' },
-      { name: 'Node.js', level: 'Intermediate', category: 'Backend' },
-      { name: 'Machine Learning', level: 'Intermediate', category: 'AI/ML' },
-      {
-        name: 'Data Structures',
-        level: 'Advanced',
-        category: 'Computer Science',
-      },
-      { name: 'SQL', level: 'Intermediate', category: 'Database' },
-      { name: 'Git', level: 'Advanced', category: 'Tools' },
-    ],
-    languages: [
-      { name: 'English', level: 'Fluent' },
-      { name: 'Bengali', level: 'Native' },
-      { name: 'Arabic', level: 'Basic' },
-    ],
-    interests: [
-      'AI/ML',
-      'Web Development',
-      'Open Source',
-      'Research',
-      'Data Science',
-      'Cybersecurity',
-    ],
-    experience: [
-      {
-        id: 1,
-        title: 'Software Development Intern',
-        company: 'TechCorp Solutions',
-        location: 'Dhaka, Bangladesh',
-        startDate: 'Jun 2024',
-        endDate: 'Present',
-        description:
-          'Working on full-stack web applications using React and Node.js. Contributing to the development of AI-powered features.',
-        skills: ['React', 'Node.js', 'MongoDB', 'AI/ML'],
-      },
-      {
-        id: 2,
-        title: 'Research Assistant',
-        company: 'University of Technology',
-        location: 'Dhaka, Bangladesh',
-        startDate: 'Jan 2024',
-        endDate: 'May 2024',
-        description:
-          'Assisted in research on machine learning algorithms for computer vision applications.',
-        skills: ['Python', 'TensorFlow', 'Computer Vision', 'Research'],
-      },
-    ],
-    education: [
-      {
-        id: 1,
-        degree: 'Bachelor of Science in Computer Science',
-        institution: 'University of Technology',
-        location: 'Dhaka, Bangladesh',
-        startDate: '2021',
-        endDate: '2025',
-        gpa: '3.8/4.0',
-        description:
-          'Focus on artificial intelligence, machine learning, and software engineering.',
-        courses: [
-          'Data Structures',
-          'Algorithms',
-          'Machine Learning',
-          'Database Systems',
-        ],
-      },
-    ],
-    certifications: [
-      {
-        id: 1,
-        name: 'AWS Certified Cloud Practitioner',
-        issuer: 'Amazon Web Services',
-        issueDate: 'Dec 2023',
-        expiryDate: 'Dec 2026',
-        credentialId: 'AWS-CCP-123456',
-        url: 'https://aws.amazon.com/certification/',
-      },
-      {
-        id: 2,
-        name: 'Google Cloud Professional Data Engineer',
-        issuer: 'Google',
-        issueDate: 'Nov 2023',
-        expiryDate: 'Nov 2026',
-        credentialId: 'GCP-PDE-789012',
-        url: 'https://cloud.google.com/certification/',
-      },
-    ],
-    publications: [
-      {
-        id: 1,
-        title: 'Efficient Neural Network Architecture for Image Classification',
-        authors: ['Zunnun Zihan', 'Dr. Sarah Wilson'],
-        journal: 'International Conference on Computer Vision',
-        publicationDate: 'Oct 2024',
-        doi: '10.1000/example.2024.001',
-        abstract:
-          'This paper presents a novel neural network architecture that achieves state-of-the-art performance on image classification tasks while maintaining computational efficiency.',
-        citations: 5,
-      },
-    ],
-    projects: [
-      {
-        id: 1,
-        name: 'AI-Powered Study Assistant',
-        description:
-          'A machine learning application that helps students optimize their study schedules and improve learning outcomes.',
-        technologies: ['Python', 'React', 'TensorFlow', 'MongoDB'],
-        githubUrl: 'https://github.com/zunnun/study-assistant',
-        liveUrl: 'https://study-assistant.app',
-        status: 'Completed',
-      },
-      {
-        id: 2,
-        name: 'E-commerce Platform',
-        description:
-          'A full-stack e-commerce platform with payment integration and inventory management.',
-        technologies: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
-        githubUrl: 'https://github.com/zunnun/ecommerce',
-        liveUrl: 'https://ecommerce-demo.app',
-        status: 'In Progress',
-      },
-    ],
-    socialLinks: {
-      linkedin: 'https://linkedin.com/in/zunnun-zihan',
-      github: 'https://github.com/zunnun',
-      twitter: 'https://twitter.com/zunnun_zihan',
-      website: 'https://zunnun.dev',
+  const [profileData, setProfileData] = useState<ExtendedUserData>(() => ({
+    uid: '',
+    email: '',
+    displayName: '',
+    role: 'student',
+    firstName: '',
+    lastName: '',
+    country: '',
+    createdAt: '',
+    updatedAt: '',
+    emailVerified: false,
+    profileCompleted: false,
+    // Portfolio data structure
+    experience: '',
+    skills: [],
+    languages: [],
+    academicInterests: [],
+    mentorshipInterests: [],
+    // Extended portfolio sections
+    workExperience: [],
+    education: [],
+    certifications: [],
+    publications: [],
+    projects: [],
+    socialLinks: {},
+    portfolio: [],
+    privacySettings: {
+      profileVisibility: 'public',
+      contactInfoVisibility: 'public',
+      portfolioVisibility: 'public',
+      academicInfoVisibility: 'public',
+      experienceVisibility: 'public',
+      allowMessages: true,
+      allowConnectionRequests: true,
+      showOnlineStatus: true,
     },
-  });
+    profileViews: 0,
+    connections: 0,
+    endorsements: 0,
+  }));
 
-  const handleInputChange = (field: string, value: string) => {
+  // Load user data from database
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const data = await getUserData(user.id);
+        if (data) {
+          setProfileData({
+            ...data,
+            // Portfolio data
+            experience: data.experience || '',
+            skills: data.skills || [],
+            languages: data.languages || [],
+            academicInterests: data.academicInterests || [],
+            mentorshipInterests: data.mentorshipInterests || [],
+            // Extended portfolio sections
+            workExperience: data.workExperience || [],
+            education: data.education || [],
+            certifications: data.certifications || [],
+            publications: data.publications || [],
+            projects: data.projects || [],
+            socialLinks: data.socialLinks || {},
+            portfolio: data.portfolio || [],
+            privacySettings: data.privacySettings || {
+              profileVisibility: 'public',
+              contactInfoVisibility: 'public',
+              portfolioVisibility: 'public',
+              academicInfoVisibility: 'public',
+              experienceVisibility: 'public',
+              allowMessages: true,
+              allowConnectionRequests: true,
+              showOnlineStatus: true,
+            },
+            profileViews: data.profileViews || 0,
+            connections: data.connections || 0,
+            endorsements: data.endorsements || 0,
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load profile data. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [user, toast]);
+
+  const handleInputChange = (field: string, value: any) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    // Here you would typically save to API
+  const handlePrivacyChange = (field: keyof PrivacySettings, value: any) => {
+    setProfileData((prev) => ({
+      ...prev,
+      privacySettings: {
+        ...prev.privacySettings!,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to save changes.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { error } = await updateUserData(user.id, profileData);
+      if (error) {
+        throw error;
+      }
+      await refreshUserData();
+      setIsEditing(false);
+      toast({
+        title: 'Success',
+        description: 'Profile updated successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save profile. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // CRUD operations for work experience
+  const addWorkExperience = () => {
+    const newExperience = {
+      id: Date.now().toString(),
+      title: '',
+      company: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      description: '',
+      skills: [],
+    };
+    setEditingWorkExperience(newExperience);
+    setShowWorkExperienceModal(true);
+  };
+
+  const editWorkExperience = (experience: any) => {
+    setEditingWorkExperience(experience);
+    setShowWorkExperienceModal(true);
+  };
+
+  const saveWorkExperience = async (experience: any) => {
+    setSavingSection('workExperience');
+    try {
+      // Optimistic update
+      setProfileData((prev) => {
+        const existingIndex =
+          prev.workExperience?.findIndex((exp) => exp.id === experience.id) ??
+          -1;
+        if (existingIndex >= 0) {
+          const updatedExperience = [...(prev.workExperience || [])];
+          updatedExperience[existingIndex] = experience;
+          return { ...prev, workExperience: updatedExperience };
+        } else {
+          return {
+            ...prev,
+            workExperience: [...(prev.workExperience || []), experience],
+          };
+        }
+      });
+
+      // Save to database
+      if (user) {
+        const { error } = await updateUserData(user.id, {
+          workExperience: profileData.workExperience
+            ?.map((exp) => (exp.id === experience.id ? experience : exp))
+            .concat(
+              profileData.workExperience?.find(
+                (exp) => exp.id === experience.id
+              )
+                ? []
+                : [experience]
+            ),
+        });
+
+        if (error) {
+          throw error;
+        }
+      }
+
+      setShowWorkExperienceModal(false);
+      setEditingWorkExperience(null);
+      toast({
+        title: 'Success',
+        description: 'Work experience saved successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving work experience:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save work experience. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
+  const deleteWorkExperience = (id: string) => {
+    setProfileData((prev) => ({
+      ...prev,
+      workExperience: prev.workExperience?.filter((exp) => exp.id !== id) || [],
+    }));
+  };
+
+  // CRUD operations for education
+  const addEducation = () => {
+    const newEducation = {
+      id: Date.now().toString(),
+      degree: '',
+      institution: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      gpa: '',
+      description: '',
+      courses: [],
+    };
+    setEditingEducation(newEducation);
+    setShowEducationModal(true);
+  };
+
+  const editEducation = (education: any) => {
+    setEditingEducation(education);
+    setShowEducationModal(true);
+  };
+
+  const saveEducation = (education: any) => {
+    setProfileData((prev) => {
+      const existingIndex =
+        prev.education?.findIndex((edu) => edu.id === education.id) ?? -1;
+      if (existingIndex >= 0) {
+        const updatedEducation = [...(prev.education || [])];
+        updatedEducation[existingIndex] = education;
+        return { ...prev, education: updatedEducation };
+      } else {
+        return { ...prev, education: [...(prev.education || []), education] };
+      }
+    });
+    setShowEducationModal(false);
+    setEditingEducation(null);
+  };
+
+  const deleteEducation = (id: string) => {
+    setProfileData((prev) => ({
+      ...prev,
+      education: prev.education?.filter((edu) => edu.id !== id) || [],
+    }));
+  };
+
+  // CRUD operations for certifications
+  const addCertification = () => {
+    const newCertification = {
+      id: Date.now().toString(),
+      name: '',
+      issuer: '',
+      issueDate: '',
+      expiryDate: '',
+      credentialId: '',
+      url: '',
+    };
+    setEditingCertification(newCertification);
+    setShowCertificationModal(true);
+  };
+
+  const editCertification = (certification: any) => {
+    setEditingCertification(certification);
+    setShowCertificationModal(true);
+  };
+
+  const saveCertification = (certification: any) => {
+    setProfileData((prev) => {
+      const existingIndex =
+        prev.certifications?.findIndex(
+          (cert) => cert.id === certification.id
+        ) ?? -1;
+      if (existingIndex >= 0) {
+        const updatedCertifications = [...(prev.certifications || [])];
+        updatedCertifications[existingIndex] = certification;
+        return { ...prev, certifications: updatedCertifications };
+      } else {
+        return {
+          ...prev,
+          certifications: [...(prev.certifications || []), certification],
+        };
+      }
+    });
+    setShowCertificationModal(false);
+    setEditingCertification(null);
+  };
+
+  const deleteCertification = (id: string) => {
+    setProfileData((prev) => ({
+      ...prev,
+      certifications:
+        prev.certifications?.filter((cert) => cert.id !== id) || [],
+    }));
+  };
+
+  // CRUD operations for publications
+  const addPublication = () => {
+    const newPublication = {
+      id: Date.now().toString(),
+      title: '',
+      authors: [],
+      journal: '',
+      publicationDate: '',
+      doi: '',
+      abstract: '',
+      citations: 0,
+    };
+    setEditingPublication(newPublication);
+    setShowPublicationModal(true);
+  };
+
+  const editPublication = (publication: any) => {
+    setEditingPublication(publication);
+    setShowPublicationModal(true);
+  };
+
+  const savePublication = (publication: any) => {
+    setProfileData((prev) => {
+      const existingIndex =
+        prev.publications?.findIndex((pub) => pub.id === publication.id) ?? -1;
+      if (existingIndex >= 0) {
+        const updatedPublications = [...(prev.publications || [])];
+        updatedPublications[existingIndex] = publication;
+        return { ...prev, publications: updatedPublications };
+      } else {
+        return {
+          ...prev,
+          publications: [...(prev.publications || []), publication],
+        };
+      }
+    });
+    setShowPublicationModal(false);
+    setEditingPublication(null);
+  };
+
+  const deletePublication = (id: string) => {
+    setProfileData((prev) => ({
+      ...prev,
+      publications: prev.publications?.filter((pub) => pub.id !== id) || [],
+    }));
+  };
+
+  // CRUD operations for projects
+  const addProject = () => {
+    const newProject = {
+      id: Date.now().toString(),
+      name: '',
+      description: '',
+      technologies: [],
+      githubUrl: '',
+      liveUrl: '',
+      status: 'completed' as const,
+    };
+    setEditingProject(newProject);
+    setShowProjectModal(true);
+  };
+
+  const editProject = (project: any) => {
+    setEditingProject(project);
+    setShowProjectModal(true);
+  };
+
+  const saveProject = (project: any) => {
+    setProfileData((prev) => {
+      const existingIndex =
+        prev.projects?.findIndex((proj) => proj.id === project.id) ?? -1;
+      if (existingIndex >= 0) {
+        const updatedProjects = [...(prev.projects || [])];
+        updatedProjects[existingIndex] = project;
+        return { ...prev, projects: updatedProjects };
+      } else {
+        return { ...prev, projects: [...(prev.projects || []), project] };
+      }
+    });
+    setShowProjectModal(false);
+    setEditingProject(null);
+  };
+
+  const deleteProject = (id: string) => {
+    setProfileData((prev) => ({
+      ...prev,
+      projects: prev.projects?.filter((proj) => proj.id !== id) || [],
+    }));
+  };
+
+  // CRUD operations for Skills
+  const saveSkills = async (skills: string[]) => {
+    setSavingSection('skills');
+    try {
+      // Optimistic update
+      setProfileData((prev) => ({ ...prev, skills }));
+
+      // Save to database
+      if (user) {
+        const { error } = await updateUserData(user.id, { skills });
+        if (error) {
+          throw error;
+        }
+      }
+
+      setShowSkillsModal(false);
+      toast({
+        title: 'Success',
+        description: 'Skills updated successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving skills:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save skills. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
+  // CRUD operations for Academic Interests
+  const saveAcademicInterests = async (interests: string[]) => {
+    setSavingSection('academicInterests');
+    try {
+      // Optimistic update
+      setProfileData((prev) => ({ ...prev, academicInterests: interests }));
+
+      // Save to database
+      if (user) {
+        const { error } = await updateUserData(user.id, {
+          academicInterests: interests,
+        });
+        if (error) {
+          throw error;
+        }
+      }
+
+      setShowInterestsModal(false);
+      toast({
+        title: 'Success',
+        description: 'Academic interests updated successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving academic interests:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save academic interests. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
+  // CRUD operations for Languages
+  const saveLanguages = async (languages: string[]) => {
+    setSavingSection('languages');
+    try {
+      // Optimistic update
+      setProfileData((prev) => ({ ...prev, languages }));
+
+      // Save to database
+      if (user) {
+        const { error } = await updateUserData(user.id, { languages });
+        if (error) {
+          throw error;
+        }
+      }
+
+      setShowLanguagesModal(false);
+      toast({
+        title: 'Success',
+        description: 'Languages updated successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving languages:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save languages. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
+  const handleCancel = () => {
+    if (userData) {
+      setProfileData({
+        ...userData,
+        // Portfolio data
+        experience: userData.experience || '',
+        skills: userData.skills || [],
+        languages: userData.languages || [],
+        academicInterests: userData.academicInterests || [],
+        mentorshipInterests: userData.mentorshipInterests || [],
+        // Extended portfolio sections
+        workExperience: userData.workExperience || [],
+        education: userData.education || [],
+        certifications: userData.certifications || [],
+        publications: userData.publications || [],
+        projects: userData.projects || [],
+        socialLinks: userData.socialLinks || {},
+        portfolio: userData.portfolio || [],
+        privacySettings: userData.privacySettings || {
+          profileVisibility: 'public',
+          contactInfoVisibility: 'public',
+          portfolioVisibility: 'public',
+          academicInfoVisibility: 'public',
+          experienceVisibility: 'public',
+          allowMessages: true,
+          allowConnectionRequests: true,
+          showOnlineStatus: true,
+        },
+        profileViews: userData.profileViews || 0,
+        connections: userData.connections || 0,
+        endorsements: userData.endorsements || 0,
+      });
+    }
     setIsEditing(false);
+  };
+
+  const addPortfolioItem = () => {
+    const newItem: PortfolioItem = {
+      id: Date.now().toString(),
+      title: '',
+      description: '',
+      type: 'project',
+      category: '',
+      technologies: [],
+      date: new Date().toISOString().split('T')[0],
+      status: 'completed',
+      isPublic: true,
+    };
+    setEditingPortfolioItem(newItem);
+    setShowPortfolioModal(true);
+  };
+
+  const editPortfolioItem = (item: PortfolioItem) => {
+    setEditingPortfolioItem(item);
+    setShowPortfolioModal(true);
+  };
+
+  const deletePortfolioItem = (itemId: string) => {
+    setProfileData((prev) => ({
+      ...prev,
+      portfolio: prev.portfolio?.filter((item) => item.id !== itemId) || [],
+    }));
+  };
+
+  const savePortfolioItem = async (item: PortfolioItem) => {
+    setSavingSection('portfolio');
+    try {
+      // Optimistic update
+      setProfileData((prev) => {
+        const existingIndex =
+          prev.portfolio?.findIndex((p) => p.id === item.id) ?? -1;
+        if (existingIndex >= 0) {
+          const updatedPortfolio = [...(prev.portfolio || [])];
+          updatedPortfolio[existingIndex] = item;
+          return { ...prev, portfolio: updatedPortfolio };
+        } else {
+          return { ...prev, portfolio: [...(prev.portfolio || []), item] };
+        }
+      });
+
+      // Save to database
+      if (user) {
+        const updatedPortfolio =
+          profileData.portfolio?.map((p) => (p.id === item.id ? item : p)) ||
+          [];
+
+        if (!profileData.portfolio?.find((p) => p.id === item.id)) {
+          updatedPortfolio.push(item);
+        }
+
+        const { error } = await updateUserData(user.id, {
+          portfolio: updatedPortfolio,
+        });
+
+        if (error) {
+          throw error;
+        }
+      }
+
+      setShowPortfolioModal(false);
+      setEditingPortfolioItem(null);
+      toast({
+        title: 'Success',
+        description: 'Portfolio item saved successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving portfolio item:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save portfolio item. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
   };
 
   const toggleSection = (section: string) => {
@@ -229,15 +833,6 @@ const Profile = () => {
       ...prev,
       [section]: !prev[section as keyof typeof prev],
     }));
-  };
-
-  const stats = {
-    profileViews: 26,
-    connections: 45,
-    endorsements: 12,
-    publications: 3,
-    projects: 8,
-    certifications: 5,
   };
 
   const getSkillIcon = (category: string) => {
@@ -272,8 +867,59 @@ const Profile = () => {
     }
   };
 
+  const getPortfolioIcon = (type: string) => {
+    switch (type) {
+      case 'project':
+        return Code;
+      case 'achievement':
+        return Award;
+      case 'certification':
+        return FileText;
+      case 'publication':
+        return BookOpen;
+      case 'document':
+        return File;
+      default:
+        return File;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'in-progress':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'planned':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getVisibilityIcon = (visibility: string) => {
+    switch (visibility) {
+      case 'public':
+        return <Globe className='h-4 w-4 text-green-600' />;
+      case 'connections':
+        return <Users className='h-4 w-4 text-yellow-600' />;
+      case 'private':
+        return <Lock className='h-4 w-4 text-red-600' />;
+      default:
+        return <Globe className='h-4 w-4 text-green-600' />;
+    }
+  };
+
+  if (!user || isLoading) {
+    return (
+      <div className='flex items-center justify-center min-h-screen'>
+        <Loader2 className='h-8 w-8 animate-spin' />
+      </div>
+    );
+  }
+
   return (
-    <div className='p-6 space-y-6 max-w-4xl mx-auto'>
+    <div className='p-6 space-y-6 max-w-6xl mx-auto'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
@@ -286,16 +932,29 @@ const Profile = () => {
           </p>
         </div>
         <div className='flex gap-2'>
+          <Button
+            variant='outline'
+            onClick={() => setShowPrivacySettings(true)}
+            className='flex items-center gap-2'
+          >
+            <Settings className='h-4 w-4' />
+            Privacy
+          </Button>
           {isEditing ? (
             <>
               <Button
                 onClick={handleSave}
+                disabled={isSaving}
                 className='bg-blue-600 hover:bg-blue-700'
               >
-                <Save className='h-4 w-4 mr-2' />
+                {isSaving ? (
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                ) : (
+                  <Save className='h-4 w-4 mr-2' />
+                )}
                 Save Changes
               </Button>
-              <Button variant='outline' onClick={() => setIsEditing(false)}>
+              <Button variant='outline' onClick={handleCancel}>
                 <X className='h-4 w-4 mr-2' />
                 Cancel
               </Button>
@@ -319,11 +978,11 @@ const Profile = () => {
                 <div className='relative mx-auto'>
                   <Avatar className='h-24 w-24 mx-auto'>
                     <AvatarImage
-                      src='/api/placeholder/96/96'
-                      alt={profileData.name}
+                      src={profileData.avatar || '/api/placeholder/96/96'}
+                      alt={profileData.displayName}
                     />
                     <AvatarFallback className='text-xl'>
-                      {profileData.name
+                      {profileData.displayName
                         .split(' ')
                         .map((n) => n[0])
                         .join('')}
@@ -339,14 +998,23 @@ const Profile = () => {
                   )}
                 </div>
                 <div>
-                  <CardTitle className='text-xl'>{profileData.name}</CardTitle>
+                  <CardTitle className='text-xl'>
+                    {profileData.displayName}
+                  </CardTitle>
                   <CardDescription className='flex items-center justify-center gap-1 mt-1'>
                     <GraduationCap className='h-4 w-4' />
-                    {profileData.fieldOfStudy} Student
+                    {profileData.role === 'student' &&
+                      `${profileData.major || 'Student'}`}
+                    {profileData.role === 'professor' &&
+                      `${profileData.position || 'Professor'}`}
+                    {profileData.role === 'university' &&
+                      'University Representative'}
                   </CardDescription>
                   <CardDescription className='flex items-center justify-center gap-1'>
                     <Building className='h-4 w-4' />
-                    {profileData.university}
+                    {profileData.university ||
+                      profileData.institution ||
+                      profileData.officialUniversityName}
                   </CardDescription>
                   <div className='flex items-center justify-center gap-1 mt-1'>
                     <CountryFlag
@@ -362,11 +1030,11 @@ const Profile = () => {
                 <div className='flex items-center justify-center gap-4 text-sm text-gray-500'>
                   <span className='flex items-center gap-1'>
                     <Eye className='h-4 w-4' />
-                    {stats.profileViews} views
+                    {profileData.profileViews} views
                   </span>
                   <span className='flex items-center gap-1'>
                     <Users className='h-4 w-4' />
-                    {stats.connections} connections
+                    {profileData.connections} connections
                   </span>
                 </div>
               </div>
@@ -374,19 +1042,29 @@ const Profile = () => {
             <CardContent className='space-y-4'>
               {/* Contact Info */}
               <div className='space-y-2'>
-                <h4 className='font-semibold text-sm'>Contact Information</h4>
+                <div className='flex items-center justify-between'>
+                  <h4 className='font-semibold text-sm'>Contact Information</h4>
+                  {getVisibilityIcon(
+                    profileData.privacySettings?.contactInfoVisibility ||
+                      'public'
+                  )}
+                </div>
                 <div className='space-y-1 text-sm'>
                   <div className='flex items-center gap-2'>
                     <Mail className='h-3 w-3 text-gray-400' />
                     {profileData.email}
                   </div>
-                  <div className='flex items-center gap-2'>
-                    <Phone className='h-3 w-3 text-gray-400' />
-                    {profileData.phone}
-                  </div>
+                  {profileData.phoneNumber && (
+                    <div className='flex items-center gap-2'>
+                      <Phone className='h-3 w-3 text-gray-400' />
+                      {profileData.phoneNumber}
+                    </div>
+                  )}
                   <div className='flex items-center gap-2'>
                     <MapPin className='h-3 w-3 text-gray-400' />
-                    {profileData.location}
+                    {profileData.city && profileData.country
+                      ? `${profileData.city}, ${profileData.country}`
+                      : profileData.country}
                   </div>
                 </div>
               </div>
@@ -395,15 +1073,21 @@ const Profile = () => {
               <div className='space-y-2'>
                 <h4 className='font-semibold text-sm'>Social Links</h4>
                 <div className='flex gap-2'>
-                  <Button variant='outline' size='sm' className='flex-1'>
-                    <Linkedin className='h-3 w-3' />
-                  </Button>
-                  <Button variant='outline' size='sm' className='flex-1'>
-                    <Github className='h-3 w-3' />
-                  </Button>
-                  <Button variant='outline' size='sm' className='flex-1'>
-                    <Twitter className='h-3 w-3' />
-                  </Button>
+                  {profileData.socialLinks?.linkedin && (
+                    <Button variant='outline' size='sm' className='flex-1'>
+                      <Linkedin className='h-3 w-3' />
+                    </Button>
+                  )}
+                  {profileData.socialLinks?.github && (
+                    <Button variant='outline' size='sm' className='flex-1'>
+                      <Github className='h-3 w-3' />
+                    </Button>
+                  )}
+                  {profileData.socialLinks?.twitter && (
+                    <Button variant='outline' size='sm' className='flex-1'>
+                      <Twitter className='h-3 w-3' />
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -412,19 +1096,15 @@ const Profile = () => {
                 <h4 className='font-semibold text-sm'>Profile Stats</h4>
                 <div className='grid grid-cols-2 gap-2 text-sm'>
                   <div className='text-center p-2 bg-gray-50 rounded'>
-                    <div className='font-semibold'>{stats.publications}</div>
-                    <div className='text-xs text-gray-500'>Publications</div>
+                    <div className='font-semibold'>
+                      {profileData.portfolio?.length || 0}
+                    </div>
+                    <div className='text-xs text-gray-500'>Portfolio Items</div>
                   </div>
                   <div className='text-center p-2 bg-gray-50 rounded'>
-                    <div className='font-semibold'>{stats.projects}</div>
-                    <div className='text-xs text-gray-500'>Projects</div>
-                  </div>
-                  <div className='text-center p-2 bg-gray-50 rounded'>
-                    <div className='font-semibold'>{stats.certifications}</div>
-                    <div className='text-xs text-gray-500'>Certifications</div>
-                  </div>
-                  <div className='text-center p-2 bg-gray-50 rounded'>
-                    <div className='font-semibold'>{stats.endorsements}</div>
+                    <div className='font-semibold'>
+                      {profileData.endorsements}
+                    </div>
                     <div className='text-xs text-gray-500'>Endorsements</div>
                   </div>
                 </div>
@@ -460,15 +1140,270 @@ const Profile = () => {
               <CardContent>
                 {isEditing ? (
                   <Textarea
-                    value={profileData.bio}
+                    value={profileData.bio || ''}
                     onChange={(e) => handleInputChange('bio', e.target.value)}
                     className='min-h-[100px]'
+                    placeholder='Tell us about yourself...'
                   />
                 ) : (
                   <p className='text-gray-700 leading-relaxed'>
-                    {profileData.bio}
+                    {profileData.bio ||
+                      'No bio available. Click edit to add one.'}
                   </p>
                 )}
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Portfolio Section */}
+          <Card>
+            <CardHeader>
+              <div className='flex items-center justify-between'>
+                <CardTitle className='text-lg flex items-center gap-2'>
+                  <Briefcase className='h-5 w-5' />
+                  Portfolio
+                </CardTitle>
+                <div className='flex gap-2'>
+                  {isEditing && (
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={addPortfolioItem}
+                    >
+                      <Plus className='h-4 w-4' />
+                    </Button>
+                  )}
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => toggleSection('portfolio')}
+                  >
+                    {expandedSections.portfolio ? (
+                      <ChevronUp className='h-4 w-4' />
+                    ) : (
+                      <ChevronDown className='h-4 w-4' />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            {expandedSections.portfolio && (
+              <CardContent className='space-y-4'>
+                {profileData.portfolio && profileData.portfolio.length > 0 ? (
+                  <div className='grid gap-4 md:grid-cols-2'>
+                    {profileData.portfolio.map((item) => {
+                      const IconComponent = getPortfolioIcon(item.type);
+                      return (
+                        <div
+                          key={item.id}
+                          className='border rounded-lg p-4 hover:shadow-md transition-shadow'
+                        >
+                          <div className='flex items-start justify-between mb-2'>
+                            <div className='flex items-center gap-2'>
+                              <IconComponent className='h-5 w-5 text-blue-600' />
+                              <h4 className='font-semibold'>{item.title}</h4>
+                            </div>
+                            <div className='flex items-center gap-1'>
+                              {item.isPublic ? (
+                                <Unlock className='h-4 w-4 text-green-600' />
+                              ) : (
+                                <Lock className='h-4 w-4 text-red-600' />
+                              )}
+                              {isEditing && (
+                                <div className='flex gap-1'>
+                                  <Button
+                                    size='sm'
+                                    variant='ghost'
+                                    onClick={() => editPortfolioItem(item)}
+                                  >
+                                    <Edit className='h-3 w-3' />
+                                  </Button>
+                                  <Button
+                                    size='sm'
+                                    variant='ghost'
+                                    onClick={() => deletePortfolioItem(item.id)}
+                                  >
+                                    <Trash2 className='h-3 w-3' />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <p className='text-sm text-gray-600 mb-2'>
+                            {item.description}
+                          </p>
+                          <div className='flex items-center gap-2 mb-2'>
+                            <Badge variant='outline' className='text-xs'>
+                              {item.type}
+                            </Badge>
+                            <Badge
+                              className={`text-xs ${getStatusColor(
+                                item.status || 'completed'
+                              )}`}
+                            >
+                              {item.status || 'completed'}
+                            </Badge>
+                          </div>
+                          {item.technologies &&
+                            item.technologies.length > 0 && (
+                              <div className='flex flex-wrap gap-1 mb-2'>
+                                {item.technologies.map((tech) => (
+                                  <Badge
+                                    key={tech}
+                                    variant='secondary'
+                                    className='text-xs'
+                                  >
+                                    {tech}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          <div className='flex items-center gap-2 text-xs text-gray-500'>
+                            <Calendar className='h-3 w-3' />
+                            {new Date(item.date).toLocaleDateString()}
+                            {item.url && (
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                className='h-6 w-6 p-0'
+                              >
+                                <ExternalLink className='h-3 w-3' />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className='text-center py-8 text-gray-500'>
+                    <Briefcase className='h-12 w-12 mx-auto mb-4 text-gray-300' />
+                    <p>No portfolio items yet.</p>
+                    {isEditing && (
+                      <Button
+                        variant='outline'
+                        onClick={addPortfolioItem}
+                        className='mt-2'
+                      >
+                        <Plus className='h-4 w-4 mr-2' />
+                        Add Portfolio Item
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Skills Section */}
+          <Card>
+            <CardHeader>
+              <div className='flex items-center justify-between'>
+                <CardTitle className='text-lg flex items-center gap-2'>
+                  <Target className='h-5 w-5' />
+                  Skills & Interests
+                </CardTitle>
+                <div className='flex gap-2'>
+                  {isEditing && (
+                    <>
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => setShowSkillsModal(true)}
+                      >
+                        <Edit className='h-4 w-4 mr-1' />
+                        Skills
+                      </Button>
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => setShowInterestsModal(true)}
+                      >
+                        <Edit className='h-4 w-4 mr-1' />
+                        Interests
+                      </Button>
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => setShowLanguagesModal(true)}
+                      >
+                        <Edit className='h-4 w-4 mr-1' />
+                        Languages
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => toggleSection('skills')}
+                  >
+                    {expandedSections.skills ? (
+                      <ChevronUp className='h-4 w-4' />
+                    ) : (
+                      <ChevronDown className='h-4 w-4' />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            {expandedSections.skills && (
+              <CardContent>
+                <div className='space-y-4'>
+                  {profileData.skills && profileData.skills.length > 0 && (
+                    <div>
+                      <h4 className='font-semibold text-sm mb-2'>Skills</h4>
+                      <div className='flex flex-wrap gap-2'>
+                        {profileData.skills.map((skill) => (
+                          <Badge
+                            key={skill}
+                            variant='secondary'
+                            className='text-xs'
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {profileData.academicInterests &&
+                    profileData.academicInterests.length > 0 && (
+                      <div>
+                        <h4 className='font-semibold text-sm mb-2'>
+                          Academic Interests
+                        </h4>
+                        <div className='flex flex-wrap gap-2'>
+                          {profileData.academicInterests.map((interest) => (
+                            <Badge
+                              key={interest}
+                              variant='outline'
+                              className='text-xs'
+                            >
+                              {interest}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  {profileData.languages &&
+                    profileData.languages.length > 0 && (
+                      <div>
+                        <h4 className='font-semibold text-sm mb-2'>
+                          Languages
+                        </h4>
+                        <div className='flex flex-wrap gap-2'>
+                          {profileData.languages.map((language) => (
+                            <Badge
+                              key={language}
+                              variant='outline'
+                              className='text-xs'
+                            >
+                              {language}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
               </CardContent>
             )}
           </Card>
@@ -481,18 +1416,60 @@ const Profile = () => {
                   <Briefcase className='h-5 w-5' />
                   Experience
                 </CardTitle>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => toggleSection('experience')}
+                >
+                  {expandedSections.experience ? (
+                    <ChevronUp className='h-4 w-4' />
+                  ) : (
+                    <ChevronDown className='h-4 w-4' />
+                  )}
+                </Button>
+              </div>
+            </CardHeader>
+            {expandedSections.experience && (
+              <CardContent>
+                {profileData.experience ? (
+                  <div className='border-l-2 border-blue-200 pl-4'>
+                    <p className='text-gray-700 leading-relaxed'>
+                      {profileData.experience}
+                    </p>
+                  </div>
+                ) : (
+                  <p className='text-gray-500 italic'>
+                    No experience information available.
+                  </p>
+                )}
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Work Experience Section */}
+          <Card>
+            <CardHeader>
+              <div className='flex items-center justify-between'>
+                <CardTitle className='text-lg flex items-center gap-2'>
+                  <Briefcase className='h-5 w-5' />
+                  Work Experience
+                </CardTitle>
                 <div className='flex gap-2'>
                   {isEditing && (
-                    <Button size='sm' variant='outline'>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={addWorkExperience}
+                    >
                       <Plus className='h-4 w-4' />
                     </Button>
                   )}
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => toggleSection('experience')}
+                    onClick={() => toggleSection('workExperience')}
                   >
-                    {expandedSections.experience ? (
+                    {expandedSections.workExperience ? (
                       <ChevronUp className='h-4 w-4' />
                     ) : (
                       <ChevronDown className='h-4 w-4' />
@@ -501,44 +1478,67 @@ const Profile = () => {
                 </div>
               </div>
             </CardHeader>
-            {expandedSections.experience && (
+            {expandedSections.workExperience && (
               <CardContent className='space-y-4'>
-                {profileData.experience.map((exp) => (
-                  <div key={exp.id} className='border-l-2 border-blue-200 pl-4'>
-                    <div className='flex items-start justify-between'>
-                      <div>
-                        <h4 className='font-semibold'>{exp.title}</h4>
-                        <p className='text-sm text-gray-600'>{exp.company}</p>
-                        <p className='text-xs text-gray-500 flex items-center gap-1'>
-                          <MapPin className='h-3 w-3' />
-                          {exp.location}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                          {exp.startDate} - {exp.endDate}
-                        </p>
+                {profileData.workExperience &&
+                profileData.workExperience.length > 0 ? (
+                  profileData.workExperience.map((exp) => (
+                    <div
+                      key={exp.id}
+                      className='border-l-2 border-blue-200 pl-4'
+                    >
+                      <div className='flex items-start justify-between'>
+                        <div>
+                          <h4 className='font-semibold'>{exp.title}</h4>
+                          <p className='text-sm text-gray-600'>{exp.company}</p>
+                          <p className='text-xs text-gray-500 flex items-center gap-1'>
+                            <MapPin className='h-3 w-3' />
+                            {exp.location}
+                          </p>
+                          <p className='text-xs text-gray-500'>
+                            {exp.startDate} - {exp.endDate}
+                          </p>
+                        </div>
+                        {isEditing && (
+                          <div className='flex gap-1'>
+                            <Button
+                              size='sm'
+                              variant='ghost'
+                              onClick={() => editWorkExperience(exp)}
+                            >
+                              <Edit className='h-3 w-3' />
+                            </Button>
+                            <Button
+                              size='sm'
+                              variant='ghost'
+                              onClick={() => deleteWorkExperience(exp.id)}
+                            >
+                              <Trash2 className='h-3 w-3' />
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      {isEditing && (
-                        <Button size='sm' variant='ghost'>
-                          <Edit className='h-3 w-3' />
-                        </Button>
-                      )}
+                      <p className='text-sm text-gray-700 mt-2'>
+                        {exp.description}
+                      </p>
+                      <div className='flex flex-wrap gap-1 mt-2'>
+                        {exp.skills.map((skill) => (
+                          <Badge
+                            key={skill}
+                            variant='secondary'
+                            className='text-xs'
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                    <p className='text-sm text-gray-700 mt-2'>
-                      {exp.description}
-                    </p>
-                    <div className='flex flex-wrap gap-1 mt-2'>
-                      {exp.skills.map((skill) => (
-                        <Badge
-                          key={skill}
-                          variant='secondary'
-                          className='text-xs'
-                        >
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className='text-gray-500 italic'>
+                    No work experience added yet.
+                  </p>
+                )}
               </CardContent>
             )}
           </Card>
@@ -553,7 +1553,7 @@ const Profile = () => {
                 </CardTitle>
                 <div className='flex gap-2'>
                   {isEditing && (
-                    <Button size='sm' variant='outline'>
+                    <Button size='sm' variant='outline' onClick={addEducation}>
                       <Plus className='h-4 w-4' />
                     </Button>
                   )}
@@ -573,105 +1573,75 @@ const Profile = () => {
             </CardHeader>
             {expandedSections.education && (
               <CardContent className='space-y-4'>
-                {profileData.education.map((edu) => (
-                  <div
-                    key={edu.id}
-                    className='border-l-2 border-green-200 pl-4'
-                  >
-                    <div className='flex items-start justify-between'>
-                      <div>
-                        <h4 className='font-semibold'>{edu.degree}</h4>
-                        <p className='text-sm text-gray-600'>
-                          {edu.institution}
-                        </p>
-                        <p className='text-xs text-gray-500 flex items-center gap-1'>
-                          <MapPin className='h-3 w-3' />
-                          {edu.location}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                          {edu.startDate} - {edu.endDate}
-                        </p>
-                        <p className='text-xs text-gray-500'>GPA: {edu.gpa}</p>
+                {profileData.education && profileData.education.length > 0 ? (
+                  profileData.education.map((edu) => (
+                    <div
+                      key={edu.id}
+                      className='border-l-2 border-green-200 pl-4'
+                    >
+                      <div className='flex items-start justify-between'>
+                        <div>
+                          <h4 className='font-semibold'>{edu.degree}</h4>
+                          <p className='text-sm text-gray-600'>
+                            {edu.institution}
+                          </p>
+                          <p className='text-xs text-gray-500 flex items-center gap-1'>
+                            <MapPin className='h-3 w-3' />
+                            {edu.location}
+                          </p>
+                          <p className='text-xs text-gray-500'>
+                            {edu.startDate} - {edu.endDate}
+                          </p>
+                          {edu.gpa && (
+                            <p className='text-xs text-gray-500'>
+                              GPA: {edu.gpa}
+                            </p>
+                          )}
+                        </div>
+                        {isEditing && (
+                          <div className='flex gap-1'>
+                            <Button
+                              size='sm'
+                              variant='ghost'
+                              onClick={() => editEducation(edu)}
+                            >
+                              <Edit className='h-3 w-3' />
+                            </Button>
+                            <Button
+                              size='sm'
+                              variant='ghost'
+                              onClick={() => deleteEducation(edu.id)}
+                            >
+                              <Trash2 className='h-3 w-3' />
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      {isEditing && (
-                        <Button size='sm' variant='ghost'>
-                          <Edit className='h-3 w-3' />
-                        </Button>
+                      {edu.description && (
+                        <p className='text-sm text-gray-700 mt-2'>
+                          {edu.description}
+                        </p>
+                      )}
+                      {edu.courses && edu.courses.length > 0 && (
+                        <div className='flex flex-wrap gap-1 mt-2'>
+                          {edu.courses.map((course) => (
+                            <Badge
+                              key={course}
+                              variant='outline'
+                              className='text-xs'
+                            >
+                              {course}
+                            </Badge>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    <p className='text-sm text-gray-700 mt-2'>
-                      {edu.description}
-                    </p>
-                    <div className='flex flex-wrap gap-1 mt-2'>
-                      {edu.courses.map((course) => (
-                        <Badge
-                          key={course}
-                          variant='outline'
-                          className='text-xs'
-                        >
-                          {course}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            )}
-          </Card>
-
-          {/* Skills Section */}
-          <Card>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
-                <CardTitle className='text-lg flex items-center gap-2'>
-                  <Target className='h-5 w-5' />
-                  Skills
-                </CardTitle>
-                <div className='flex gap-2'>
-                  {isEditing && (
-                    <Button size='sm' variant='outline'>
-                      <Plus className='h-4 w-4' />
-                    </Button>
-                  )}
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => toggleSection('skills')}
-                  >
-                    {expandedSections.skills ? (
-                      <ChevronUp className='h-4 w-4' />
-                    ) : (
-                      <ChevronDown className='h-4 w-4' />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            {expandedSections.skills && (
-              <CardContent>
-                <div className='space-y-4'>
-                  {Object.entries(
-                    profileData.skills.reduce((acc, skill) => {
-                      if (!acc[skill.category]) acc[skill.category] = [];
-                      acc[skill.category].push(skill);
-                      return acc;
-                    }, {} as Record<string, typeof profileData.skills>)
-                  ).map(([category, skills]) => (
-                    <div key={category}>
-                      <h4 className='font-semibold text-sm mb-2'>{category}</h4>
-                      <div className='flex flex-wrap gap-2'>
-                        {skills.map((skill) => (
-                          <Badge
-                            key={skill.name}
-                            className={`${getLevelColor(skill.level)} text-xs`}
-                          >
-                            {skill.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <p className='text-gray-500 italic'>
+                    No education information added yet.
+                  </p>
+                )}
               </CardContent>
             )}
           </Card>
@@ -686,7 +1656,11 @@ const Profile = () => {
                 </CardTitle>
                 <div className='flex gap-2'>
                   {isEditing && (
-                    <Button size='sm' variant='outline'>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={addCertification}
+                    >
                       <Plus className='h-4 w-4' />
                     </Button>
                   )}
@@ -706,38 +1680,61 @@ const Profile = () => {
             </CardHeader>
             {expandedSections.certifications && (
               <CardContent className='space-y-4'>
-                {profileData.certifications.map((cert) => (
-                  <div
-                    key={cert.id}
-                    className='border-l-2 border-yellow-200 pl-4'
-                  >
-                    <div className='flex items-start justify-between'>
-                      <div>
-                        <h4 className='font-semibold'>{cert.name}</h4>
-                        <p className='text-sm text-gray-600'>{cert.issuer}</p>
-                        <p className='text-xs text-gray-500'>
-                          Issued: {cert.issueDate}
-                          {cert.expiryDate && ` • Expires: ${cert.expiryDate}`}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                          ID: {cert.credentialId}
-                        </p>
-                      </div>
-                      <div className='flex gap-1'>
-                        {cert.url && (
-                          <Button size='sm' variant='ghost'>
-                            <ExternalLink className='h-3 w-3' />
-                          </Button>
-                        )}
-                        {isEditing && (
-                          <Button size='sm' variant='ghost'>
-                            <Edit className='h-3 w-3' />
-                          </Button>
-                        )}
+                {profileData.certifications &&
+                profileData.certifications.length > 0 ? (
+                  profileData.certifications.map((cert) => (
+                    <div
+                      key={cert.id}
+                      className='border-l-2 border-yellow-200 pl-4'
+                    >
+                      <div className='flex items-start justify-between'>
+                        <div>
+                          <h4 className='font-semibold'>{cert.name}</h4>
+                          <p className='text-sm text-gray-600'>{cert.issuer}</p>
+                          <p className='text-xs text-gray-500'>
+                            Issued: {cert.issueDate}
+                            {cert.expiryDate &&
+                              ` • Expires: ${cert.expiryDate}`}
+                          </p>
+                          {cert.credentialId && (
+                            <p className='text-xs text-gray-500'>
+                              ID: {cert.credentialId}
+                            </p>
+                          )}
+                        </div>
+                        <div className='flex gap-1'>
+                          {cert.url && (
+                            <Button size='sm' variant='ghost'>
+                              <ExternalLink className='h-3 w-3' />
+                            </Button>
+                          )}
+                          {isEditing && (
+                            <div className='flex gap-1'>
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                onClick={() => editCertification(cert)}
+                              >
+                                <Edit className='h-3 w-3' />
+                              </Button>
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                onClick={() => deleteCertification(cert.id)}
+                              >
+                                <Trash2 className='h-3 w-3' />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className='text-gray-500 italic'>
+                    No certifications added yet.
+                  </p>
+                )}
               </CardContent>
             )}
           </Card>
@@ -752,7 +1749,11 @@ const Profile = () => {
                 </CardTitle>
                 <div className='flex gap-2'>
                   {isEditing && (
-                    <Button size='sm' variant='outline'>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={addPublication}
+                    >
                       <Plus className='h-4 w-4' />
                     </Button>
                   )}
@@ -772,36 +1773,66 @@ const Profile = () => {
             </CardHeader>
             {expandedSections.publications && (
               <CardContent className='space-y-4'>
-                {profileData.publications.map((pub) => (
-                  <div
-                    key={pub.id}
-                    className='border-l-2 border-purple-200 pl-4'
-                  >
-                    <div className='flex items-start justify-between'>
-                      <div>
-                        <h4 className='font-semibold'>{pub.title}</h4>
-                        <p className='text-sm text-gray-600'>
-                          {pub.authors.join(', ')}
-                        </p>
-                        <p className='text-sm text-gray-600'>{pub.journal}</p>
-                        <p className='text-xs text-gray-500'>
-                          {pub.publicationDate}
-                        </p>
-                        <p className='text-xs text-gray-500'>DOI: {pub.doi}</p>
-                        <p className='text-xs text-gray-500 flex items-center gap-1'>
-                          <TrendingUp className='h-3 w-3' />
-                          {pub.citations} citations
-                        </p>
+                {profileData.publications &&
+                profileData.publications.length > 0 ? (
+                  profileData.publications.map((pub) => (
+                    <div
+                      key={pub.id}
+                      className='border-l-2 border-purple-200 pl-4'
+                    >
+                      <div className='flex items-start justify-between'>
+                        <div>
+                          <h4 className='font-semibold'>{pub.title}</h4>
+                          <p className='text-sm text-gray-600'>
+                            {pub.authors.join(', ')}
+                          </p>
+                          <p className='text-sm text-gray-600'>{pub.journal}</p>
+                          <p className='text-xs text-gray-500'>
+                            {pub.publicationDate}
+                          </p>
+                          {pub.doi && (
+                            <p className='text-xs text-gray-500'>
+                              DOI: {pub.doi}
+                            </p>
+                          )}
+                          {pub.citations && (
+                            <p className='text-xs text-gray-500 flex items-center gap-1'>
+                              <TrendingUp className='h-3 w-3' />
+                              {pub.citations} citations
+                            </p>
+                          )}
+                        </div>
+                        {isEditing && (
+                          <div className='flex gap-1'>
+                            <Button
+                              size='sm'
+                              variant='ghost'
+                              onClick={() => editPublication(pub)}
+                            >
+                              <Edit className='h-3 w-3' />
+                            </Button>
+                            <Button
+                              size='sm'
+                              variant='ghost'
+                              onClick={() => deletePublication(pub.id)}
+                            >
+                              <Trash2 className='h-3 w-3' />
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      {isEditing && (
-                        <Button size='sm' variant='ghost'>
-                          <Edit className='h-3 w-3' />
-                        </Button>
+                      {pub.abstract && (
+                        <p className='text-sm text-gray-700 mt-2'>
+                          {pub.abstract}
+                        </p>
                       )}
                     </div>
-                    <p className='text-sm text-gray-700 mt-2'>{pub.abstract}</p>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className='text-gray-500 italic'>
+                    No publications added yet.
+                  </p>
+                )}
               </CardContent>
             )}
           </Card>
@@ -816,7 +1847,7 @@ const Profile = () => {
                 </CardTitle>
                 <div className='flex gap-2'>
                   {isEditing && (
-                    <Button size='sm' variant='outline'>
+                    <Button size='sm' variant='outline' onClick={addProject}>
                       <Plus className='h-4 w-4' />
                     </Button>
                   )}
@@ -836,151 +1867,1512 @@ const Profile = () => {
             </CardHeader>
             {expandedSections.projects && (
               <CardContent className='space-y-4'>
-                {profileData.projects.map((project) => (
-                  <div
-                    key={project.id}
-                    className='border-l-2 border-indigo-200 pl-4'
-                  >
-                    <div className='flex items-start justify-between'>
-                      <div>
-                        <h4 className='font-semibold'>{project.name}</h4>
-                        <p className='text-sm text-gray-700'>
-                          {project.description}
-                        </p>
-                        <div className='flex flex-wrap gap-1 mt-2'>
-                          {project.technologies.map((tech) => (
+                {profileData.projects && profileData.projects.length > 0 ? (
+                  profileData.projects.map((project) => (
+                    <div
+                      key={project.id}
+                      className='border-l-2 border-indigo-200 pl-4'
+                    >
+                      <div className='flex items-start justify-between'>
+                        <div>
+                          <h4 className='font-semibold'>{project.name}</h4>
+                          <p className='text-sm text-gray-700'>
+                            {project.description}
+                          </p>
+                          <div className='flex flex-wrap gap-1 mt-2'>
+                            {project.technologies.map((tech) => (
+                              <Badge
+                                key={tech}
+                                variant='secondary'
+                                className='text-xs'
+                              >
+                                {tech}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className='flex items-center gap-2 mt-2'>
                             <Badge
-                              key={tech}
-                              variant='secondary'
+                              variant={
+                                project.status === 'completed'
+                                  ? 'default'
+                                  : 'secondary'
+                              }
                               className='text-xs'
                             >
-                              {tech}
+                              {project.status}
                             </Badge>
-                          ))}
+                          </div>
                         </div>
-                        <div className='flex items-center gap-2 mt-2'>
-                          <Badge
-                            variant={
-                              project.status === 'Completed'
-                                ? 'default'
-                                : 'secondary'
-                            }
-                            className='text-xs'
-                          >
-                            {project.status}
-                          </Badge>
+                        <div className='flex gap-1'>
+                          {project.githubUrl && (
+                            <Button size='sm' variant='ghost'>
+                              <Github className='h-3 w-3' />
+                            </Button>
+                          )}
+                          {project.liveUrl && (
+                            <Button size='sm' variant='ghost'>
+                              <ExternalLink className='h-3 w-3' />
+                            </Button>
+                          )}
+                          {isEditing && (
+                            <div className='flex gap-1'>
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                onClick={() => editProject(project)}
+                              >
+                                <Edit className='h-3 w-3' />
+                              </Button>
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                onClick={() => deleteProject(project.id)}
+                              >
+                                <Trash2 className='h-3 w-3' />
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <div className='flex gap-1'>
-                        {project.githubUrl && (
-                          <Button size='sm' variant='ghost'>
-                            <Github className='h-3 w-3' />
-                          </Button>
-                        )}
-                        {project.liveUrl && (
-                          <Button size='sm' variant='ghost'>
-                            <ExternalLink className='h-3 w-3' />
-                          </Button>
-                        )}
-                        {isEditing && (
-                          <Button size='sm' variant='ghost'>
-                            <Edit className='h-3 w-3' />
-                          </Button>
-                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
-              </CardContent>
-            )}
-          </Card>
-
-          {/* Languages Section */}
-          <Card>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
-                <CardTitle className='text-lg flex items-center gap-2'>
-                  <GlobeIcon className='h-5 w-5' />
-                  Languages
-                </CardTitle>
-                <div className='flex gap-2'>
-                  {isEditing && (
-                    <Button size='sm' variant='outline'>
-                      <Plus className='h-4 w-4' />
-                    </Button>
-                  )}
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => toggleSection('languages')}
-                  >
-                    {expandedSections.languages ? (
-                      <ChevronUp className='h-4 w-4' />
-                    ) : (
-                      <ChevronDown className='h-4 w-4' />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            {expandedSections.languages && (
-              <CardContent>
-                <div className='flex flex-wrap gap-2'>
-                  {profileData.languages.map((lang) => (
-                    <Badge
-                      key={lang.name}
-                      className={`${getLevelColor(lang.level)} text-xs`}
-                    >
-                      {lang.name} ({lang.level})
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            )}
-          </Card>
-
-          {/* Interests Section */}
-          <Card>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
-                <CardTitle className='text-lg flex items-center gap-2'>
-                  <Heart className='h-5 w-5' />
-                  Interests
-                </CardTitle>
-                <div className='flex gap-2'>
-                  {isEditing && (
-                    <Button size='sm' variant='outline'>
-                      <Plus className='h-4 w-4' />
-                    </Button>
-                  )}
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => toggleSection('interests')}
-                  >
-                    {expandedSections.interests ? (
-                      <ChevronUp className='h-4 w-4' />
-                    ) : (
-                      <ChevronDown className='h-4 w-4' />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            {expandedSections.interests && (
-              <CardContent>
-                <div className='flex flex-wrap gap-2'>
-                  {profileData.interests.map((interest) => (
-                    <Badge key={interest} variant='outline' className='text-xs'>
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <p className='text-gray-500 italic'>No projects added yet.</p>
+                )}
               </CardContent>
             )}
           </Card>
         </div>
       </div>
+
+      {/* Privacy Settings Modal */}
+      {showPrivacySettings && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+          <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+            <CardHeader>
+              <CardTitle className='flex items-center gap-2'>
+                <Shield className='h-5 w-5' />
+                Privacy Settings
+              </CardTitle>
+              <CardDescription>
+                Control who can see your information and how you can be
+                contacted
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-6'>
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <Label className='text-sm font-medium'>
+                      Profile Visibility
+                    </Label>
+                    <p className='text-xs text-gray-500'>
+                      Who can see your profile
+                    </p>
+                  </div>
+                  <Select
+                    value={
+                      profileData.privacySettings?.profileVisibility || 'public'
+                    }
+                    onValueChange={(value) =>
+                      handlePrivacyChange('profileVisibility', value)
+                    }
+                  >
+                    <SelectTrigger className='w-32'>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='public'>Public</SelectItem>
+                      <SelectItem value='connections'>Connections</SelectItem>
+                      <SelectItem value='private'>Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <Label className='text-sm font-medium'>
+                      Contact Information
+                    </Label>
+                    <p className='text-xs text-gray-500'>
+                      Who can see your contact details
+                    </p>
+                  </div>
+                  <Select
+                    value={
+                      profileData.privacySettings?.contactInfoVisibility ||
+                      'public'
+                    }
+                    onValueChange={(value) =>
+                      handlePrivacyChange('contactInfoVisibility', value)
+                    }
+                  >
+                    <SelectTrigger className='w-32'>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='public'>Public</SelectItem>
+                      <SelectItem value='connections'>Connections</SelectItem>
+                      <SelectItem value='private'>Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <Label className='text-sm font-medium'>
+                      Portfolio Visibility
+                    </Label>
+                    <p className='text-xs text-gray-500'>
+                      Who can see your portfolio
+                    </p>
+                  </div>
+                  <Select
+                    value={
+                      profileData.privacySettings?.portfolioVisibility ||
+                      'public'
+                    }
+                    onValueChange={(value) =>
+                      handlePrivacyChange('portfolioVisibility', value)
+                    }
+                  >
+                    <SelectTrigger className='w-32'>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='public'>Public</SelectItem>
+                      <SelectItem value='connections'>Connections</SelectItem>
+                      <SelectItem value='private'>Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <Label className='text-sm font-medium'>
+                      Allow Messages
+                    </Label>
+                    <p className='text-xs text-gray-500'>
+                      Let others send you messages
+                    </p>
+                  </div>
+                  <Switch
+                    checked={profileData.privacySettings?.allowMessages || true}
+                    onCheckedChange={(checked) =>
+                      handlePrivacyChange('allowMessages', checked)
+                    }
+                  />
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <Label className='text-sm font-medium'>
+                      Allow Connection Requests
+                    </Label>
+                    <p className='text-xs text-gray-500'>
+                      Let others send connection requests
+                    </p>
+                  </div>
+                  <Switch
+                    checked={
+                      profileData.privacySettings?.allowConnectionRequests ||
+                      true
+                    }
+                    onCheckedChange={(checked) =>
+                      handlePrivacyChange('allowConnectionRequests', checked)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className='flex justify-end gap-2 pt-4 border-t'>
+                <Button
+                  variant='outline'
+                  onClick={() => setShowPrivacySettings(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={() => setShowPrivacySettings(false)}>
+                  Save Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Portfolio Item Modal */}
+      {showPortfolioModal && editingPortfolioItem && (
+        <PortfolioItemModal
+          item={editingPortfolioItem}
+          onSave={savePortfolioItem}
+          onCancel={() => {
+            setShowPortfolioModal(false);
+            setEditingPortfolioItem(null);
+          }}
+          savingSection={savingSection}
+        />
+      )}
+
+      {/* Work Experience Modal */}
+      {showWorkExperienceModal && editingWorkExperience && (
+        <WorkExperienceModal
+          experience={editingWorkExperience}
+          onSave={saveWorkExperience}
+          onCancel={() => {
+            setShowWorkExperienceModal(false);
+            setEditingWorkExperience(null);
+          }}
+          savingSection={savingSection}
+        />
+      )}
+
+      {/* Education Modal */}
+      {showEducationModal && editingEducation && (
+        <EducationModal
+          education={editingEducation}
+          onSave={saveEducation}
+          onCancel={() => {
+            setShowEducationModal(false);
+            setEditingEducation(null);
+          }}
+        />
+      )}
+
+      {/* Certification Modal */}
+      {showCertificationModal && editingCertification && (
+        <CertificationModal
+          certification={editingCertification}
+          onSave={saveCertification}
+          onCancel={() => {
+            setShowCertificationModal(false);
+            setEditingCertification(null);
+          }}
+        />
+      )}
+
+      {/* Publication Modal */}
+      {showPublicationModal && editingPublication && (
+        <PublicationModal
+          publication={editingPublication}
+          onSave={savePublication}
+          onCancel={() => {
+            setShowPublicationModal(false);
+            setEditingPublication(null);
+          }}
+        />
+      )}
+
+      {/* Project Modal */}
+      {showProjectModal && editingProject && (
+        <ProjectModal
+          project={editingProject}
+          onSave={saveProject}
+          onCancel={() => {
+            setShowProjectModal(false);
+            setEditingProject(null);
+          }}
+        />
+      )}
+
+      {/* Skills Modal */}
+      {showSkillsModal && (
+        <SkillsModal
+          skills={profileData.skills || []}
+          onSave={saveSkills}
+          onCancel={() => setShowSkillsModal(false)}
+          savingSection={savingSection}
+        />
+      )}
+
+      {/* Academic Interests Modal */}
+      {showInterestsModal && (
+        <InterestsModal
+          interests={profileData.academicInterests || []}
+          onSave={saveAcademicInterests}
+          onCancel={() => setShowInterestsModal(false)}
+          savingSection={savingSection}
+        />
+      )}
+
+      {/* Languages Modal */}
+      {showLanguagesModal && (
+        <LanguagesModal
+          languages={profileData.languages || []}
+          onSave={saveLanguages}
+          onCancel={() => setShowLanguagesModal(false)}
+          savingSection={savingSection}
+        />
+      )}
+    </div>
+  );
+};
+
+// Portfolio Item Modal Component
+interface PortfolioItemModalProps {
+  item: PortfolioItem;
+  onSave: (item: PortfolioItem) => void;
+  onCancel: () => void;
+  savingSection: string | null;
+}
+
+const PortfolioItemModal: React.FC<PortfolioItemModalProps> = ({
+  item,
+  onSave,
+  onCancel,
+  savingSection,
+}) => {
+  const [formData, setFormData] = useState<PortfolioItem>(item);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Portfolio Item</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div>
+              <Label htmlFor='title'>Title *</Label>
+              <Input
+                id='title'
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor='description'>Description *</Label>
+              <Textarea
+                id='description'
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='type'>Type</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, type: value as any })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='project'>Project</SelectItem>
+                    <SelectItem value='achievement'>Achievement</SelectItem>
+                    <SelectItem value='certification'>Certification</SelectItem>
+                    <SelectItem value='publication'>Publication</SelectItem>
+                    <SelectItem value='document'>Document</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor='status'>Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, status: value as any })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='completed'>Completed</SelectItem>
+                    <SelectItem value='in-progress'>In Progress</SelectItem>
+                    <SelectItem value='planned'>Planned</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor='url'>URL</Label>
+              <Input
+                id='url'
+                value={formData.url || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, url: e.target.value })
+                }
+                placeholder='https://example.com'
+              />
+            </div>
+
+            <div>
+              <Label htmlFor='githubUrl'>GitHub URL</Label>
+              <Input
+                id='githubUrl'
+                value={formData.githubUrl || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, githubUrl: e.target.value })
+                }
+                placeholder='https://github.com/username/repo'
+              />
+            </div>
+
+            <div className='flex items-center space-x-2'>
+              <Switch
+                id='isPublic'
+                checked={formData.isPublic}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, isPublic: checked })
+                }
+              />
+              <Label htmlFor='isPublic'>Make this item public</Label>
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'portfolio'}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={savingSection === 'portfolio'}>
+                {savingSection === 'portfolio' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Item'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Work Experience Modal Component
+interface WorkExperienceModalProps {
+  experience: any;
+  onSave: (experience: any) => void;
+  onCancel: () => void;
+  savingSection: string | null;
+}
+
+const WorkExperienceModal: React.FC<WorkExperienceModalProps> = ({
+  experience,
+  onSave,
+  onCancel,
+  savingSection,
+}) => {
+  const [formData, setFormData] = useState(experience);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Job title is required';
+    }
+
+    if (!formData.company.trim()) {
+      newErrors.company = 'Company is required';
+    }
+
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      formData.startDate > formData.endDate
+    ) {
+      newErrors.endDate = 'End date must be after start date';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      onSave(formData);
+    }
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Work Experience</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='title'>Job Title *</Label>
+                <Input
+                  id='title'
+                  value={formData.title}
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value });
+                    if (errors.title) setErrors({ ...errors, title: '' });
+                  }}
+                  className={errors.title ? 'border-red-500' : ''}
+                  required
+                />
+                {errors.title && (
+                  <p className='text-red-500 text-sm mt-1'>{errors.title}</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor='company'>Company *</Label>
+                <Input
+                  id='company'
+                  value={formData.company}
+                  onChange={(e) => {
+                    setFormData({ ...formData, company: e.target.value });
+                    if (errors.company) setErrors({ ...errors, company: '' });
+                  }}
+                  className={errors.company ? 'border-red-500' : ''}
+                  required
+                />
+                {errors.company && (
+                  <p className='text-red-500 text-sm mt-1'>{errors.company}</p>
+                )}
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='location'>Location</Label>
+                <Input
+                  id='location'
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor='startDate'>Start Date</Label>
+                <Input
+                  id='startDate'
+                  type='date'
+                  value={formData.startDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startDate: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor='endDate'>End Date</Label>
+              <Input
+                id='endDate'
+                type='date'
+                value={formData.endDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, endDate: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <Label htmlFor='description'>Description</Label>
+              <Textarea
+                id='description'
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={4}
+              />
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'workExperience'}
+              >
+                Cancel
+              </Button>
+              <Button
+                type='submit'
+                disabled={savingSection === 'workExperience'}
+              >
+                {savingSection === 'workExperience' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Experience'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Education Modal Component
+interface EducationModalProps {
+  education: any;
+  onSave: (education: any) => void;
+  onCancel: () => void;
+}
+
+const EducationModal: React.FC<EducationModalProps> = ({
+  education,
+  onSave,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState(education);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.degree.trim()) {
+      newErrors.degree = 'Degree is required';
+    }
+
+    if (!formData.institution.trim()) {
+      newErrors.institution = 'Institution is required';
+    }
+
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      formData.startDate > formData.endDate
+    ) {
+      newErrors.endDate = 'End date must be after start date';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      onSave(formData);
+    }
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Education</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='degree'>Degree *</Label>
+                <Input
+                  id='degree'
+                  value={formData.degree}
+                  onChange={(e) =>
+                    setFormData({ ...formData, degree: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor='institution'>Institution *</Label>
+                <Input
+                  id='institution'
+                  value={formData.institution}
+                  onChange={(e) =>
+                    setFormData({ ...formData, institution: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='location'>Location</Label>
+                <Input
+                  id='location'
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor='gpa'>GPA</Label>
+                <Input
+                  id='gpa'
+                  value={formData.gpa}
+                  onChange={(e) =>
+                    setFormData({ ...formData, gpa: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='startDate'>Start Date</Label>
+                <Input
+                  id='startDate'
+                  type='date'
+                  value={formData.startDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startDate: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor='endDate'>End Date</Label>
+                <Input
+                  id='endDate'
+                  type='date'
+                  value={formData.endDate}
+                  onChange={(e) => {
+                    setFormData({ ...formData, endDate: e.target.value });
+                    if (errors.endDate) setErrors({ ...errors, endDate: '' });
+                  }}
+                  className={errors.endDate ? 'border-red-500' : ''}
+                />
+                {errors.endDate && (
+                  <p className='text-red-500 text-sm mt-1'>{errors.endDate}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor='description'>Description</Label>
+              <Textarea
+                id='description'
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={4}
+              />
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button type='button' variant='outline' onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type='submit'>Save Education</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Certification Modal Component
+interface CertificationModalProps {
+  certification: any;
+  onSave: (certification: any) => void;
+  onCancel: () => void;
+}
+
+const CertificationModal: React.FC<CertificationModalProps> = ({
+  certification,
+  onSave,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState(certification);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Certification</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='name'>Certification Name *</Label>
+                <Input
+                  id='name'
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor='issuer'>Issuer *</Label>
+                <Input
+                  id='issuer'
+                  value={formData.issuer}
+                  onChange={(e) =>
+                    setFormData({ ...formData, issuer: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='issueDate'>Issue Date</Label>
+                <Input
+                  id='issueDate'
+                  type='date'
+                  value={formData.issueDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, issueDate: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor='expiryDate'>Expiry Date</Label>
+                <Input
+                  id='expiryDate'
+                  type='date'
+                  value={formData.expiryDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, expiryDate: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='credentialId'>Credential ID</Label>
+                <Input
+                  id='credentialId'
+                  value={formData.credentialId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, credentialId: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor='url'>URL</Label>
+                <Input
+                  id='url'
+                  value={formData.url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, url: e.target.value })
+                  }
+                  placeholder='https://example.com'
+                />
+              </div>
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button type='button' variant='outline' onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type='submit'>Save Certification</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Publication Modal Component
+interface PublicationModalProps {
+  publication: any;
+  onSave: (publication: any) => void;
+  onCancel: () => void;
+}
+
+const PublicationModal: React.FC<PublicationModalProps> = ({
+  publication,
+  onSave,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState(publication);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Publication</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div>
+              <Label htmlFor='title'>Title *</Label>
+              <Input
+                id='title'
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='journal'>Journal/Conference</Label>
+                <Input
+                  id='journal'
+                  value={formData.journal}
+                  onChange={(e) =>
+                    setFormData({ ...formData, journal: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor='publicationDate'>Publication Date</Label>
+                <Input
+                  id='publicationDate'
+                  type='date'
+                  value={formData.publicationDate}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      publicationDate: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='doi'>DOI</Label>
+                <Input
+                  id='doi'
+                  value={formData.doi}
+                  onChange={(e) =>
+                    setFormData({ ...formData, doi: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor='citations'>Citations</Label>
+                <Input
+                  id='citations'
+                  type='number'
+                  value={formData.citations}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      citations: parseInt(e.target.value) || 0,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor='abstract'>Abstract</Label>
+              <Textarea
+                id='abstract'
+                value={formData.abstract}
+                onChange={(e) =>
+                  setFormData({ ...formData, abstract: e.target.value })
+                }
+                rows={4}
+              />
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button type='button' variant='outline' onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type='submit'>Save Publication</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Project Modal Component
+interface ProjectModalProps {
+  project: any;
+  onSave: (project: any) => void;
+  onCancel: () => void;
+}
+
+const ProjectModal: React.FC<ProjectModalProps> = ({
+  project,
+  onSave,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState(project);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Project</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div>
+              <Label htmlFor='name'>Project Name *</Label>
+              <Input
+                id='name'
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor='description'>Description</Label>
+              <Textarea
+                id='description'
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={4}
+              />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='githubUrl'>GitHub URL</Label>
+                <Input
+                  id='githubUrl'
+                  value={formData.githubUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, githubUrl: e.target.value })
+                  }
+                  placeholder='https://github.com/username/repo'
+                />
+              </div>
+              <div>
+                <Label htmlFor='liveUrl'>Live URL</Label>
+                <Input
+                  id='liveUrl'
+                  value={formData.liveUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, liveUrl: e.target.value })
+                  }
+                  placeholder='https://example.com'
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor='status'>Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, status: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='completed'>Completed</SelectItem>
+                  <SelectItem value='in-progress'>In Progress</SelectItem>
+                  <SelectItem value='planned'>Planned</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button type='button' variant='outline' onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type='submit'>Save Project</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Skills Modal Component
+interface SkillsModalProps {
+  skills: string[];
+  onSave: (skills: string[]) => void;
+  onCancel: () => void;
+  savingSection: string | null;
+}
+
+const SkillsModal: React.FC<SkillsModalProps> = ({
+  skills,
+  onSave,
+  onCancel,
+  savingSection,
+}) => {
+  const [formData, setFormData] = useState<string[]>(skills);
+  const [newSkill, setNewSkill] = useState('');
+
+  const addSkill = () => {
+    if (newSkill.trim() && !formData.includes(newSkill.trim())) {
+      setFormData([...formData, newSkill.trim()]);
+      setNewSkill('');
+    }
+  };
+
+  const removeSkill = (skill: string) => {
+    setFormData(formData.filter((s) => s !== skill));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Edit Skills</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div>
+              <Label htmlFor='newSkill'>Add New Skill</Label>
+              <div className='flex gap-2'>
+                <Input
+                  id='newSkill'
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  placeholder='Enter a skill'
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addSkill();
+                    }
+                  }}
+                />
+                <Button
+                  type='button'
+                  onClick={addSkill}
+                  disabled={!newSkill.trim()}
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label>Current Skills</Label>
+              <div className='flex flex-wrap gap-2 mt-2'>
+                {formData.map((skill) => (
+                  <Badge
+                    key={skill}
+                    variant='secondary'
+                    className='flex items-center gap-1'
+                  >
+                    {skill}
+                    <button
+                      type='button'
+                      onClick={() => removeSkill(skill)}
+                      className='ml-1 hover:text-red-500'
+                    >
+                      <X className='h-3 w-3' />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'skills'}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={savingSection === 'skills'}>
+                {savingSection === 'skills' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Skills'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Academic Interests Modal Component
+interface InterestsModalProps {
+  interests: string[];
+  onSave: (interests: string[]) => void;
+  onCancel: () => void;
+  savingSection: string | null;
+}
+
+const InterestsModal: React.FC<InterestsModalProps> = ({
+  interests,
+  onSave,
+  onCancel,
+  savingSection,
+}) => {
+  const [formData, setFormData] = useState<string[]>(interests);
+  const [newInterest, setNewInterest] = useState('');
+
+  const addInterest = () => {
+    if (newInterest.trim() && !formData.includes(newInterest.trim())) {
+      setFormData([...formData, newInterest.trim()]);
+      setNewInterest('');
+    }
+  };
+
+  const removeInterest = (interest: string) => {
+    setFormData(formData.filter((i) => i !== interest));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Edit Academic Interests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div>
+              <Label htmlFor='newInterest'>Add New Interest</Label>
+              <div className='flex gap-2'>
+                <Input
+                  id='newInterest'
+                  value={newInterest}
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  placeholder='Enter an academic interest'
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addInterest();
+                    }
+                  }}
+                />
+                <Button
+                  type='button'
+                  onClick={addInterest}
+                  disabled={!newInterest.trim()}
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label>Current Academic Interests</Label>
+              <div className='flex flex-wrap gap-2 mt-2'>
+                {formData.map((interest) => (
+                  <Badge
+                    key={interest}
+                    variant='outline'
+                    className='flex items-center gap-1'
+                  >
+                    {interest}
+                    <button
+                      type='button'
+                      onClick={() => removeInterest(interest)}
+                      className='ml-1 hover:text-red-500'
+                    >
+                      <X className='h-3 w-3' />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'academicInterests'}
+              >
+                Cancel
+              </Button>
+              <Button
+                type='submit'
+                disabled={savingSection === 'academicInterests'}
+              >
+                {savingSection === 'academicInterests' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Interests'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Languages Modal Component
+interface LanguagesModalProps {
+  languages: string[];
+  onSave: (languages: string[]) => void;
+  onCancel: () => void;
+  savingSection: string | null;
+}
+
+const LanguagesModal: React.FC<LanguagesModalProps> = ({
+  languages,
+  onSave,
+  onCancel,
+  savingSection,
+}) => {
+  const [formData, setFormData] = useState<string[]>(languages);
+  const [newLanguage, setNewLanguage] = useState('');
+
+  const addLanguage = () => {
+    if (newLanguage.trim() && !formData.includes(newLanguage.trim())) {
+      setFormData([...formData, newLanguage.trim()]);
+      setNewLanguage('');
+    }
+  };
+
+  const removeLanguage = (language: string) => {
+    setFormData(formData.filter((l) => l !== language));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Edit Languages</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <div>
+              <Label htmlFor='newLanguage'>Add New Language</Label>
+              <div className='flex gap-2'>
+                <Input
+                  id='newLanguage'
+                  value={newLanguage}
+                  onChange={(e) => setNewLanguage(e.target.value)}
+                  placeholder='Enter a language'
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addLanguage();
+                    }
+                  }}
+                />
+                <Button
+                  type='button'
+                  onClick={addLanguage}
+                  disabled={!newLanguage.trim()}
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label>Current Languages</Label>
+              <div className='flex flex-wrap gap-2 mt-2'>
+                {formData.map((language) => (
+                  <Badge
+                    key={language}
+                    variant='outline'
+                    className='flex items-center gap-1'
+                  >
+                    {language}
+                    <button
+                      type='button'
+                      onClick={() => removeLanguage(language)}
+                      className='ml-1 hover:text-red-500'
+                    >
+                      <X className='h-3 w-3' />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'languages'}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={savingSection === 'languages'}>
+                {savingSection === 'languages' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Languages'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

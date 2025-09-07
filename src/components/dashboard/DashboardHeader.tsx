@@ -38,12 +38,14 @@ interface DashboardHeaderProps {
   };
   title: string;
   subtitle: string;
+  onLogout?: () => void;
 }
 
 export function DashboardHeader({
   user,
   title,
   subtitle,
+  onLogout,
 }: DashboardHeaderProps) {
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -99,7 +101,7 @@ export function DashboardHeader({
   return (
     <>
       <header className='bg-white border-b border-gray-200 sticky top-0 z-40'>
-        <div className='max-w-7xl mx-auto px-4'>
+        <div className='max-w-8xl mx-auto px-4'>
           <div className='flex items-center justify-between h-14'>
             {/* Left Section - Logo and Search */}
             <div className='flex items-center gap-4'>
@@ -226,7 +228,7 @@ export function DashboardHeader({
                     <span>Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={onLogout}>
                     <LogOut className='mr-2 h-4 w-4' />
                     <span>Sign out</span>
                   </DropdownMenuItem>

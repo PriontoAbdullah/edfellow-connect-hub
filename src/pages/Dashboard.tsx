@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { signOutUser } from '@/lib/auth';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { LinkedInSidebar } from '@/components/dashboard/LinkedInSidebar';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
@@ -35,66 +37,65 @@ import Analytics from '@/pages/Analytics';
 
 const Dashboard = () => {
   const location = useLocation();
+  const { user: authUser, userData, loading } = useAuth();
 
-  // Mock user data - in a real app, this would come from context/API
+  // Get current user data from Firebase Auth context
   const getCurrentUser = () => {
-    const path = location.pathname;
-
-    // Determine role based on current route
-    if (
-      path.includes('/university') ||
-      path.includes('/institution') ||
-      path.includes('/programs') ||
-      path.includes('/student-requirement') ||
-      path.includes('/professor-requirement') ||
-      path.includes('/alumni-engagement') ||
-      path.includes('/live-sessions') ||
-      path.includes('/messages')
-    ) {
+    if (!userData) {
       return {
-        name: 'MIT University',
-        role: 'university',
-        avatar: '/api/placeholder/40/40',
-        title: 'University Administrator',
-        university: 'Massachusetts Institute of Technology',
-        location: 'Cambridge, MA',
-        profileViews: 234,
-        country: 'USA',
-        rating: 4.9,
-      };
-    } else if (
-      path.includes('/professor') ||
-      path.includes('/courses') ||
-      path.includes('/research-assistant') ||
-      path.includes('/admission-advisory')
-    ) {
-      return {
-        name: 'Dr. Sarah Johnson',
-        role: 'professor',
-        avatar: '/api/placeholder/40/40',
-        title: 'Professor of Computer Science',
-        university: 'MIT',
-        location: 'Cambridge, MA',
-        profileViews: 156,
-        country: 'USA',
-        rating: 4.8,
-      };
-    } else {
-      return {
-        name: 'Alex Chen',
+        name: 'Loading...',
         role: 'student',
         avatar: '/api/placeholder/40/40',
-        title: 'Computer Science Student',
-        university: 'MIT',
-        location: 'Cambridge, MA',
-        profileViews: 89,
-        country: 'USA',
-        rating: 4.5,
+        title: 'Loading...',
+        university: '',
+        location: '',
+        profileViews: 0,
+        country: '',
+        rating: 0,
       };
     }
+
+    return {
+      name:
+        userData.displayName || `${userData.firstName} ${userData.lastName}`,
+      role: userData.role,
+      avatar: '/api/placeholder/40/40',
+      title:
+        userData.role === 'professor'
+          ? `${userData.position || 'Professor'} of ${
+              userData.department || 'Computer Science'
+            }`
+          : userData.role === 'university'
+          ? 'University Administrator'
+          : `${userData.degreeLevel || 'Student'} in ${
+              userData.major || 'Computer Science'
+            }`,
+      university:
+        userData.institutionAffiliation ||
+        userData.university ||
+        userData.officialUniversityName ||
+        '',
+      location: userData.city
+        ? `${userData.city}, ${userData.country}`
+        : userData.country,
+      profileViews: 0, // This would come from analytics
+      country: userData.country,
+      rating: 4.5, // This would come from reviews/ratings
+    };
   };
 
   const user = getCurrentUser();
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await signOutUser();
+      if (error) {
+        console.error('Logout error:', error);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   // Get the current page title based on the route
   const getPageTitle = () => {
@@ -191,9 +192,10 @@ const Dashboard = () => {
         user={user}
         title={getPageTitle()}
         subtitle={getPageSubtitle()}
+        onLogout={handleLogout}
       />
-      <div className='max-w-7xl mx-auto px-4 py-6'>
-        <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
+      <div className='max-w-8xl mx-auto px-4 py-6'>
+        <div className='grid grid-cols-1 lg:grid-cols-12'>
           <div className='lg:col-span-3'>
             <LinkedInSidebar user={user} />
           </div>

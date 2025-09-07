@@ -181,28 +181,28 @@ const Explore = () => {
   };
 
   return (
-    <div className='p-6 space-y-6'>
-      <div className='flex items-center justify-between'>
+    <div className='p-4 sm:p-6 space-y-4 sm:space-y-6'>
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900 flex items-center gap-2'>
-            <Globe className='h-6 w-6 text-blue-600' />
+          <h1 className='text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2'>
+            <Globe className='h-5 w-5 sm:h-6 sm:w-6 text-blue-600' />
             Explore Programs
           </h1>
-          <p className='text-gray-600'>
+          <p className='text-sm sm:text-base text-gray-600'>
             Discover academic programs and opportunities worldwide
           </p>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className='space-y-4'>
+      <div className='space-y-3 sm:space-y-4'>
         <div className='relative max-w-md'>
           <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
           <Input
             placeholder='Search programs, universities...'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className='pl-10'
+            className='pl-10 text-sm sm:text-base'
           />
         </div>
 
@@ -217,10 +217,11 @@ const Explore = () => {
                 }
                 size='sm'
                 onClick={() => setSelectedCategory(category.id)}
-                className='flex items-center gap-2'
+                className='flex items-center gap-1 sm:gap-2 text-xs sm:text-sm'
               >
-                <Icon className='h-4 w-4' />
-                {category.name}
+                <Icon className='h-3 w-3 sm:h-4 sm:w-4' />
+                <span className='hidden sm:inline'>{category.name}</span>
+                <span className='sm:hidden'>{category.name.split(' ')[0]}</span>
               </Button>
             );
           })}
@@ -228,7 +229,7 @@ const Explore = () => {
       </div>
 
       {/* Programs Grid */}
-      <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+      <div className='grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
         {filteredPrograms.map((program) => {
           const CategoryIcon = getCategoryIcon(program.category);
           return (
@@ -238,36 +239,46 @@ const Explore = () => {
                 program.featured ? 'ring-2 ring-blue-200' : ''
               }`}
             >
-              <CardHeader>
+              <CardHeader className='pb-3 sm:pb-4'>
                 <div className='flex items-start justify-between'>
                   <div className='flex-1'>
-                    <div className='flex items-center gap-2 mb-2'>
+                    <div className='flex items-center gap-1 sm:gap-2 mb-2'>
                       {program.featured && (
                         <Badge className='bg-blue-600 text-white text-xs'>
-                          <Star className='h-3 w-3 mr-1' />
+                          <Star className='h-2 w-2 sm:h-3 sm:w-3 mr-1' />
                           Featured
                         </Badge>
                       )}
                       <Badge variant='outline' className='text-xs'>
-                        <CategoryIcon className='h-3 w-3 mr-1' />
-                        {
-                          categories.find((cat) => cat.id === program.category)
-                            ?.name
-                        }
+                        <CategoryIcon className='h-2 w-2 sm:h-3 sm:w-3 mr-1' />
+                        <span className='hidden sm:inline'>
+                          {
+                            categories.find(
+                              (cat) => cat.id === program.category
+                            )?.name
+                          }
+                        </span>
+                        <span className='sm:hidden'>
+                          {
+                            categories
+                              .find((cat) => cat.id === program.category)
+                              ?.name.split(' ')[0]
+                          }
+                        </span>
                       </Badge>
                     </div>
-                    <CardTitle className='text-lg line-clamp-2'>
+                    <CardTitle className='text-base sm:text-lg line-clamp-2'>
                       {program.name}
                     </CardTitle>
-                    <CardDescription className='flex items-center gap-1 mt-1'>
-                      <Building className='h-3 w-3' />
+                    <CardDescription className='flex items-center gap-1 mt-1 text-xs sm:text-sm'>
+                      <Building className='h-2 w-2 sm:h-3 sm:w-3' />
                       {program.university}
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='space-y-4'>
-                <p className='text-sm text-gray-600 line-clamp-3'>
+              <CardContent className='space-y-3 sm:space-y-4'>
+                <p className='text-xs sm:text-sm text-gray-600 line-clamp-3'>
                   {program.description}
                 </p>
 
@@ -279,33 +290,33 @@ const Explore = () => {
                   ))}
                 </div>
 
-                <div className='grid grid-cols-2 gap-3 text-sm'>
+                <div className='grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm'>
                   <div className='flex items-center gap-1 text-gray-600'>
-                    <MapPin className='h-3 w-3' />
+                    <MapPin className='h-2 w-2 sm:h-3 sm:w-3' />
                     <span className='truncate'>{program.location}</span>
                   </div>
                   <div className='flex items-center gap-1 text-gray-600'>
-                    <Clock className='h-3 w-3' />
+                    <Clock className='h-2 w-2 sm:h-3 sm:w-3' />
                     <span>{program.duration}</span>
                   </div>
                   <div className='flex items-center gap-1 text-gray-600'>
-                    <Calendar className='h-3 w-3' />
+                    <Calendar className='h-2 w-2 sm:h-3 sm:w-3' />
                     <span>{program.startDate}</span>
                   </div>
                   <div className='flex items-center gap-1 text-gray-600'>
-                    <DollarSign className='h-3 w-3' />
+                    <DollarSign className='h-2 w-2 sm:h-3 sm:w-3' />
                     <span>{program.tuition}</span>
                   </div>
                 </div>
 
-                <div className='flex items-center justify-between text-sm'>
+                <div className='flex items-center justify-between text-xs sm:text-sm'>
                   <div className='flex items-center gap-1'>
-                    <Star className='h-3 w-3 text-yellow-500 fill-current' />
+                    <Star className='h-2 w-2 sm:h-3 sm:w-3 text-yellow-500 fill-current' />
                     <span className='font-medium'>{program.rating}</span>
                     <span className='text-gray-500'>({program.reviews})</span>
                   </div>
                   <div className='flex items-center gap-1 text-gray-500'>
-                    <Users className='h-3 w-3' />
+                    <Users className='h-2 w-2 sm:h-3 sm:w-3' />
                     <span>{program.students}</span>
                   </div>
                 </div>
@@ -326,12 +337,16 @@ const Explore = () => {
                   <div className='flex gap-2'>
                     <Button
                       size='sm'
-                      className='flex-1 bg-blue-600 hover:bg-blue-700'
+                      className='flex-1 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm'
                     >
-                      <ExternalLink className='h-4 w-4 mr-2' />
+                      <ExternalLink className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
                       Apply Now
                     </Button>
-                    <Button variant='outline' size='sm'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='text-xs sm:text-sm'
+                    >
                       Save
                     </Button>
                   </div>
@@ -344,18 +359,20 @@ const Explore = () => {
 
       {/* Empty State */}
       {filteredPrograms.length === 0 && (
-        <div className='text-center py-12'>
-          <Globe className='h-12 w-12 text-gray-400 mx-auto mb-4' />
-          <h3 className='text-lg font-medium text-gray-900 mb-2'>
+        <div className='text-center py-8 sm:py-12'>
+          <Globe className='h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4' />
+          <h3 className='text-base sm:text-lg font-medium text-gray-900 mb-2'>
             {searchTerm ? 'No programs found' : 'No programs available'}
           </h3>
-          <p className='text-gray-600 mb-4'>
+          <p className='text-sm sm:text-base text-gray-600 mb-4'>
             {searchTerm
               ? 'Try adjusting your search terms or filters'
               : 'Check back later for new program listings'}
           </p>
           {searchTerm && (
-            <Button onClick={() => setSearchTerm('')}>Clear Search</Button>
+            <Button onClick={() => setSearchTerm('')} className='text-sm'>
+              Clear Search
+            </Button>
           )}
         </div>
       )}
