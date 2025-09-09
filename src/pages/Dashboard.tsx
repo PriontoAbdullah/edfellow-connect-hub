@@ -57,9 +57,11 @@ const Dashboard = () => {
 
     return {
       name:
-        userData.displayName || `${userData.firstName} ${userData.lastName}`,
-      role: userData.role,
-      avatar: '/api/placeholder/40/40',
+        userData.displayName ||
+        `${userData.firstName || ''} ${userData.lastName || ''}`.trim() ||
+        'User',
+      role: userData.role || 'student',
+      avatar: userData.avatar || '/api/placeholder/40/40',
       title:
         userData.role === 'professor'
           ? `${userData.position || 'Professor'} of ${
@@ -76,11 +78,11 @@ const Dashboard = () => {
         userData.officialUniversityName ||
         '',
       location: userData.city
-        ? `${userData.city}, ${userData.country}`
-        : userData.country,
-      profileViews: 0, // This would come from analytics
-      country: userData.country,
-      rating: 4.5, // This would come from reviews/ratings
+        ? `${userData.city}, ${userData.country || ''}`
+        : userData.country || '',
+      profileViews: userData.profileViews || 0,
+      country: userData.country || '',
+      rating: userData.rating || 4.5,
     };
   };
 

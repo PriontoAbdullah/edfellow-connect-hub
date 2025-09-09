@@ -130,7 +130,7 @@ export function DashboardHeader({
             </div>
 
             {/* Center Section - Main Navigation */}
-            <nav className='hidden lg:flex items-center gap-1'>
+            <nav className='hidden lg:flex items-center justify-center space-x-2 gap-1'>
               <Button
                 variant='ghost'
                 className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -202,7 +202,7 @@ export function DashboardHeader({
                       </AvatarFallback>
                     </Avatar>
                     <span className='text-sm font-medium hidden sm:block'>
-                      Me
+                      {user.name}
                     </span>
                     <ChevronDown className='h-4 w-4' />
                   </Button>
@@ -236,7 +236,7 @@ export function DashboardHeader({
               </DropdownMenu>
 
               {/* For Students/Professors/Universities Dropdown */}
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant='ghost'
@@ -266,16 +266,16 @@ export function DashboardHeader({
                     <span>Advertise</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
 
               {/* Post Button */}
-              <Button
+              {/* <Button
                 className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full'
                 onClick={() => navigate('/dashboard')}
               >
                 <Plus className='h-4 w-4 mr-1' />
                 Post
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>

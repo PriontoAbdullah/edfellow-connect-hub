@@ -54,103 +54,55 @@ import {
   BookMarked,
   Target as TargetIcon,
 } from 'lucide-react';
+import { FeedList } from '@/components/feed/FeedList';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useAuth } from '@/contexts/AuthContext';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const [postContent, setPostContent] = useState('');
+  const { userData } = useAuth();
 
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Mock user data
+  // Get current user data from auth context
   const user = {
-    name: 'Zunnun Zihan',
+    name:
+      userData?.displayName ||
+      `${userData?.firstName} ${userData?.lastName}` ||
+      'Student',
     avatar: '/api/placeholder/40/40',
-    title: 'Computer Science',
-    university: 'University of Technology',
-    location: 'Bangladesh',
-    country: 'Bangladesh',
+    title: userData?.major || 'Student',
+    university: userData?.university || userData?.institution || 'University',
+    location: userData?.city
+      ? `${userData.city}, ${userData.country}`
+      : userData?.country || 'Location',
+    country: userData?.country || 'Country',
     rating: 4.0,
-    profileViews: 26,
-    role: 'student',
+    profileViews: userData?.profileViews || 0,
+    role: userData?.role || 'student',
   };
 
-  const feedPosts = [
-    {
-      id: 1,
-      author: 'Study Group - CS201',
-      avatar: '/api/placeholder/40/40',
-      time: '2 hours ago',
-      content:
-        'Pro tip: When studying algorithms, try to implement each one from scratch before looking at optimizations. It really helps with understanding the core concepts!',
-      tag: 'Study Tips',
-      tagColor: 'bg-green-100 text-green-800',
-      likes: 24,
-      comments: 8,
-      shares: 3,
-    },
-    {
-      id: 2,
-      author: 'Dr. Michael Rodriguez',
-      avatar: '/api/placeholder/40/40',
-      time: '4 hours ago',
-      content:
-        'Excited to announce our new research project on quantum computing applications in cryptography. Looking for graduate students interested in this field!',
-      tag: 'Research',
-      tagColor: 'bg-purple-100 text-purple-800',
-      likes: 56,
-      comments: 12,
-      shares: 7,
-    },
-    {
-      id: 3,
-      author: 'Scholarship Board',
-      avatar: '/api/placeholder/40/40',
-      time: '6 hours ago',
-      content:
-        'The Gates Cambridge Scholarship is now open for applications! Full funding for graduate study at Cambridge University. Deadline: December 1st.',
-      tag: 'Scholarship',
-      tagColor: 'bg-yellow-100 text-yellow-800',
-      likes: 89,
-      comments: 23,
-      shares: 15,
-    },
-    {
-      id: 4,
-      author: 'Career Center',
-      avatar: '/api/placeholder/40/40',
-      time: '1 day ago',
-      content:
-        'Master the art of technical interviews with our new workshop series. Learn data structures, algorithms, and system design from industry experts.',
-      tag: 'Career Skills',
-      tagColor: 'bg-blue-100 text-blue-800',
-      likes: 45,
-      comments: 15,
-      shares: 8,
-    },
-    {
-      id: 5,
-      author: 'Campus Events',
-      avatar: '/api/placeholder/40/40',
-      time: '1 day ago',
-      content:
-        'Join us for the annual Tech Innovation Fair next Friday! Meet startups, explore internships, and network with industry professionals.',
-      tag: 'Campus Event',
-      tagColor: 'bg-pink-100 text-pink-800',
-      likes: 67,
-      comments: 9,
-      shares: 12,
-    },
-  ];
+  const handlePostClick = (post: any) => {
+    // Navigate to post detail or open modal
+    console.log('Post clicked:', post);
+  };
 
-  const handlePostSubmit = () => {
-    if (postContent.trim()) {
-      // Handle post submission
-      console.log('Post submitted:', postContent);
-      setPostContent('');
-    }
+  const handlePostEdit = (post: any) => {
+    // Handle post editing
+    console.log('Edit post:', post);
+  };
+
+  const handlePostDelete = (postId: string) => {
+    // Handle post deletion
+    console.log('Delete post:', postId);
+  };
+
+  const handlePostComment = (postId: string) => {
+    // Handle post commenting
+    console.log('Comment on post:', postId);
   };
 
   return (
@@ -158,146 +110,15 @@ const StudentDashboard = () => {
       <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
         {/* Main Content Area */}
         <div className='lg:col-span-8 space-y-4'>
-          {/* Start a Post */}
-          <Card className='bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden'>
-            <CardContent className='p-6'>
-              <div className='flex items-start gap-4 mb-6'>
-                <Avatar className='h-12 w-12 ring-2 ring-gray-100'>
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className='bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold'>
-                    {user.name
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <Textarea
-                    placeholder='What do you want to talk about?'
-                    value={postContent}
-                    onChange={(e) => setPostContent(e.target.value)}
-                    className='min-h-[100px] resize-none border-0 focus:ring-0 text-base bg-gray-50 rounded-2xl p-4 placeholder:text-gray-500 hover:bg-gray-100 transition-colors'
-                  />
-                </div>
-              </div>
-              <div className='flex items-center justify-between pt-4 border-t border-gray-100'>
-                <div className='flex items-center gap-2'>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 transition-all duration-200'
-                  >
-                    <Image className='h-5 w-5 mr-2' />
-                    Media
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 transition-all duration-200'
-                  >
-                    <Calendar className='h-5 w-5 mr-2' />
-                    Event
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 transition-all duration-200'
-                  >
-                    <FileText className='h-5 w-5 mr-2' />
-                    Write article
-                  </Button>
-                </div>
-                <Button
-                  onClick={handlePostSubmit}
-                  disabled={!postContent.trim()}
-                  className='bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
-                >
-                  Post
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Feed Posts */}
-          {feedPosts.map((post) => (
-            <Card
-              key={post.id}
-              className='bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200'
-            >
-              <CardContent className='p-6'>
-                <div className='flex items-start gap-4 mb-4'>
-                  <Avatar className='h-12 w-12 ring-2 ring-gray-100'>
-                    <AvatarImage src={post.avatar} alt={post.author} />
-                    <AvatarFallback className='bg-gradient-to-br from-gray-500 to-gray-600 text-white font-semibold'>
-                      {post.author
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className='flex-1'>
-                    <div className='flex items-center gap-2 mb-2'>
-                      <h4 className='font-semibold text-gray-900 text-base'>
-                        {post.author}
-                      </h4>
-                      <span className='text-sm text-gray-500'>•</span>
-                      <span className='text-sm text-gray-500'>{post.time}</span>
-                    </div>
-                    <Badge
-                      className={`text-xs px-2 py-1 rounded-full ${post.tagColor} font-medium`}
-                    >
-                      {post.tag}
-                    </Badge>
-                  </div>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full p-2'
-                  >
-                    <MoreHorizontal className='h-4 w-4' />
-                  </Button>
-                </div>
-                <p className='text-base text-gray-900 mb-6 leading-relaxed'>
-                  {post.content}
-                </p>
-                <div className='flex items-center justify-between text-sm text-gray-600 pt-4 border-t border-gray-100'>
-                  <div className='flex items-center gap-8'>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='hover:text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 transition-all duration-200'
-                    >
-                      <ThumbsUp className='h-4 w-4 mr-2' />
-                      <span className='font-medium'>{post.likes}</span>
-                    </Button>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='hover:text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 transition-all duration-200'
-                    >
-                      <MessageSquare className='h-4 w-4 mr-2' />
-                      <span className='font-medium'>{post.comments}</span>
-                    </Button>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='hover:text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 transition-all duration-200'
-                    >
-                      <Share2 className='h-4 w-4 mr-2' />
-                      <span className='font-medium'>{post.shares}</span>
-                    </Button>
-                  </div>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='hover:text-blue-600 hover:bg-blue-50 rounded-full p-2 transition-all duration-200'
-                  >
-                    <Send className='h-4 w-4' />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          <ErrorBoundary>
+            <FeedList
+              showCreatePost={true}
+              onPostClick={handlePostClick}
+              onPostEdit={handlePostEdit}
+              onPostDelete={handlePostDelete}
+              onPostComment={handlePostComment}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* Right Sidebar */}

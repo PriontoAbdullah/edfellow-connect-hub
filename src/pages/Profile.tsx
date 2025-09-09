@@ -31,6 +31,7 @@ import {
   PrivacySettings,
 } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 import {
   User,
   Mail,
@@ -95,6 +96,8 @@ interface ExtendedUserData extends UserData {
   profileViews?: number;
   connections?: number;
   endorsements?: number;
+  address?: string;
+  city?: string;
   socialLinks?: {
     linkedin?: string;
     github?: string;
@@ -175,6 +178,7 @@ const Profile = () => {
   const [showSkillsModal, setShowSkillsModal] = useState(false);
   const [showInterestsModal, setShowInterestsModal] = useState(false);
   const [showLanguagesModal, setShowLanguagesModal] = useState(false);
+  const [showProfileEditModal, setShowProfileEditModal] = useState(false);
 
   // Editing states for different sections
   const [editingWorkExperience, setEditingWorkExperience] = useState<any>(null);
@@ -406,6 +410,7 @@ const Profile = () => {
 
       setShowWorkExperienceModal(false);
       setEditingWorkExperience(null);
+      await refreshUserData(); // Refresh user data in context
       toast({
         title: 'Success',
         description: 'Work experience saved successfully!',
@@ -451,20 +456,59 @@ const Profile = () => {
     setShowEducationModal(true);
   };
 
-  const saveEducation = (education: any) => {
-    setProfileData((prev) => {
-      const existingIndex =
-        prev.education?.findIndex((edu) => edu.id === education.id) ?? -1;
-      if (existingIndex >= 0) {
-        const updatedEducation = [...(prev.education || [])];
-        updatedEducation[existingIndex] = education;
-        return { ...prev, education: updatedEducation };
-      } else {
-        return { ...prev, education: [...(prev.education || []), education] };
+  const saveEducation = async (education: any) => {
+    setSavingSection('education');
+    try {
+      // Optimistic update
+      setProfileData((prev) => {
+        const existingIndex =
+          prev.education?.findIndex((edu) => edu.id === education.id) ?? -1;
+        if (existingIndex >= 0) {
+          const updatedEducation = [...(prev.education || [])];
+          updatedEducation[existingIndex] = education;
+          return { ...prev, education: updatedEducation };
+        } else {
+          return { ...prev, education: [...(prev.education || []), education] };
+        }
+      });
+
+      // Save to database
+      if (user) {
+        const updatedEducation =
+          profileData.education?.map((edu) =>
+            edu.id === education.id ? education : edu
+          ) || [];
+
+        if (!profileData.education?.find((edu) => edu.id === education.id)) {
+          updatedEducation.push(education);
+        }
+
+        const { error } = await updateUserData(user.id, {
+          education: updatedEducation,
+        });
+
+        if (error) {
+          throw error;
+        }
       }
-    });
-    setShowEducationModal(false);
-    setEditingEducation(null);
+
+      setShowEducationModal(false);
+      setEditingEducation(null);
+      await refreshUserData(); // Refresh user data in context
+      toast({
+        title: 'Success',
+        description: 'Education saved successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving education:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save education. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
   };
 
   const deleteEducation = (id: string) => {
@@ -494,25 +538,68 @@ const Profile = () => {
     setShowCertificationModal(true);
   };
 
-  const saveCertification = (certification: any) => {
-    setProfileData((prev) => {
-      const existingIndex =
-        prev.certifications?.findIndex(
-          (cert) => cert.id === certification.id
-        ) ?? -1;
-      if (existingIndex >= 0) {
-        const updatedCertifications = [...(prev.certifications || [])];
-        updatedCertifications[existingIndex] = certification;
-        return { ...prev, certifications: updatedCertifications };
-      } else {
-        return {
-          ...prev,
-          certifications: [...(prev.certifications || []), certification],
-        };
+  const saveCertification = async (certification: any) => {
+    setSavingSection('certification');
+    try {
+      // Optimistic update
+      setProfileData((prev) => {
+        const existingIndex =
+          prev.certifications?.findIndex(
+            (cert) => cert.id === certification.id
+          ) ?? -1;
+        if (existingIndex >= 0) {
+          const updatedCertifications = [...(prev.certifications || [])];
+          updatedCertifications[existingIndex] = certification;
+          return { ...prev, certifications: updatedCertifications };
+        } else {
+          return {
+            ...prev,
+            certifications: [...(prev.certifications || []), certification],
+          };
+        }
+      });
+
+      // Save to database
+      if (user) {
+        const updatedCertifications =
+          profileData.certifications?.map((cert) =>
+            cert.id === certification.id ? certification : cert
+          ) || [];
+
+        if (
+          !profileData.certifications?.find(
+            (cert) => cert.id === certification.id
+          )
+        ) {
+          updatedCertifications.push(certification);
+        }
+
+        const { error } = await updateUserData(user.id, {
+          certifications: updatedCertifications,
+        });
+
+        if (error) {
+          throw error;
+        }
       }
-    });
-    setShowCertificationModal(false);
-    setEditingCertification(null);
+
+      setShowCertificationModal(false);
+      setEditingCertification(null);
+      await refreshUserData(); // Refresh user data in context
+      toast({
+        title: 'Success',
+        description: 'Certification saved successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving certification:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save certification. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
   };
 
   const deleteCertification = (id: string) => {
@@ -544,23 +631,65 @@ const Profile = () => {
     setShowPublicationModal(true);
   };
 
-  const savePublication = (publication: any) => {
-    setProfileData((prev) => {
-      const existingIndex =
-        prev.publications?.findIndex((pub) => pub.id === publication.id) ?? -1;
-      if (existingIndex >= 0) {
-        const updatedPublications = [...(prev.publications || [])];
-        updatedPublications[existingIndex] = publication;
-        return { ...prev, publications: updatedPublications };
-      } else {
-        return {
-          ...prev,
-          publications: [...(prev.publications || []), publication],
-        };
+  const savePublication = async (publication: any) => {
+    setSavingSection('publication');
+    try {
+      // Optimistic update
+      setProfileData((prev) => {
+        const existingIndex =
+          prev.publications?.findIndex((pub) => pub.id === publication.id) ??
+          -1;
+        if (existingIndex >= 0) {
+          const updatedPublications = [...(prev.publications || [])];
+          updatedPublications[existingIndex] = publication;
+          return { ...prev, publications: updatedPublications };
+        } else {
+          return {
+            ...prev,
+            publications: [...(prev.publications || []), publication],
+          };
+        }
+      });
+
+      // Save to database
+      if (user) {
+        const updatedPublications =
+          profileData.publications?.map((pub) =>
+            pub.id === publication.id ? publication : pub
+          ) || [];
+
+        if (
+          !profileData.publications?.find((pub) => pub.id === publication.id)
+        ) {
+          updatedPublications.push(publication);
+        }
+
+        const { error } = await updateUserData(user.id, {
+          publications: updatedPublications,
+        });
+
+        if (error) {
+          throw error;
+        }
       }
-    });
-    setShowPublicationModal(false);
-    setEditingPublication(null);
+
+      setShowPublicationModal(false);
+      setEditingPublication(null);
+      await refreshUserData(); // Refresh user data in context
+      toast({
+        title: 'Success',
+        description: 'Publication saved successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving publication:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save publication. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
   };
 
   const deletePublication = (id: string) => {
@@ -590,20 +719,59 @@ const Profile = () => {
     setShowProjectModal(true);
   };
 
-  const saveProject = (project: any) => {
-    setProfileData((prev) => {
-      const existingIndex =
-        prev.projects?.findIndex((proj) => proj.id === project.id) ?? -1;
-      if (existingIndex >= 0) {
-        const updatedProjects = [...(prev.projects || [])];
-        updatedProjects[existingIndex] = project;
-        return { ...prev, projects: updatedProjects };
-      } else {
-        return { ...prev, projects: [...(prev.projects || []), project] };
+  const saveProject = async (project: any) => {
+    setSavingSection('project');
+    try {
+      // Optimistic update
+      setProfileData((prev) => {
+        const existingIndex =
+          prev.projects?.findIndex((proj) => proj.id === project.id) ?? -1;
+        if (existingIndex >= 0) {
+          const updatedProjects = [...(prev.projects || [])];
+          updatedProjects[existingIndex] = project;
+          return { ...prev, projects: updatedProjects };
+        } else {
+          return { ...prev, projects: [...(prev.projects || []), project] };
+        }
+      });
+
+      // Save to database
+      if (user) {
+        const updatedProjects =
+          profileData.projects?.map((proj) =>
+            proj.id === project.id ? project : proj
+          ) || [];
+
+        if (!profileData.projects?.find((proj) => proj.id === project.id)) {
+          updatedProjects.push(project);
+        }
+
+        const { error } = await updateUserData(user.id, {
+          projects: updatedProjects,
+        });
+
+        if (error) {
+          throw error;
+        }
       }
-    });
-    setShowProjectModal(false);
-    setEditingProject(null);
+
+      setShowProjectModal(false);
+      setEditingProject(null);
+      await refreshUserData(); // Refresh user data in context
+      toast({
+        title: 'Success',
+        description: 'Project saved successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving project:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save project. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
   };
 
   const deleteProject = (id: string) => {
@@ -629,6 +797,7 @@ const Profile = () => {
       }
 
       setShowSkillsModal(false);
+      await refreshUserData(); // Refresh user data in context
       toast({
         title: 'Success',
         description: 'Skills updated successfully!',
@@ -663,6 +832,7 @@ const Profile = () => {
       }
 
       setShowInterestsModal(false);
+      await refreshUserData(); // Refresh user data in context
       toast({
         title: 'Success',
         description: 'Academic interests updated successfully!',
@@ -695,6 +865,7 @@ const Profile = () => {
       }
 
       setShowLanguagesModal(false);
+      await refreshUserData(); // Refresh user data in context
       toast({
         title: 'Success',
         description: 'Languages updated successfully!',
@@ -704,6 +875,39 @@ const Profile = () => {
       toast({
         title: 'Error',
         description: 'Failed to save languages. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
+  // CRUD operations for Profile Information
+  const saveProfileInfo = async (profileInfo: any) => {
+    setSavingSection('profile');
+    try {
+      // Optimistic update
+      setProfileData((prev) => ({ ...prev, ...profileInfo }));
+
+      // Save to database
+      if (user) {
+        const { error } = await updateUserData(user.id, profileInfo);
+        if (error) {
+          throw error;
+        }
+      }
+
+      setShowProfileEditModal(false);
+      await refreshUserData(); // Refresh user data in context
+      toast({
+        title: 'Success',
+        description: 'Profile information updated successfully!',
+      });
+    } catch (error) {
+      console.error('Error saving profile info:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save profile information. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -812,6 +1016,7 @@ const Profile = () => {
 
       setShowPortfolioModal(false);
       setEditingPortfolioItem(null);
+      await refreshUserData(); // Refresh user data in context
       toast({
         title: 'Success',
         description: 'Portfolio item saved successfully!',
@@ -978,7 +1183,11 @@ const Profile = () => {
                 <div className='relative mx-auto'>
                   <Avatar className='h-24 w-24 mx-auto'>
                     <AvatarImage
-                      src={profileData.avatar || '/api/placeholder/96/96'}
+                      src={
+                        profileData.avatar ||
+                        userData?.avatar ||
+                        '/api/placeholder/96/96'
+                      }
                       alt={profileData.displayName}
                     />
                     <AvatarFallback className='text-xl'>
@@ -992,6 +1201,7 @@ const Profile = () => {
                     <Button
                       size='sm'
                       className='absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0'
+                      onClick={() => setShowProfileEditModal(true)}
                     >
                       <Camera className='h-4 w-4' />
                     </Button>
@@ -1003,17 +1213,16 @@ const Profile = () => {
                   </CardTitle>
                   <CardDescription className='flex items-center justify-center gap-1 mt-1'>
                     <GraduationCap className='h-4 w-4' />
-                    {profileData.role === 'student' &&
-                      `${profileData.major || 'Student'}`}
+                    {profileData.role === 'student' && `${profileData.major}`}
                     {profileData.role === 'professor' &&
-                      `${profileData.position || 'Professor'}`}
+                      `${profileData.position}`}
                     {profileData.role === 'university' &&
                       'University Representative'}
                   </CardDescription>
                   <CardDescription className='flex items-center justify-center gap-1'>
                     <Building className='h-4 w-4' />
                     {profileData.university ||
-                      profileData.institution ||
+                      profileData.institutionAffiliation ||
                       profileData.officialUniversityName}
                   </CardDescription>
                   <div className='flex items-center justify-center gap-1 mt-1'>
@@ -1044,10 +1253,22 @@ const Profile = () => {
               <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
                   <h4 className='font-semibold text-sm'>Contact Information</h4>
-                  {getVisibilityIcon(
-                    profileData.privacySettings?.contactInfoVisibility ||
-                      'public'
-                  )}
+                  <div className='flex items-center gap-2'>
+                    {getVisibilityIcon(
+                      profileData.privacySettings?.contactInfoVisibility ||
+                        'public'
+                    )}
+                    {isEditing && (
+                      <Button
+                        size='sm'
+                        variant='ghost'
+                        onClick={() => setShowProfileEditModal(true)}
+                        className='h-6 w-6 p-0'
+                      >
+                        <Edit className='h-3 w-3' />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div className='space-y-1 text-sm'>
                   <div className='flex items-center gap-2'>
@@ -1062,7 +1283,11 @@ const Profile = () => {
                   )}
                   <div className='flex items-center gap-2'>
                     <MapPin className='h-3 w-3 text-gray-400' />
-                    {profileData.city && profileData.country
+                    {profileData.address &&
+                    profileData.city &&
+                    profileData.country
+                      ? `${profileData.address}, ${profileData.city}, ${profileData.country}`
+                      : profileData.city && profileData.country
                       ? `${profileData.city}, ${profileData.country}`
                       : profileData.country}
                   </div>
@@ -1071,24 +1296,77 @@ const Profile = () => {
 
               {/* Social Links */}
               <div className='space-y-2'>
-                <h4 className='font-semibold text-sm'>Social Links</h4>
+                <div className='flex items-center justify-between'>
+                  <h4 className='font-semibold text-sm'>Social Links</h4>
+                  {isEditing && (
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      onClick={() => setShowProfileEditModal(true)}
+                      className='h-6 w-6 p-0'
+                    >
+                      <Edit className='h-3 w-3' />
+                    </Button>
+                  )}
+                </div>
                 <div className='flex gap-2'>
                   {profileData.socialLinks?.linkedin && (
-                    <Button variant='outline' size='sm' className='flex-1'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='flex-1'
+                      onClick={() =>
+                        window.open(profileData.socialLinks.linkedin, '_blank')
+                      }
+                    >
                       <Linkedin className='h-3 w-3' />
                     </Button>
                   )}
                   {profileData.socialLinks?.github && (
-                    <Button variant='outline' size='sm' className='flex-1'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='flex-1'
+                      onClick={() =>
+                        window.open(profileData.socialLinks.github, '_blank')
+                      }
+                    >
                       <Github className='h-3 w-3' />
                     </Button>
                   )}
                   {profileData.socialLinks?.twitter && (
-                    <Button variant='outline' size='sm' className='flex-1'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='flex-1'
+                      onClick={() =>
+                        window.open(profileData.socialLinks.twitter, '_blank')
+                      }
+                    >
                       <Twitter className='h-3 w-3' />
                     </Button>
                   )}
+                  {profileData.socialLinks?.website && (
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='flex-1'
+                      onClick={() =>
+                        window.open(profileData.socialLinks.website, '_blank')
+                      }
+                    >
+                      <GlobeIcon className='h-3 w-3' />
+                    </Button>
+                  )}
                 </div>
+                {!profileData.socialLinks?.linkedin &&
+                  !profileData.socialLinks?.github &&
+                  !profileData.socialLinks?.twitter &&
+                  !profileData.socialLinks?.website && (
+                    <p className='text-xs text-gray-500 italic'>
+                      No social links added yet
+                    </p>
+                  )}
               </div>
 
               {/* Stats */}
@@ -2136,6 +2414,7 @@ const Profile = () => {
             setShowEducationModal(false);
             setEditingEducation(null);
           }}
+          savingSection={savingSection}
         />
       )}
 
@@ -2148,6 +2427,7 @@ const Profile = () => {
             setShowCertificationModal(false);
             setEditingCertification(null);
           }}
+          savingSection={savingSection}
         />
       )}
 
@@ -2160,6 +2440,7 @@ const Profile = () => {
             setShowPublicationModal(false);
             setEditingPublication(null);
           }}
+          savingSection={savingSection}
         />
       )}
 
@@ -2172,6 +2453,7 @@ const Profile = () => {
             setShowProjectModal(false);
             setEditingProject(null);
           }}
+          savingSection={savingSection}
         />
       )}
 
@@ -2201,6 +2483,16 @@ const Profile = () => {
           languages={profileData.languages || []}
           onSave={saveLanguages}
           onCancel={() => setShowLanguagesModal(false)}
+          savingSection={savingSection}
+        />
+      )}
+
+      {/* Profile Edit Modal */}
+      {showProfileEditModal && (
+        <ProfileEditModal
+          profileData={profileData}
+          onSave={saveProfileInfo}
+          onCancel={() => setShowProfileEditModal(false)}
           savingSection={savingSection}
         />
       )}
@@ -2536,14 +2828,16 @@ const WorkExperienceModal: React.FC<WorkExperienceModalProps> = ({
 // Education Modal Component
 interface EducationModalProps {
   education: any;
-  onSave: (education: any) => void;
+  onSave: (education: any) => Promise<void>;
   onCancel: () => void;
+  savingSection: string | null;
 }
 
 const EducationModal: React.FC<EducationModalProps> = ({
   education,
   onSave,
   onCancel,
+  savingSection,
 }) => {
   const [formData, setFormData] = useState(education);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -2571,10 +2865,10 @@ const EducationModal: React.FC<EducationModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSave(formData);
+      await onSave(formData);
     }
   };
 
@@ -2677,10 +2971,24 @@ const EducationModal: React.FC<EducationModalProps> = ({
             </div>
 
             <div className='flex justify-end gap-2 pt-4 border-t'>
-              <Button type='button' variant='outline' onClick={onCancel}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'education'}
+              >
                 Cancel
               </Button>
-              <Button type='submit'>Save Education</Button>
+              <Button type='submit' disabled={savingSection === 'education'}>
+                {savingSection === 'education' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Education'
+                )}
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -2692,20 +3000,22 @@ const EducationModal: React.FC<EducationModalProps> = ({
 // Certification Modal Component
 interface CertificationModalProps {
   certification: any;
-  onSave: (certification: any) => void;
+  onSave: (certification: any) => Promise<void>;
   onCancel: () => void;
+  savingSection: string | null;
 }
 
 const CertificationModal: React.FC<CertificationModalProps> = ({
   certification,
   onSave,
   onCancel,
+  savingSection,
 }) => {
   const [formData, setFormData] = useState(certification);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    await onSave(formData);
   };
 
   return (
@@ -2791,10 +3101,27 @@ const CertificationModal: React.FC<CertificationModalProps> = ({
             </div>
 
             <div className='flex justify-end gap-2 pt-4 border-t'>
-              <Button type='button' variant='outline' onClick={onCancel}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'certification'}
+              >
                 Cancel
               </Button>
-              <Button type='submit'>Save Certification</Button>
+              <Button
+                type='submit'
+                disabled={savingSection === 'certification'}
+              >
+                {savingSection === 'certification' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Certification'
+                )}
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -2806,20 +3133,22 @@ const CertificationModal: React.FC<CertificationModalProps> = ({
 // Publication Modal Component
 interface PublicationModalProps {
   publication: any;
-  onSave: (publication: any) => void;
+  onSave: (publication: any) => Promise<void>;
   onCancel: () => void;
+  savingSection: string | null;
 }
 
 const PublicationModal: React.FC<PublicationModalProps> = ({
   publication,
   onSave,
   onCancel,
+  savingSection,
 }) => {
   const [formData, setFormData] = useState(publication);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    await onSave(formData);
   };
 
   return (
@@ -2909,10 +3238,24 @@ const PublicationModal: React.FC<PublicationModalProps> = ({
             </div>
 
             <div className='flex justify-end gap-2 pt-4 border-t'>
-              <Button type='button' variant='outline' onClick={onCancel}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'publication'}
+              >
                 Cancel
               </Button>
-              <Button type='submit'>Save Publication</Button>
+              <Button type='submit' disabled={savingSection === 'publication'}>
+                {savingSection === 'publication' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Publication'
+                )}
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -2924,20 +3267,22 @@ const PublicationModal: React.FC<PublicationModalProps> = ({
 // Project Modal Component
 interface ProjectModalProps {
   project: any;
-  onSave: (project: any) => void;
+  onSave: (project: any) => Promise<void>;
   onCancel: () => void;
+  savingSection: string | null;
 }
 
 const ProjectModal: React.FC<ProjectModalProps> = ({
   project,
   onSave,
   onCancel,
+  savingSection,
 }) => {
   const [formData, setFormData] = useState(project);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    await onSave(formData);
   };
 
   return (
@@ -3017,10 +3362,24 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             </div>
 
             <div className='flex justify-end gap-2 pt-4 border-t'>
-              <Button type='button' variant='outline' onClick={onCancel}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'project'}
+              >
                 Cancel
               </Button>
-              <Button type='submit'>Save Project</Button>
+              <Button type='submit' disabled={savingSection === 'project'}>
+                {savingSection === 'project' ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Project'
+                )}
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -3367,6 +3726,409 @@ const LanguagesModal: React.FC<LanguagesModalProps> = ({
                   </>
                 ) : (
                   'Save Languages'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Profile Edit Modal Component
+interface ProfileEditModalProps {
+  profileData: ExtendedUserData;
+  onSave: (profileInfo: any) => void;
+  onCancel: () => void;
+  savingSection: string | null;
+}
+
+const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
+  profileData,
+  onSave,
+  onCancel,
+  savingSection,
+}) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [formData, setFormData] = useState({
+    firstName: profileData.firstName || '',
+    lastName: profileData.lastName || '',
+    phoneNumber: profileData.phoneNumber || '',
+    address: profileData.address || '',
+    city: profileData.city || '',
+    country: profileData.country || '',
+    bio: profileData.bio || '',
+    avatar: profileData.avatar || '',
+    socialLinks: {
+      linkedin: profileData.socialLinks?.linkedin || '',
+      github: profileData.socialLinks?.github || '',
+      twitter: profileData.socialLinks?.twitter || '',
+      website: profileData.socialLinks?.website || '',
+    },
+  });
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: 'File too large',
+          description: 'Please select an image smaller than 2MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid file type',
+          description: 'Please select a valid image file.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadAvatar = async (file: File): Promise<string | null> => {
+    if (!user) return null;
+
+    try {
+      setUploadingAvatar(true);
+
+      // Create a unique filename with user ID folder structure
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${user.id}/${fileName}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('edfellow')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('edfellow').getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      throw error;
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      let avatarUrl = formData.avatar;
+
+      // Upload avatar if a new file is selected
+      if (avatarFile) {
+        avatarUrl = await uploadAvatar(avatarFile);
+        if (!avatarUrl) {
+          toast({
+            title: 'Upload failed',
+            description: 'Failed to upload avatar. Please try again.',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
+      // Update form data with new avatar URL
+      const updatedFormData = {
+        ...formData,
+        avatar: avatarUrl,
+      };
+
+      onSave(updatedFormData);
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Failed to upload avatar. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <CardHeader>
+          <CardTitle>Edit Profile Information</CardTitle>
+          <CardDescription>
+            Update your personal information and contact details
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-6'>
+            {/* Profile Image Upload */}
+            <div className='space-y-2'>
+              <Label>Profile Picture</Label>
+              <div className='flex items-center gap-4'>
+                <div className='relative'>
+                  <Avatar className='h-20 w-20'>
+                    <AvatarImage
+                      src={
+                        avatarPreview ||
+                        profileData.avatar ||
+                        '/api/placeholder/80/80'
+                      }
+                      alt={profileData.displayName}
+                    />
+                    <AvatarFallback className='text-lg'>
+                      {profileData.displayName
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  {avatarFile && (
+                    <div className='absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1'>
+                      <CheckCircle className='h-3 w-3 text-white' />
+                    </div>
+                  )}
+                </div>
+                <div className='space-y-2'>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={handleFileChange}
+                    className='text-sm'
+                    disabled={uploadingAvatar}
+                  />
+                  <p className='text-xs text-gray-500'>
+                    JPG, PNG or GIF. Max size 2MB.
+                  </p>
+                  {uploadingAvatar && (
+                    <div className='flex items-center gap-2 text-sm text-blue-600'>
+                      <Loader2 className='h-4 w-4 animate-spin' />
+                      Uploading avatar...
+                    </div>
+                  )}
+                  {avatarFile && !uploadingAvatar && (
+                    <div className='flex items-center gap-2 text-sm text-green-600'>
+                      <CheckCircle className='h-4 w-4' />
+                      Ready to upload
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Basic Information */}
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <Label htmlFor='firstName'>First Name *</Label>
+                <Input
+                  id='firstName'
+                  value={formData.firstName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor='lastName'>Last Name *</Label>
+                <Input
+                  id='lastName'
+                  value={formData.lastName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className='space-y-4'>
+              <h4 className='font-semibold text-sm'>Contact Information</h4>
+              <div>
+                <Label htmlFor='phoneNumber'>Phone Number</Label>
+                <Input
+                  id='phoneNumber'
+                  value={formData.phoneNumber}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phoneNumber: e.target.value })
+                  }
+                  placeholder='+1 (555) 123-4567'
+                />
+              </div>
+              <div>
+                <Label htmlFor='address'>Address</Label>
+                <Input
+                  id='address'
+                  value={formData.address}
+                  onChange={(e) =>
+                    setFormData({ ...formData, address: e.target.value })
+                  }
+                  placeholder='123 Main Street'
+                />
+              </div>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <Label htmlFor='city'>City</Label>
+                  <Input
+                    id='city'
+                    value={formData.city}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
+                    placeholder='New York'
+                  />
+                </div>
+                <div>
+                  <Label htmlFor='country'>Country</Label>
+                  <Input
+                    id='country'
+                    value={formData.country}
+                    onChange={(e) =>
+                      setFormData({ ...formData, country: e.target.value })
+                    }
+                    placeholder='United States'
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div>
+              <Label htmlFor='bio'>Bio</Label>
+              <Textarea
+                id='bio'
+                value={formData.bio}
+                onChange={(e) =>
+                  setFormData({ ...formData, bio: e.target.value })
+                }
+                rows={4}
+                placeholder='Tell us about yourself...'
+              />
+            </div>
+
+            {/* Social Links */}
+            <div className='space-y-4'>
+              <h4 className='font-semibold text-sm'>Social Links</h4>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <Label htmlFor='linkedin'>LinkedIn</Label>
+                  <Input
+                    id='linkedin'
+                    value={formData.socialLinks.linkedin}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialLinks: {
+                          ...formData.socialLinks,
+                          linkedin: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder='https://linkedin.com/in/username'
+                  />
+                </div>
+                <div>
+                  <Label htmlFor='github'>GitHub</Label>
+                  <Input
+                    id='github'
+                    value={formData.socialLinks.github}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialLinks: {
+                          ...formData.socialLinks,
+                          github: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder='https://github.com/username'
+                  />
+                </div>
+                <div>
+                  <Label htmlFor='twitter'>Twitter</Label>
+                  <Input
+                    id='twitter'
+                    value={formData.socialLinks.twitter}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialLinks: {
+                          ...formData.socialLinks,
+                          twitter: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder='https://twitter.com/username'
+                  />
+                </div>
+                <div>
+                  <Label htmlFor='website'>Website</Label>
+                  <Input
+                    id='website'
+                    value={formData.socialLinks.website}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialLinks: {
+                          ...formData.socialLinks,
+                          website: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder='https://yourwebsite.com'
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className='flex justify-end gap-2 pt-4 border-t'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={savingSection === 'profile'}
+              >
+                Cancel
+              </Button>
+              <Button
+                type='submit'
+                disabled={savingSection === 'profile' || uploadingAvatar}
+              >
+                {savingSection === 'profile' || uploadingAvatar ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    {uploadingAvatar ? 'Uploading...' : 'Saving...'}
+                  </>
+                ) : (
+                  'Save Changes'
                 )}
               </Button>
             </div>

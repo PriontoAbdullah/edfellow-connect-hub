@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { getCountryCode } from '@/lib/countries';
 import {
   Sidebar,
   SidebarContent,
@@ -228,9 +230,18 @@ export function AppSidebar({ user, onLogout }: AppSidebarProps) {
             </Avatar>
             {!isCollapsed && (
               <div className='flex-1 min-w-0'>
-                <p className='text-sm font-medium text-white truncate'>
-                  {user.name}
-                </p>
+                <div className='flex items-center gap-2'>
+                  <p className='text-sm font-medium text-white truncate'>
+                    {user.name}
+                  </p>
+                  {user.country && (
+                    <CountryFlag
+                      code={getCountryCode(user.country)}
+                      size={12}
+                      className='rounded-sm flex-shrink-0'
+                    />
+                  )}
+                </div>
                 <p className='text-xs text-gray-400 capitalize'>{user.role}</p>
                 {user.major && (
                   <p className='text-xs text-gray-500 truncate'>{user.major}</p>

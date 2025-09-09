@@ -47,6 +47,7 @@ export interface Database {
           profile_views?: number;
           connections?: number;
           endorsements?: number;
+          avatar?: string;
           social_links?: {
             linkedin?: string;
             github?: string;
@@ -141,6 +142,7 @@ export interface Database {
           profile_views?: number;
           connections?: number;
           endorsements?: number;
+          avatar?: string;
           social_links?: {
             linkedin?: string;
             github?: string;
@@ -235,6 +237,7 @@ export interface Database {
           profile_views?: number;
           connections?: number;
           endorsements?: number;
+          avatar?: string;
           social_links?: {
             linkedin?: string;
             github?: string;

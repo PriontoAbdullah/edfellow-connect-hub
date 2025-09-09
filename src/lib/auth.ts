@@ -71,6 +71,8 @@ export interface UserData {
   profileViews?: number;
   connections?: number;
   endorsements?: number;
+  avatar?: string;
+  rating?: number;
   socialLinks?: {
     linkedin?: string;
     github?: string;
@@ -169,12 +171,15 @@ const convertSupabaseUserToUserData = (supabaseUser: any): UserData => {
     profileViews: supabaseUser.profile_views,
     connections: supabaseUser.connections,
     endorsements: supabaseUser.endorsements,
+    avatar: supabaseUser.avatar,
     socialLinks: supabaseUser.social_links,
     workExperience: supabaseUser.work_experience,
     education: supabaseUser.education,
     certifications: supabaseUser.certifications,
     publications: supabaseUser.publications,
     projects: supabaseUser.projects,
+    portfolio: supabaseUser.portfolio,
+    privacySettings: supabaseUser.privacy_settings,
     createdAt: supabaseUser.created_at,
     updatedAt: supabaseUser.updated_at,
     emailVerified: supabaseUser.email_verified,
@@ -218,12 +223,15 @@ const convertUserDataToSupabase = (userData: Partial<UserData>): any => {
     profile_views: userData.profileViews,
     connections: userData.connections,
     endorsements: userData.endorsements,
+    avatar: userData.avatar,
     social_links: userData.socialLinks,
     work_experience: userData.workExperience,
     education: userData.education,
     certifications: userData.certifications,
     publications: userData.publications,
     projects: userData.projects,
+    portfolio: userData.portfolio,
+    privacy_settings: userData.privacySettings,
     created_at: userData.createdAt,
     updated_at: userData.updatedAt,
     email_verified: userData.emailVerified,

@@ -118,21 +118,19 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
               <div className='absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white'></div>
             </div>
             <h3 className='font-bold text-gray-900 mb-1'>{user.name}</h3>
-            <p className='text-sm text-gray-600 mb-1'>
-              {user.title || 'Computer Science'}
-            </p>
-            <p className='text-sm text-gray-600 mb-2'>
-              {user.university || 'University of Technology'}
-            </p>
-            <div className='flex items-center justify-center gap-1 mb-3'>
-              <CountryFlag
-                code={getCountryCode(user.country || '')}
-                size={16}
-                className='rounded-sm'
-              />
-              <span className='text-sm text-gray-600'>{user.country}</span>
-            </div>
-            <div className='flex items-center justify-center gap-1 mb-4'>
+            <p className='text-sm text-gray-600 mb-1'>{user.title}</p>
+            <p className='text-sm text-gray-600 mb-2'>{user.university}</p>
+            {user.country && (
+              <div className='flex items-center justify-center gap-1 mb-3'>
+                <CountryFlag
+                  code={getCountryCode(user.country)}
+                  size={16}
+                  className='rounded-sm'
+                />
+                <span className='text-sm text-gray-600'>{user.country}</span>
+              </div>
+            )}
+            {/* <div className='flex items-center justify-center gap-1 mb-4'>
               <div className='flex'>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
@@ -148,7 +146,7 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
               <span className='text-sm font-medium text-gray-900 ml-1'>
                 {user.rating || 4.0}
               </span>
-            </div>
+            </div> */}
             <Button
               variant='outline'
               className='w-full border-gray-300 text-gray-900 hover:bg-gray-50'
@@ -162,7 +160,8 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
       </Card>
 
       {/* Profile Metrics */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
+      {/* @TODO: Add profile metrics here */}
+      {/* <Card className='bg-white border border-gray-200 shadow-sm'>
         <CardContent className='p-4'>
           <div className='space-y-3'>
             <div className='flex items-center justify-between text-sm'>
@@ -186,7 +185,7 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Main Navigation */}
       <Card className='bg-white border border-gray-200 shadow-sm'>
