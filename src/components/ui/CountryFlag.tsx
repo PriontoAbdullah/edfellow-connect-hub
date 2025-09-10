@@ -18,13 +18,14 @@ export const CountryFlag: React.FC<CountryFlagProps> = ({
     // Fallback to emoji flag or placeholder
     return (
       <div
-        className={`inline-flex items-center justify-center rounded border ${className}`}
+        className={`inline-flex items-center justify-center rounded border bg-gray-100 ${className}`}
         style={{
           width: size,
           height: size * 0.75,
           fontSize: size * 0.6,
           minWidth: size,
         }}
+        title={code ? `Flag for ${code.toUpperCase()}` : 'No country flag'}
       >
         🌍
       </div>
@@ -65,8 +66,10 @@ export const CountryFlag: React.FC<CountryFlagProps> = ({
           width: '100%',
           height: '100%',
         }}
-        onLoad={() => setIsLoading(false)}
-        onError={() => {
+        onLoad={() => {
+          setIsLoading(false);
+        }}
+        onError={(e) => {
           setHasError(true);
           setIsLoading(false);
         }}

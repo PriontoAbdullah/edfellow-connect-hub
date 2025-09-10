@@ -329,8 +329,16 @@ export const signInUser = async (
 // Sign out user
 export const signOutUser = async (): Promise<{ error: any }> => {
   try {
+    console.log('Calling supabase.auth.signOut()...');
     const { error } = await supabase.auth.signOut();
-    return { error };
+
+    if (error) {
+      console.error('Supabase signOut error:', error);
+      return { error };
+    }
+
+    console.log('Supabase signOut successful');
+    return { error: null };
   } catch (error) {
     console.error('Error signing out user:', error);
     return { error };

@@ -230,7 +230,7 @@ export const usePostDetails = (postId: string) => {
       loadPost(postId);
       loadPostComments(postId);
     }
-  }, [postId, loadPost, loadPostComments]);
+  }, [postId]); // Remove function dependencies to prevent infinite loops
 
   const loadMoreComments = useCallback(async () => {
     if (!postState.commentsHasMore || postState.commentsLoading) return;
@@ -247,8 +247,7 @@ export const usePostDetails = (postId: string) => {
     postState.commentsLoading,
     commentsPage,
     postId,
-    loadPostComments,
-  ]);
+  ]); // Remove loadPostComments dependency
 
   return {
     ...postState,
@@ -313,7 +312,7 @@ export const useCommentCreation = (postId: string) => {
         setLoading(false);
       }
     },
-    [user, postId, createNewComment]
+    [user, postId] // Remove createNewComment dependency
   );
 
   return {

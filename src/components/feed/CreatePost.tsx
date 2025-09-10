@@ -47,6 +47,8 @@ import type {
 import { usePostCreation } from '@/hooks/useFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFileUpload } from '@/lib/media-upload';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { getCountryCode } from '@/lib/countries';
 
 interface CreatePostProps {
   onPostCreated?: () => void;
@@ -242,7 +244,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
         <div className='flex items-start gap-4 mb-6'>
           <Avatar className='h-12 w-12 ring-2 ring-gray-100'>
             <AvatarImage
-              src='/api/placeholder/40/40'
+              src={userData?.avatar || undefined}
               alt={userData?.displayName || 'User'}
             />
             <AvatarFallback className='bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold'>
@@ -253,6 +255,23 @@ export const CreatePost: React.FC<CreatePostProps> = ({
             </AvatarFallback>
           </Avatar>
           <div className='flex-1'>
+            <div className='flex items-center gap-2 mb-2'>
+              <span className='text-sm font-medium text-gray-700'>
+                {userData?.displayName || 'User'}
+              </span>
+              {userData?.country && (
+                <div className='flex items-center gap-1'>
+                  <CountryFlag
+                    code={getCountryCode(userData.country)}
+                    size={12}
+                    className='rounded-sm'
+                  />
+                  <span className='text-xs text-gray-500'>
+                    {userData.country}
+                  </span>
+                </div>
+              )}
+            </div>
             <Textarea
               placeholder={placeholder}
               value={formData.content}
@@ -410,7 +429,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
               <Image className='h-5 w-5 mr-2' />
               Media
             </Button>
-            <Button
+            {/* <Button
               variant='ghost'
               size='sm'
               className='text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 transition-all duration-200'
@@ -425,7 +444,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
             >
               <FileText className='h-5 w-5 mr-2' />
               Write article
-            </Button>
+            </Button> */}
             <Button
               variant='ghost'
               size='sm'
@@ -437,7 +456,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
             </Button>
           </div>
 
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-4'>
             <div className='flex items-center gap-1 text-sm text-gray-500'>
               {getVisibilityIcon(formData.visibility)}
               <span>{getVisibilityLabel(formData.visibility)}</span>

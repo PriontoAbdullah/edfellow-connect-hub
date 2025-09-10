@@ -9,6 +9,7 @@ import { RefreshCw, AlertCircle } from 'lucide-react';
 import { FeedPost } from './FeedPost';
 import { CreatePost } from './CreatePost';
 import { useFeedData, useInfiniteScroll } from '@/hooks/useFeed';
+import { useFeed } from '@/contexts/FeedContext';
 import {
   FeedLoadingState,
   InfiniteScrollLoading,
@@ -22,6 +23,7 @@ interface FeedListProps {
   onPostEdit?: (post: PostWithAuthor) => void;
   onPostDelete?: (postId: string) => void;
   onPostComment?: (postId: string) => void;
+  onCommentCountUpdate?: (postId: string, newCount: number) => void;
   className?: string;
 }
 
@@ -32,10 +34,12 @@ export const FeedList: React.FC<FeedListProps> = ({
   onPostEdit,
   onPostDelete,
   onPostComment,
+  onCommentCountUpdate,
   className = '',
 }) => {
   const { posts, loading, error, hasMore, loadMore, refresh } =
     useFeedData(initialQuery);
+  const { updateCommentCount } = useFeed();
 
   // Infinite scroll
   useInfiniteScroll(loadMore, hasMore, loading);
@@ -66,6 +70,16 @@ export const FeedList: React.FC<FeedListProps> = ({
       onPostComment?.(postId);
     },
     [onPostComment]
+  );
+
+  const handleCommentCountUpdate = useCallback(
+    (postId: string, newCount: number) => {
+      // Update the comment count in the feed context
+      updateCommentCount(postId, newCount);
+      // Also call the parent callback if provided
+      onCommentCountUpdate?.(postId, newCount);
+    },
+    [updateCommentCount, onCommentCountUpdate]
   );
 
   const handleRefresh = useCallback(async () => {
@@ -111,6 +125,7 @@ export const FeedList: React.FC<FeedListProps> = ({
               onComment={handlePostComment}
               onEdit={handlePostEdit}
               onDelete={handlePostDelete}
+              onCommentCountUpdate={handleCommentCountUpdate}
             />
           ))}
 

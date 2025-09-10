@@ -398,6 +398,10 @@ export type FeedAction =
   | { type: 'DELETE_POST'; payload: string }
   | { type: 'LIKE_POST'; payload: { post_id: string; liked: boolean } }
   | { type: 'SAVE_POST'; payload: { post_id: string; saved: boolean } }
+  | {
+      type: 'UPDATE_COMMENT_COUNT';
+      payload: { post_id: string; new_count: number };
+    }
   | { type: 'SET_HAS_MORE'; payload: boolean }
   | { type: 'SET_TOTAL_COUNT'; payload: number };
 

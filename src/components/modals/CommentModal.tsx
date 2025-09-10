@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CountryFlag } from '@/components/ui/CountryFlag';
 import { getCountryCode } from '@/lib/countries';
 import { useCommentCreation, useCommentInteractions } from '@/hooks/useFeed';
-import { usePostDetails } from '@/hooks/useFeed';
+import { getPostComments } from '@/lib/feed-api';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Send,
@@ -41,6 +41,7 @@ interface CommentModalProps {
   isOpen: boolean;
   onClose: () => void;
   postAuthorName?: string;
+  onCommentAdded?: () => void; // Callback to update parent component
 }
 
 export const CommentModal: React.FC<CommentModalProps> = ({
@@ -48,19 +49,100 @@ export const CommentModal: React.FC<CommentModalProps> = ({
   isOpen,
   onClose,
   postAuthorName,
+  onCommentAdded,
 }) => {
   const { toast } = useToast();
-  const {
-    comments,
-    loading,
-    commentsLoading,
-    loadMoreComments,
-    commentsHasMore,
-  } = usePostDetails(postId);
+
+  // Local state for comments instead of using global postState
+  const [comments, setComments] = useState<CommentWithAuthor[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsHasMore, setCommentsHasMore] = useState(true);
+  const [commentsPage, setCommentsPage] = useState(0);
+
   const { createComment, loading: creatingComment } =
     useCommentCreation(postId);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+
+  // Load comments when modal opens
+  useEffect(() => {
+    if (isOpen && postId) {
+      loadComments();
+    } else {
+      // Clear state when modal closes
+      setComments([]);
+      setCommentsPage(0);
+      setCommentsHasMore(true);
+      setNewComment('');
+      setReplyingTo(null);
+    }
+  }, [isOpen, postId]);
+
+  const loadComments = async (append = false) => {
+    if (!postId) return;
+
+    try {
+      if (!append) {
+        setCommentsLoading(true);
+        setCommentsPage(0);
+      }
+
+      const query = {
+        limit: 10,
+        offset: append ? commentsPage * 10 : 0,
+      };
+
+      const { data, error } = await getPostComments(postId, query);
+
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load comments',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (data) {
+        // Transform the data to match CommentWithAuthor format
+        const transformedData = data.map((comment: any) => ({
+          ...comment,
+          author: {
+            id: comment.author_id,
+            name: comment.author_name,
+            avatar: comment.author_avatar || null,
+            role: comment.author_role,
+            country: comment.author_country,
+          },
+        }));
+
+        if (append) {
+          setComments((prev) => [...prev, ...transformedData]);
+        } else {
+          setComments(transformedData);
+        }
+
+        setCommentsHasMore(data.length === 10);
+        if (append) {
+          setCommentsPage((prev) => prev + 1);
+        }
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load comments',
+        variant: 'destructive',
+      });
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const loadMoreComments = async () => {
+    if (!commentsHasMore || commentsLoading) return;
+    await loadComments(true);
+  };
 
   const handleSubmitComment = async () => {
     if (!newComment.trim()) return;
@@ -72,8 +154,15 @@ export const CommentModal: React.FC<CommentModalProps> = ({
     });
 
     if (success) {
+      // Reload comments to get the new comment with proper data
+      await loadComments();
+
       setNewComment('');
       setReplyingTo(null);
+
+      // Notify parent component that a comment was added
+      onCommentAdded?.();
+
       toast({
         title: 'Comment posted',
         description: 'Your comment has been posted successfully',

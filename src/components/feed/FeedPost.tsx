@@ -42,6 +42,7 @@ interface FeedPostProps {
   onComment?: (postId: string) => void;
   onEdit?: (post: PostWithAuthor) => void;
   onDelete?: (postId: string) => void;
+  onCommentCountUpdate?: (postId: string, newCount: number) => void;
   showActions?: boolean;
 }
 
@@ -50,6 +51,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
   onComment,
   onEdit,
   onDelete,
+  onCommentCountUpdate,
   showActions = true,
 }) => {
   const { toast } = useToast();
@@ -97,6 +99,11 @@ export const FeedPost: React.FC<FeedPostProps> = ({
   const handleCommentClick = () => {
     setShowCommentModal(true);
     onComment?.(post.id);
+  };
+
+  const handleCommentAdded = () => {
+    // Update the comment count in the parent component
+    onCommentCountUpdate?.(post.id, post.comment_count + 1);
   };
 
   const getPostTypeIcon = (postType: string) => {
@@ -177,18 +184,6 @@ export const FeedPost: React.FC<FeedPostProps> = ({
               )}
             </div>
             <div className='flex items-center gap-2'>
-              <Badge
-                className={`text-xs px-2 py-1 rounded-full ${getPostTypeColor(
-                  post.post_type
-                )} font-medium`}
-              >
-                {getPostTypeIcon(post.post_type)} {post.post_type}
-              </Badge>
-              {post.author?.university && (
-                <span className='text-sm text-gray-600'>
-                  {post.author.university}
-                </span>
-              )}
               {post.author?.country && (
                 <div className='flex items-center gap-1'>
                   <CountryFlag
@@ -200,6 +195,11 @@ export const FeedPost: React.FC<FeedPostProps> = ({
                     {post.author.country}
                   </span>
                 </div>
+              )}
+              {post.author?.university && (
+                <span className='text-sm text-gray-600'>
+                  {post.author.university}
+                </span>
               )}
             </div>
           </div>
@@ -383,13 +383,13 @@ export const FeedPost: React.FC<FeedPostProps> = ({
                 className={`h-4 w-4 ${post.is_saved ? 'fill-current' : ''}`}
               />
             </Button>
-            <Button
+            {/* <Button
               variant='ghost'
               size='sm'
               className='hover:text-blue-600 hover:bg-blue-50 rounded-full p-2 transition-all duration-200'
             >
               <Send className='h-4 w-4' />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </CardContent>
@@ -400,6 +400,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
         isOpen={showCommentModal}
         onClose={() => setShowCommentModal(false)}
         postAuthorName={post.author?.name}
+        onCommentAdded={handleCommentAdded}
       />
 
       {/* Share Modal */}

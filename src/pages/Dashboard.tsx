@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOutUser } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { LinkedInSidebar } from '@/components/dashboard/LinkedInSidebar';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
@@ -37,10 +38,12 @@ import Analytics from '@/pages/Analytics';
 
 const Dashboard = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user: authUser, userData, loading } = useAuth();
+  const { toast } = useToast();
 
-  // Get current user data from Firebase Auth context
-  const getCurrentUser = () => {
+  // Get current user data from Firebase Auth context - memoized to prevent infinite re-renders
+  const user = useMemo(() => {
     if (!userData) {
       return {
         name: 'Loading...',
@@ -84,18 +87,47 @@ const Dashboard = () => {
       country: userData.country || '',
       rating: userData.rating || 4.5,
     };
-  };
-
-  const user = getCurrentUser();
+  }, [userData]);
 
   const handleLogout = async () => {
     try {
+      console.log('Starting logout process...');
+
+      // Show loading toast immediately
+      const loadingToast = toast({
+        title: 'Signing Out...',
+        description: 'Please wait while we sign you out.',
+        duration: 0, // Don't auto-dismiss
+      });
+
       const { error } = await signOutUser();
+
+      // Dismiss the loading toast
+      loadingToast.dismiss();
+
       if (error) {
         console.error('Logout error:', error);
+        toast({
+          title: 'Sign Out Failed',
+          description: 'Failed to sign out. Please try again.',
+          variant: 'destructive',
+        });
+      } else {
+        console.log('Logout successful');
+        toast({
+          title: 'Signed Out',
+          description: 'You have been successfully signed out.',
+        });
+        // Immediately navigate to login page
+        navigate('/login', { replace: true });
       }
     } catch (error) {
       console.error('Logout error:', error);
+      toast({
+        title: 'Sign Out Error',
+        description: 'An error occurred during sign out. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -199,7 +231,7 @@ const Dashboard = () => {
       <div className='max-w-8xl mx-auto px-4 py-6'>
         <div className='grid grid-cols-1 lg:grid-cols-12'>
           <div className='lg:col-span-3'>
-            <LinkedInSidebar user={user} />
+            <LinkedInSidebar user={user} onLogout={handleLogout} />
           </div>
           <div className='lg:col-span-9'>
             <Routes>

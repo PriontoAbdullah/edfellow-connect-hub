@@ -6,6 +6,7 @@ import React, {
   useContext,
   useReducer,
   useEffect,
+  useCallback,
   ReactNode,
 } from 'react';
 import { useAuth } from './AuthContext';
@@ -93,6 +94,19 @@ const feedReducer = (state: FeedState, action: FeedAction): FeedState => {
         posts: state.posts.map((post) =>
           post.id === action.payload.post_id
             ? { ...post, is_saved: action.payload.saved }
+            : post
+        ),
+      };
+
+    case 'UPDATE_COMMENT_COUNT':
+      return {
+        ...state,
+        posts: state.posts.map((post) =>
+          post.id === action.payload.post_id
+            ? {
+                ...post,
+                comment_count: action.payload.new_count,
+              }
             : post
         ),
       };
@@ -205,6 +219,7 @@ interface FeedContextType {
   likePost: (postId: string) => Promise<boolean>;
   savePost: (postId: string) => Promise<boolean>;
   shareExistingPost: (postId: string, content?: string) => Promise<boolean>;
+  updateCommentCount: (postId: string, newCount: number) => void;
 
   // Post actions
   loadPost: (postId: string) => Promise<void>;
@@ -268,489 +283,531 @@ export const FeedProvider: React.FC<FeedProviderProps> = ({ children }) => {
   // FEED ACTIONS
   // =============================================
 
-  const loadFeedPosts = async (
-    query: FeedQuery = {},
-    append: boolean = false
-  ) => {
-    if (!user || !user.id) return;
+  const loadFeedPosts = useCallback(
+    async (query: FeedQuery = {}, append: boolean = false) => {
+      if (!user || !user.id) return;
 
-    try {
-      if (!append) {
-        feedDispatch({ type: 'SET_LOADING', payload: true });
-        feedDispatch({ type: 'SET_ERROR', payload: null });
-      }
+      try {
+        if (!append) {
+          feedDispatch({ type: 'SET_LOADING', payload: true });
+          feedDispatch({ type: 'SET_ERROR', payload: null });
+        }
 
-      const { data, error } = await getFeedPosts(query, user?.id);
+        const { data, error } = await getFeedPosts(query, user?.id);
 
-      if (error) {
-        feedDispatch({ type: 'SET_ERROR', payload: error.message });
-        return;
-      }
+        if (error) {
+          feedDispatch({ type: 'SET_ERROR', payload: error.message });
+          return;
+        }
 
-      if (data) {
-        // Transform the data to match PostWithAuthor format
-        const transformedData = data.map((post: any) => ({
-          ...post,
-          author: {
-            id: post.author_id,
-            name: post.author_name,
-            avatar: post.author_avatar || null,
-            role: post.author_role,
-            university: post.author_university,
-            country: post.author_country,
-          },
-        }));
+        if (data) {
+          // Transform the data to match PostWithAuthor format
+          const transformedData = data.map((post: any) => ({
+            ...post,
+            author: {
+              id: post.author_id,
+              name: post.author_name,
+              avatar: post.author_avatar || null,
+              role: post.author_role,
+              university: post.author_university,
+              country: post.author_country,
+            },
+          }));
 
-        if (append) {
+          if (append) {
+            feedDispatch({
+              type: 'SET_POSTS',
+              payload: [...feedState.posts, ...transformedData],
+            });
+          } else {
+            feedDispatch({ type: 'SET_POSTS', payload: transformedData });
+          }
+
           feedDispatch({
-            type: 'SET_POSTS',
-            payload: [...feedState.posts, ...transformedData],
+            type: 'SET_HAS_MORE',
+            payload: data.length === (query.limit || 20),
           });
-        } else {
-          feedDispatch({ type: 'SET_POSTS', payload: transformedData });
+        }
+      } catch (error) {
+        feedDispatch({
+          type: 'SET_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+      }
+    },
+    [user, feedDispatch, feedState.posts]
+  );
+
+  const createNewPost = useCallback(
+    async (postData: CreatePostRequest): Promise<boolean> => {
+      if (!user || !user.id) return false;
+
+      try {
+        const { data, error } = await createPost(postData);
+
+        if (error) {
+          feedDispatch({ type: 'SET_ERROR', payload: error.message });
+          return false;
+        }
+
+        if (data) {
+          // The data from createPost doesn't include author info, so we need to construct it
+          // This is only for newly created posts, existing posts will have author info from the database
+          const newPost: PostWithAuthor = {
+            ...data,
+            author: {
+              id: user?.id || '',
+              name:
+                userData?.displayName ||
+                `${userData?.firstName || ''} ${userData?.lastName || ''}`,
+              avatar: '/api/placeholder/40/40',
+              role:
+                (userData?.role as 'student' | 'professor' | 'university') ||
+                'student',
+              university:
+                userData?.university ||
+                userData?.institution ||
+                userData?.officialUniversityName,
+            },
+            is_liked: false,
+            is_saved: false,
+          };
+
+          feedDispatch({ type: 'ADD_POST', payload: newPost });
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        feedDispatch({
+          type: 'SET_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+        return false;
+      }
+    },
+    [user, userData, feedDispatch]
+  );
+
+  const updateExistingPost = useCallback(
+    async (postId: string, updates: any): Promise<boolean> => {
+      try {
+        const { data, error } = await updatePost(postId, updates);
+
+        if (error) {
+          feedDispatch({ type: 'SET_ERROR', payload: error.message });
+          return false;
+        }
+
+        if (data) {
+          // For updated posts, we need to preserve the original author info
+          // since updatePost only returns the post data without author info
+          const updatedPost: PostWithAuthor = {
+            ...data,
+            author: {
+              id: data.author_id,
+              name: userData?.displayName || 'Unknown',
+              avatar: '/api/placeholder/40/40',
+              role:
+                (userData?.role as 'student' | 'professor' | 'university') ||
+                'student',
+              university:
+                userData?.university ||
+                userData?.institution ||
+                userData?.officialUniversityName,
+            },
+            is_liked: false, // Would need to check separately
+            is_saved: false, // Would need to check separately
+          };
+
+          feedDispatch({ type: 'UPDATE_POST', payload: updatedPost });
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        feedDispatch({
+          type: 'SET_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+        return false;
+      }
+    },
+    [userData, feedDispatch]
+  );
+
+  const deleteExistingPost = useCallback(
+    async (postId: string): Promise<boolean> => {
+      try {
+        const { error } = await deletePost(postId);
+
+        if (error) {
+          feedDispatch({ type: 'SET_ERROR', payload: error.message });
+          return false;
+        }
+
+        feedDispatch({ type: 'DELETE_POST', payload: postId });
+        return true;
+      } catch (error) {
+        feedDispatch({
+          type: 'SET_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+        return false;
+      }
+    },
+    [feedDispatch]
+  );
+
+  const likePost = useCallback(
+    async (postId: string): Promise<boolean> => {
+      try {
+        const { liked, error } = await togglePostLike(postId);
+
+        if (error) {
+          feedDispatch({ type: 'SET_ERROR', payload: error.message });
+          return false;
         }
 
         feedDispatch({
-          type: 'SET_HAS_MORE',
-          payload: data.length === (query.limit || 20),
+          type: 'LIKE_POST',
+          payload: { post_id: postId, liked },
         });
-      }
-    } catch (error) {
-      feedDispatch({
-        type: 'SET_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-    }
-  };
-
-  const createNewPost = async (
-    postData: CreatePostRequest
-  ): Promise<boolean> => {
-    if (!user || !user.id) return false;
-
-    try {
-      const { data, error } = await createPost(postData);
-
-      if (error) {
-        feedDispatch({ type: 'SET_ERROR', payload: error.message });
-        return false;
-      }
-
-      if (data) {
-        // The data from createPost doesn't include author info, so we need to construct it
-        // This is only for newly created posts, existing posts will have author info from the database
-        const newPost: PostWithAuthor = {
-          ...data,
-          author: {
-            id: user?.id || '',
-            name:
-              userData?.displayName ||
-              `${userData?.firstName || ''} ${userData?.lastName || ''}`,
-            avatar: '/api/placeholder/40/40',
-            role:
-              (userData?.role as 'student' | 'professor' | 'university') ||
-              'student',
-            university:
-              userData?.university ||
-              userData?.institution ||
-              userData?.officialUniversityName,
-          },
-          is_liked: false,
-          is_saved: false,
-        };
-
-        feedDispatch({ type: 'ADD_POST', payload: newPost });
         return true;
-      }
-
-      return false;
-    } catch (error) {
-      feedDispatch({
-        type: 'SET_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
-
-  const updateExistingPost = async (
-    postId: string,
-    updates: any
-  ): Promise<boolean> => {
-    try {
-      const { data, error } = await updatePost(postId, updates);
-
-      if (error) {
-        feedDispatch({ type: 'SET_ERROR', payload: error.message });
+      } catch (error) {
+        feedDispatch({
+          type: 'SET_ERROR',
+          payload: 'An unexpected error occurred',
+        });
         return false;
       }
+    },
+    [feedDispatch]
+  );
 
-      if (data) {
-        // For updated posts, we need to preserve the original author info
-        // since updatePost only returns the post data without author info
-        const updatedPost: PostWithAuthor = {
-          ...data,
-          author: {
-            id: data.author_id,
-            name: userData?.displayName || 'Unknown',
-            avatar: '/api/placeholder/40/40',
-            role:
-              (userData?.role as 'student' | 'professor' | 'university') ||
-              'student',
-            university:
-              userData?.university ||
-              userData?.institution ||
-              userData?.officialUniversityName,
-          },
-          is_liked: false, // Would need to check separately
-          is_saved: false, // Would need to check separately
-        };
+  const savePost = useCallback(
+    async (postId: string): Promise<boolean> => {
+      try {
+        const { saved, error } = await togglePostSave(postId);
 
-        feedDispatch({ type: 'UPDATE_POST', payload: updatedPost });
+        if (error) {
+          feedDispatch({ type: 'SET_ERROR', payload: error.message });
+          return false;
+        }
+
+        feedDispatch({
+          type: 'SAVE_POST',
+          payload: { post_id: postId, saved },
+        });
         return true;
-      }
-
-      return false;
-    } catch (error) {
-      feedDispatch({
-        type: 'SET_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
-
-  const deleteExistingPost = async (postId: string): Promise<boolean> => {
-    try {
-      const { error } = await deletePost(postId);
-
-      if (error) {
-        feedDispatch({ type: 'SET_ERROR', payload: error.message });
+      } catch (error) {
+        feedDispatch({
+          type: 'SET_ERROR',
+          payload: 'An unexpected error occurred',
+        });
         return false;
       }
+    },
+    [feedDispatch]
+  );
 
-      feedDispatch({ type: 'DELETE_POST', payload: postId });
-      return true;
-    } catch (error) {
-      feedDispatch({
-        type: 'SET_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
+  const shareExistingPost = useCallback(
+    async (postId: string, content?: string): Promise<boolean> => {
+      try {
+        const { error } = await sharePost(postId, { shared_content: content });
 
-  const likePost = async (postId: string): Promise<boolean> => {
-    try {
-      const { liked, error } = await togglePostLike(postId);
+        if (error) {
+          feedDispatch({ type: 'SET_ERROR', payload: error.message });
+          return false;
+        }
 
-      if (error) {
-        feedDispatch({ type: 'SET_ERROR', payload: error.message });
+        return true;
+      } catch (error) {
+        feedDispatch({
+          type: 'SET_ERROR',
+          payload: 'An unexpected error occurred',
+        });
         return false;
       }
+    },
+    [feedDispatch]
+  );
 
-      feedDispatch({ type: 'LIKE_POST', payload: { post_id: postId, liked } });
-      return true;
-    } catch (error) {
+  const updateCommentCount = useCallback(
+    (postId: string, newCount: number) => {
       feedDispatch({
-        type: 'SET_ERROR',
-        payload: 'An unexpected error occurred',
+        type: 'UPDATE_COMMENT_COUNT',
+        payload: { post_id: postId, new_count: newCount },
       });
-      return false;
-    }
-  };
-
-  const savePost = async (postId: string): Promise<boolean> => {
-    try {
-      const { saved, error } = await togglePostSave(postId);
-
-      if (error) {
-        feedDispatch({ type: 'SET_ERROR', payload: error.message });
-        return false;
-      }
-
-      feedDispatch({ type: 'SAVE_POST', payload: { post_id: postId, saved } });
-      return true;
-    } catch (error) {
-      feedDispatch({
-        type: 'SET_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
-
-  const shareExistingPost = async (
-    postId: string,
-    content?: string
-  ): Promise<boolean> => {
-    try {
-      const { error } = await sharePost(postId, { shared_content: content });
-
-      if (error) {
-        feedDispatch({ type: 'SET_ERROR', payload: error.message });
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      feedDispatch({
-        type: 'SET_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
+    },
+    [feedDispatch]
+  );
 
   // =============================================
   // POST ACTIONS
   // =============================================
 
-  const loadPost = async (postId: string) => {
-    if (!user || !user.id) return;
+  const loadPost = useCallback(
+    async (postId: string) => {
+      if (!user || !user.id) return;
 
-    try {
-      postDispatch({ type: 'SET_POST_LOADING', payload: true });
-      postDispatch({ type: 'SET_POST_ERROR', payload: null });
+      try {
+        postDispatch({ type: 'SET_POST_LOADING', payload: true });
+        postDispatch({ type: 'SET_POST_ERROR', payload: null });
 
-      const { data, error } = await getPost(postId);
+        const { data, error } = await getPost(postId);
 
-      if (error) {
-        postDispatch({ type: 'SET_POST_ERROR', payload: error.message });
-        return;
+        if (error) {
+          postDispatch({ type: 'SET_POST_ERROR', payload: error.message });
+          return;
+        }
+
+        if (data) {
+          // Transform the data to match PostWithAuthor format
+          const transformedPost = {
+            ...data,
+            author: {
+              id: data.author_id,
+              name: (data as any).author_name,
+              avatar: (data as any).author_avatar || null,
+              role: (data as any).author_role,
+              university: (data as any).author_university,
+              country: (data as any).author_country,
+            },
+          };
+
+          postDispatch({ type: 'SET_POST', payload: transformedPost });
+
+          // Record view
+          await recordPostView(postId);
+        }
+      } catch (error) {
+        postDispatch({
+          type: 'SET_POST_ERROR',
+          payload: 'An unexpected error occurred',
+        });
       }
+    },
+    [user, postDispatch]
+  );
 
-      if (data) {
-        // Transform the data to match PostWithAuthor format
-        const transformedPost = {
-          ...data,
-          author: {
-            id: data.author_id,
-            name: (data as any).author_name,
-            avatar: (data as any).author_avatar || null,
-            role: (data as any).author_role,
-            university: (data as any).author_university,
-            country: (data as any).author_country,
-          },
-        };
+  const loadPostComments = useCallback(
+    async (
+      postId: string,
+      query: CommentQuery = {},
+      append: boolean = false
+    ) => {
+      if (!user || !user.id) return;
 
-        postDispatch({ type: 'SET_POST', payload: transformedPost });
+      try {
+        if (!append) {
+          postDispatch({ type: 'SET_COMMENTS_LOADING', payload: true });
+          postDispatch({ type: 'SET_COMMENTS_ERROR', payload: null });
+        }
 
-        // Record view
-        await recordPostView(postId);
-      }
-    } catch (error) {
-      postDispatch({
-        type: 'SET_POST_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-    }
-  };
+        const { data, error } = await getPostComments(postId, query);
 
-  const loadPostComments = async (
-    postId: string,
-    query: CommentQuery = {},
-    append: boolean = false
-  ) => {
-    if (!user || !user.id) return;
+        if (error) {
+          postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
+          return;
+        }
 
-    try {
-      if (!append) {
-        postDispatch({ type: 'SET_COMMENTS_LOADING', payload: true });
-        postDispatch({ type: 'SET_COMMENTS_ERROR', payload: null });
-      }
+        if (data) {
+          // Transform the data to match CommentWithAuthor format
+          const transformedData = data.map((comment: any) => ({
+            ...comment,
+            author: {
+              id: comment.author_id,
+              name: comment.author_name,
+              avatar: comment.author_avatar || null,
+              role: comment.author_role,
+              country: comment.author_country,
+            },
+          }));
 
-      const { data, error } = await getPostComments(postId, query);
+          if (append) {
+            postDispatch({
+              type: 'SET_COMMENTS',
+              payload: [...postState.comments, ...transformedData],
+            });
+          } else {
+            postDispatch({ type: 'SET_COMMENTS', payload: transformedData });
+          }
 
-      if (error) {
-        postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
-        return;
-      }
-
-      if (data) {
-        // Transform the data to match CommentWithAuthor format
-        const transformedData = data.map((comment: any) => ({
-          ...comment,
-          author: {
-            id: comment.author_id,
-            name: comment.author_name,
-            avatar: comment.author_avatar || null,
-            role: comment.author_role,
-            country: comment.author_country,
-          },
-        }));
-
-        if (append) {
           postDispatch({
-            type: 'SET_COMMENTS',
-            payload: [...postState.comments, ...transformedData],
+            type: 'SET_COMMENTS_HAS_MORE',
+            payload: data.length === (query.limit || 10),
           });
-        } else {
-          postDispatch({ type: 'SET_COMMENTS', payload: transformedData });
+        }
+      } catch (error) {
+        postDispatch({
+          type: 'SET_COMMENTS_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+      }
+    },
+    [user, postDispatch, postState.comments]
+  );
+
+  const createNewComment = useCallback(
+    async (
+      postId: string,
+      commentData: CreateCommentRequest
+    ): Promise<boolean> => {
+      if (!user || !user.id) return false;
+
+      try {
+        const { data, error } = await createComment(postId, commentData);
+
+        if (error) {
+          postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
+          return false;
+        }
+
+        if (data) {
+          const newComment: CommentWithAuthor = {
+            ...data,
+            author: {
+              id: user?.id || '',
+              name:
+                userData?.displayName ||
+                `${userData?.firstName || ''} ${userData?.lastName || ''}`,
+              avatar: userData?.avatar || '/api/placeholder/40/40',
+              role:
+                (userData?.role as 'student' | 'professor' | 'university') ||
+                'student',
+              country: userData?.country,
+            },
+            is_liked: false,
+          };
+
+          postDispatch({ type: 'ADD_COMMENT', payload: newComment });
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        postDispatch({
+          type: 'SET_COMMENTS_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+        return false;
+      }
+    },
+    [user, userData, postDispatch]
+  );
+
+  const updateExistingComment = useCallback(
+    async (commentId: string, updates: any): Promise<boolean> => {
+      try {
+        const { data, error } = await updateComment(commentId, updates);
+
+        if (error) {
+          postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
+          return false;
+        }
+
+        if (data) {
+          // For updated comments, we need to preserve the original author info
+          // since updateComment only returns the comment data without author info
+          const updatedComment: CommentWithAuthor = {
+            ...data,
+            author: {
+              id: data.author_id,
+              name: userData?.displayName || 'Unknown',
+              avatar: '/api/placeholder/40/40',
+              role:
+                (userData?.role as 'student' | 'professor' | 'university') ||
+                'student',
+            },
+            is_liked: false, // Would need to check separately
+          };
+
+          postDispatch({ type: 'UPDATE_COMMENT', payload: updatedComment });
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        postDispatch({
+          type: 'SET_COMMENTS_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+        return false;
+      }
+    },
+    [userData, postDispatch]
+  );
+
+  const deleteExistingComment = useCallback(
+    async (commentId: string): Promise<boolean> => {
+      try {
+        const { error } = await deleteComment(commentId);
+
+        if (error) {
+          postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
+          return false;
+        }
+
+        postDispatch({ type: 'DELETE_COMMENT', payload: commentId });
+        return true;
+      } catch (error) {
+        postDispatch({
+          type: 'SET_COMMENTS_ERROR',
+          payload: 'An unexpected error occurred',
+        });
+        return false;
+      }
+    },
+    [postDispatch]
+  );
+
+  const likeComment = useCallback(
+    async (commentId: string): Promise<boolean> => {
+      try {
+        const { liked, error } = await toggleCommentLike(commentId);
+
+        if (error) {
+          postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
+          return false;
         }
 
         postDispatch({
-          type: 'SET_COMMENTS_HAS_MORE',
-          payload: data.length === (query.limit || 10),
+          type: 'LIKE_COMMENT',
+          payload: { comment_id: commentId, liked },
         });
-      }
-    } catch (error) {
-      postDispatch({
-        type: 'SET_COMMENTS_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-    }
-  };
-
-  const createNewComment = async (
-    postId: string,
-    commentData: CreateCommentRequest
-  ): Promise<boolean> => {
-    if (!user || !user.id) return false;
-
-    try {
-      const { data, error } = await createComment(postId, commentData);
-
-      if (error) {
-        postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
-        return false;
-      }
-
-      if (data) {
-        const newComment: CommentWithAuthor = {
-          ...data,
-          author: {
-            id: user?.id || '',
-            name:
-              userData?.displayName ||
-              `${userData?.firstName || ''} ${userData?.lastName || ''}`,
-            avatar: '/api/placeholder/40/40',
-            role:
-              (userData?.role as 'student' | 'professor' | 'university') ||
-              'student',
-          },
-          is_liked: false,
-        };
-
-        postDispatch({ type: 'ADD_COMMENT', payload: newComment });
         return true;
-      }
-
-      return false;
-    } catch (error) {
-      postDispatch({
-        type: 'SET_COMMENTS_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
-
-  const updateExistingComment = async (
-    commentId: string,
-    updates: any
-  ): Promise<boolean> => {
-    try {
-      const { data, error } = await updateComment(commentId, updates);
-
-      if (error) {
-        postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
+      } catch (error) {
+        postDispatch({
+          type: 'SET_COMMENTS_ERROR',
+          payload: 'An unexpected error occurred',
+        });
         return false;
       }
-
-      if (data) {
-        // For updated comments, we need to preserve the original author info
-        // since updateComment only returns the comment data without author info
-        const updatedComment: CommentWithAuthor = {
-          ...data,
-          author: {
-            id: data.author_id,
-            name: userData?.displayName || 'Unknown',
-            avatar: '/api/placeholder/40/40',
-            role:
-              (userData?.role as 'student' | 'professor' | 'university') ||
-              'student',
-          },
-          is_liked: false, // Would need to check separately
-        };
-
-        postDispatch({ type: 'UPDATE_COMMENT', payload: updatedComment });
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      postDispatch({
-        type: 'SET_COMMENTS_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
-
-  const deleteExistingComment = async (commentId: string): Promise<boolean> => {
-    try {
-      const { error } = await deleteComment(commentId);
-
-      if (error) {
-        postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
-        return false;
-      }
-
-      postDispatch({ type: 'DELETE_COMMENT', payload: commentId });
-      return true;
-    } catch (error) {
-      postDispatch({
-        type: 'SET_COMMENTS_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
-
-  const likeComment = async (commentId: string): Promise<boolean> => {
-    try {
-      const { liked, error } = await toggleCommentLike(commentId);
-
-      if (error) {
-        postDispatch({ type: 'SET_COMMENTS_ERROR', payload: error.message });
-        return false;
-      }
-
-      postDispatch({
-        type: 'LIKE_COMMENT',
-        payload: { comment_id: commentId, liked },
-      });
-      return true;
-    } catch (error) {
-      postDispatch({
-        type: 'SET_COMMENTS_ERROR',
-        payload: 'An unexpected error occurred',
-      });
-      return false;
-    }
-  };
+    },
+    [postDispatch]
+  );
 
   // =============================================
   // UTILITY ACTIONS
   // =============================================
 
-  const refreshFeed = async () => {
+  const refreshFeed = useCallback(async () => {
     await loadFeedPosts({}, false);
-  };
+  }, [loadFeedPosts]);
 
-  const clearFeed = () => {
+  const clearFeed = useCallback(() => {
     feedDispatch({ type: 'SET_POSTS', payload: [] });
     feedDispatch({ type: 'SET_ERROR', payload: null });
     feedDispatch({ type: 'SET_HAS_MORE', payload: true });
-  };
+  }, [feedDispatch]);
 
-  const clearPost = () => {
+  const clearPost = useCallback(() => {
     postDispatch({ type: 'SET_POST', payload: null });
     postDispatch({ type: 'SET_COMMENTS', payload: [] });
     postDispatch({ type: 'SET_POST_ERROR', payload: null });
     postDispatch({ type: 'SET_COMMENTS_ERROR', payload: null });
-  };
+  }, [postDispatch]);
 
   // =============================================
   // REAL-TIME SUBSCRIPTIONS
@@ -851,6 +908,7 @@ export const FeedProvider: React.FC<FeedProviderProps> = ({ children }) => {
     likePost,
     savePost,
     shareExistingPost,
+    updateCommentCount,
 
     // Post actions
     loadPost,

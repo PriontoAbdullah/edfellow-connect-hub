@@ -242,63 +242,56 @@ const Profile = () => {
     endorsements: 0,
   }));
 
-  // Load user data from database
+  // Load user data from AuthContext (no need to fetch again)
   useEffect(() => {
-    const loadUserData = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
+    if (!userData) {
+      setIsLoading(false);
+      return;
+    }
 
-      try {
-        setIsLoading(true);
-        const data = await getUserData(user.id);
-        if (data) {
-          setProfileData({
-            ...data,
-            // Portfolio data
-            experience: data.experience || '',
-            skills: data.skills || [],
-            languages: data.languages || [],
-            academicInterests: data.academicInterests || [],
-            mentorshipInterests: data.mentorshipInterests || [],
-            // Extended portfolio sections
-            workExperience: data.workExperience || [],
-            education: data.education || [],
-            certifications: data.certifications || [],
-            publications: data.publications || [],
-            projects: data.projects || [],
-            socialLinks: data.socialLinks || {},
-            portfolio: data.portfolio || [],
-            privacySettings: data.privacySettings || {
-              profileVisibility: 'public',
-              contactInfoVisibility: 'public',
-              portfolioVisibility: 'public',
-              academicInfoVisibility: 'public',
-              experienceVisibility: 'public',
-              allowMessages: true,
-              allowConnectionRequests: true,
-              showOnlineStatus: true,
-            },
-            profileViews: data.profileViews || 0,
-            connections: data.connections || 0,
-            endorsements: data.endorsements || 0,
-          });
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load profile data. Please try again.',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUserData();
-  }, [user, toast]);
+    try {
+      setIsLoading(true);
+      setProfileData({
+        ...userData,
+        // Portfolio data
+        experience: userData.experience || '',
+        skills: userData.skills || [],
+        languages: userData.languages || [],
+        academicInterests: userData.academicInterests || [],
+        mentorshipInterests: userData.mentorshipInterests || [],
+        // Extended portfolio sections
+        workExperience: userData.workExperience || [],
+        education: userData.education || [],
+        certifications: userData.certifications || [],
+        publications: userData.publications || [],
+        projects: userData.projects || [],
+        socialLinks: userData.socialLinks || {},
+        portfolio: userData.portfolio || [],
+        privacySettings: userData.privacySettings || {
+          profileVisibility: 'public',
+          contactInfoVisibility: 'public',
+          portfolioVisibility: 'public',
+          academicInfoVisibility: 'public',
+          experienceVisibility: 'public',
+          allowMessages: true,
+          allowConnectionRequests: true,
+          showOnlineStatus: true,
+        },
+        profileViews: userData.profileViews || 0,
+        connections: userData.connections || 0,
+        endorsements: userData.endorsements || 0,
+      });
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load profile data. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userData, toast]);
 
   const handleInputChange = (field: string, value: any) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
