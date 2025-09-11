@@ -12,6 +12,7 @@ import {
   updateUserData,
   UserData,
   onAuthStateChange,
+  signOutUser,
 } from '../lib/auth';
 
 interface AuthContextType {
@@ -22,6 +23,7 @@ interface AuthContextType {
   setError: (error: string | null) => void;
   refreshUserData: () => Promise<void>;
   syncUserDataToDatabase: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -104,6 +106,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const signOut = useCallback(async () => {
+    try {
+      await signOutUser();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      setError('Failed to sign out');
+    }
+  }, [setError]);
+
   const value: AuthContextType = {
     user,
     userData,
@@ -112,6 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError,
     refreshUserData,
     syncUserDataToDatabase,
+    signOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

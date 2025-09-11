@@ -13,6 +13,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  useUserProfile,
+  useNotifications,
+  useConnections,
+  useGroups,
+  usePosts,
+  usePrograms,
+  useJobs,
+  useScholarships,
+} from '@/hooks/useDashboardFeatures';
 import {
   Building2,
   MessageSquare,
@@ -61,125 +72,57 @@ import {
 const UniversityDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { userData } = useAuth();
   const [postContent, setPostContent] = useState('');
+
+  // Load real data from database
+  const { profile, loading: profileLoading } = useUserProfile();
+  const { notifications, loading: notificationsLoading } = useNotifications();
+  const { connections, loading: connectionsLoading } = useConnections();
+  const { groups, loading: groupsLoading } = useGroups();
+  const { posts, loading: postsLoading, createPost } = usePosts();
+  const { programs, loading: programsLoading } = usePrograms();
+  const { jobs, loading: jobsLoading } = useJobs();
+  const { scholarships, loading: scholarshipsLoading } = useScholarships();
 
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Mock user data
+  // Get current user data from database or fallback to auth context
   const user = {
-    name: 'MIT University',
-    avatar: '/api/placeholder/40/40',
-    title: 'University Administrator',
-    university: 'Massachusetts Institute of Technology',
-    location: 'Cambridge, MA',
+    name: profile?.display_name || userData?.displayName || 'University',
+    avatar: profile?.avatar || '/api/placeholder/40/40',
+    title: profile?.major || userData?.major || 'University Administrator',
+    university: profile?.university || userData?.university || 'University',
+    location:
+      profile?.city && profile?.country
+        ? `${profile.city}, ${profile.country}`
+        : profile?.country || userData?.country || 'Location',
     rating: 4.9,
-    profileViews: 234,
-    role: 'university',
+    profileViews: profile?.profile_views || 234,
+    role: profile?.role || userData?.role || 'university',
   };
 
-  const feedPosts = [
-    {
-      id: 1,
-      author: 'MIT University',
-      avatar: '/api/placeholder/40/40',
-      time: '2 hours ago',
-      content:
-        'Excited to announce our new Master of Computer Science program starting Fall 2024! This program combines cutting-edge research with industry collaboration. Applications now open.',
-      tag: 'New Program',
-      tagColor: 'bg-blue-100 text-blue-800',
-      likes: 156,
-      comments: 34,
-      shares: 28,
-    },
-    {
-      id: 2,
-      author: 'MIT Admissions',
-      avatar: '/api/placeholder/40/40',
-      time: '4 hours ago',
-      content:
-        "Join us for our virtual campus tour this Friday! Experience MIT's state-of-the-art facilities, meet current students, and learn about our innovative programs. Register now!",
-      tag: 'Campus Tour',
-      tagColor: 'bg-green-100 text-green-800',
-      likes: 89,
-      comments: 12,
-      shares: 15,
-    },
-    {
-      id: 3,
-      author: 'MIT Research',
-      avatar: '/api/placeholder/40/40',
-      time: '6 hours ago',
-      content:
-        'Our researchers have made a breakthrough in quantum computing! This discovery could revolutionize how we approach complex computational problems. Read more in our latest research publication.',
-      tag: 'Research',
-      tagColor: 'bg-purple-100 text-purple-800',
-      likes: 234,
-      comments: 45,
-      shares: 67,
-    },
-    {
-      id: 4,
-      author: 'MIT Career Services',
-      avatar: '/api/placeholder/40/40',
-      time: '1 day ago',
-      content:
-        'Congratulations to our graduating class! 95% of our students have secured positions at top companies or been accepted to prestigious graduate programs. Your future starts here!',
-      tag: 'Student Success',
-      tagColor: 'bg-yellow-100 text-yellow-800',
-      likes: 178,
-      comments: 23,
-      shares: 34,
-    },
-    {
-      id: 5,
-      author: 'MIT International',
-      avatar: '/api/placeholder/40/40',
-      time: '1 day ago',
-      content:
-        "We're proud to welcome students from 120+ countries! Our diverse community brings together the brightest minds from around the world. Apply now for international student programs.",
-      tag: 'International',
-      tagColor: 'bg-pink-100 text-pink-800',
-      likes: 145,
-      comments: 18,
-      shares: 22,
-    },
-  ];
+  const handleCreatePost = async () => {
+    if (!postContent.trim()) return;
 
-  const myPrograms = [
-    {
-      id: 1,
-      name: 'Master of Computer Science',
-      applications: 1250,
-      views: 5670,
-      status: 'Active',
-      type: "Master's Degree",
-      duration: '2 years',
-      fees: '25,000',
-    },
-    {
-      id: 2,
-      name: 'Business Analytics PhD',
-      applications: 340,
-      views: 1890,
-      status: 'Active',
-      type: 'PhD Program',
-      duration: '4 years',
-      fees: '35,000',
-    },
-    {
-      id: 3,
-      name: 'Data Science Certificate',
-      applications: 890,
-      views: 3240,
-      status: 'Review',
-      type: 'Certificate',
-      duration: '1 year',
-      fees: '15,000',
-    },
-  ];
+    try {
+      await createPost(postContent, 'text');
+      setPostContent('');
+      toast({
+        title: 'Post created successfully',
+        description: 'Your post has been shared with the community.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error creating post',
+        description: 'Failed to create post. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const studentInquiries = [
     {
@@ -244,18 +187,6 @@ const UniversityDashboard = () => {
     },
   ];
 
-  const handlePostSubmit = () => {
-    if (postContent.trim()) {
-      // Handle post submission
-      console.log('Post submitted:', postContent);
-      setPostContent('');
-      toast({
-        title: 'Post Published',
-        description: 'Your post has been shared with your network.',
-      });
-    }
-  };
-
   return (
     <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
       {/* Main Content Area */}
@@ -310,7 +241,7 @@ const UniversityDashboard = () => {
                 </Button>
               </div>
               <Button
-                onClick={handlePostSubmit}
+                onClick={handleCreatePost}
                 disabled={!postContent.trim()}
                 className='bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full'
               >
@@ -321,83 +252,114 @@ const UniversityDashboard = () => {
         </Card>
 
         {/* Feed Posts */}
-        {feedPosts.map((post) => (
-          <Card
-            key={post.id}
-            className='bg-white border border-gray-200 shadow-sm'
-          >
-            <CardContent className='p-4'>
-              <div className='flex items-start gap-3 mb-3'>
-                <Avatar className='h-10 w-10'>
-                  <AvatarImage src={post.avatar} alt={post.author} />
-                  <AvatarFallback className='bg-gray-100 text-gray-600'>
-                    {post.author
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <div className='flex items-center gap-2 mb-1'>
-                    <h4 className='font-semibold text-gray-900 text-sm'>
-                      {post.author}
-                    </h4>
-                    <span className='text-xs text-gray-500'>•</span>
-                    <span className='text-xs text-gray-500'>{post.time}</span>
+        {postsLoading ? (
+          <div className='text-center py-8'>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto'></div>
+            <p className='text-sm text-gray-500 mt-2'>Loading posts...</p>
+          </div>
+        ) : posts.length > 0 ? (
+          posts.map((post) => (
+            <Card
+              key={post.id}
+              className='bg-white border border-gray-200 shadow-sm'
+            >
+              <CardContent className='p-4'>
+                <div className='flex items-start gap-3 mb-3'>
+                  <Avatar className='h-10 w-10'>
+                    <AvatarImage
+                      src={post.author?.avatar || '/api/placeholder/40/40'}
+                      alt={post.author?.display_name || 'User'}
+                    />
+                    <AvatarFallback className='bg-gray-100 text-gray-600'>
+                      {post.author?.display_name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2 mb-1'>
+                      <h4 className='font-semibold text-gray-900 text-sm'>
+                        {post.author?.display_name || 'Unknown User'}
+                      </h4>
+                      <span className='text-xs text-gray-500'>•</span>
+                      <span className='text-xs text-gray-500'>
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {post.post_type && (
+                      <Badge className='text-xs bg-blue-100 text-blue-800'>
+                        {post.post_type}
+                      </Badge>
+                    )}
                   </div>
-                  <Badge className={`text-xs ${post.tagColor}`}>
-                    {post.tag}
-                  </Badge>
-                </div>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='text-gray-500 hover:text-gray-700'
-                >
-                  <MoreHorizontal className='h-4 w-4' />
-                </Button>
-              </div>
-              <p className='text-sm text-gray-900 mb-4 leading-relaxed'>
-                {post.content}
-              </p>
-              <div className='flex items-center justify-between text-sm text-gray-600 pt-3 border-t border-gray-100'>
-                <div className='flex items-center gap-6'>
                   <Button
                     variant='ghost'
                     size='sm'
-                    className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
+                    className='text-gray-500 hover:text-gray-700'
                   >
-                    <ThumbsUp className='h-4 w-4 mr-1' />
-                    {post.likes}
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
-                  >
-                    <MessageSquare className='h-4 w-4 mr-1' />
-                    {post.comments}
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
-                  >
-                    <Share2 className='h-4 w-4 mr-1' />
-                    {post.shares}
+                    <MoreHorizontal className='h-4 w-4' />
                   </Button>
                 </div>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
-                >
-                  <Send className='h-4 w-4' />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <p className='text-sm text-gray-900 mb-4 leading-relaxed'>
+                  {post.content}
+                </p>
+                {post.tags && post.tags.length > 0 && (
+                  <div className='flex flex-wrap gap-2 mb-4'>
+                    {post.tags.map((tag, index) => (
+                      <Badge
+                        key={index}
+                        variant='secondary'
+                        className='text-xs'
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                <div className='flex items-center justify-between text-sm text-gray-600 pt-3 border-t border-gray-100'>
+                  <div className='flex items-center gap-6'>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
+                    >
+                      <ThumbsUp className='h-4 w-4 mr-1' />0
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
+                    >
+                      <MessageSquare className='h-4 w-4 mr-1' />0
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
+                    >
+                      <Share2 className='h-4 w-4 mr-1' />0
+                    </Button>
+                  </div>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className='hover:text-blue-600 hover:bg-blue-50 rounded-lg'
+                  >
+                    <Send className='h-4 w-4' />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className='text-center py-8'>
+            <Newspaper className='h-12 w-12 text-gray-400 mx-auto mb-4' />
+            <h3 className='text-lg font-medium text-gray-900 mb-2'>
+              No posts yet
+            </h3>
+            <p className='text-sm text-gray-500 mb-4'>
+              Be the first to share something with the community!
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Right Sidebar */}
@@ -410,196 +372,145 @@ const UniversityDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-3'>
-            {myPrograms.map((program) => (
-              <div
-                key={program.id}
-                className='border border-gray-200 rounded-lg p-3 hover:bg-gray-50'
-              >
-                <div className='flex items-center justify-between mb-2'>
-                  <h4 className='font-semibold text-sm text-gray-900'>
-                    {program.name}
-                  </h4>
-                  <Badge
-                    variant={
-                      program.status === 'Active' ? 'default' : 'secondary'
-                    }
-                    className='text-xs'
-                  >
-                    {program.status}
-                  </Badge>
-                </div>
-                <div className='grid grid-cols-2 gap-2 text-xs text-gray-600 mb-3'>
-                  <div>
-                    <span className='font-medium'>{program.applications}</span>{' '}
-                    applications
-                  </div>
-                  <div>
-                    <span className='font-medium'>{program.views}</span> views
-                  </div>
-                </div>
-                <div className='flex gap-2'>
-                  <Button
-                    size='sm'
-                    className='flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-full'
-                  >
-                    <BarChart3 className='h-3 w-3 mr-1' />
-                    Analytics
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    className='flex-1 text-xs rounded-full'
-                  >
-                    <Edit className='h-3 w-3 mr-1' />
-                    Edit
-                  </Button>
-                </div>
+            {programsLoading ? (
+              <div className='text-center py-4'>
+                <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto'></div>
+                <p className='text-sm text-gray-500 mt-2'>
+                  Loading programs...
+                </p>
               </div>
-            ))}
-            <Button
-              variant='ghost'
-              className='w-full text-blue-600 hover:text-blue-700 text-sm'
-            >
-              View all programs →
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Student Inquiries */}
-        <Card className='bg-white border border-gray-200 shadow-sm'>
-          <CardHeader className='pb-3'>
-            <CardTitle className='text-lg font-semibold text-gray-900'>
-              Student Inquiries
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-3'>
-            {studentInquiries.map((inquiry) => (
-              <div
-                key={inquiry.id}
-                className='border border-gray-200 rounded-lg p-3 hover:bg-gray-50'
-              >
-                <div className='flex items-start justify-between mb-2'>
-                  <div className='flex items-center gap-3'>
-                    <Avatar className='h-8 w-8'>
-                      <AvatarFallback className='bg-green-100 text-green-600'>
-                        {inquiry.student
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')}
-                      </AvatarFallback>
-                    </Avatar>
+            ) : programs.length > 0 ? (
+              programs.slice(0, 3).map((program) => (
+                <div
+                  key={program.id}
+                  className='border border-gray-200 rounded-lg p-3 hover:bg-gray-50'
+                >
+                  <div className='flex items-center justify-between mb-2'>
+                    <h4 className='font-semibold text-sm text-gray-900'>
+                      {program.title}
+                    </h4>
+                    <Badge
+                      variant={program.is_active ? 'default' : 'secondary'}
+                      className='text-xs'
+                    >
+                      {program.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
+                  <div className='grid grid-cols-2 gap-2 text-xs text-gray-600 mb-3'>
                     <div>
-                      <h4 className='font-semibold text-sm text-gray-900'>
-                        {inquiry.student}
-                      </h4>
-                      <p className='text-xs text-gray-600'>{inquiry.program}</p>
+                      <span className='font-medium'>
+                        {program.program_type}
+                      </span>
+                    </div>
+                    <div>
+                      <span className='font-medium'>
+                        {program.duration_months} months
+                      </span>
                     </div>
                   </div>
-                  <Badge
-                    variant={
-                      inquiry.priority === 'high'
-                        ? 'destructive'
-                        : inquiry.priority === 'medium'
-                        ? 'secondary'
-                        : 'outline'
-                    }
-                    className='text-xs'
-                  >
-                    {inquiry.priority}
-                  </Badge>
+                  <div className='flex gap-2'>
+                    <Button
+                      size='sm'
+                      className='flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-full'
+                      onClick={() => navigate('/programs/' + program.id)}
+                    >
+                      <BarChart3 className='h-3 w-3 mr-1' />
+                      View
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      className='flex-1 text-xs rounded-full'
+                    >
+                      <Edit className='h-3 w-3 mr-1' />
+                      Edit
+                    </Button>
+                  </div>
                 </div>
-                <p className='text-sm text-gray-700 mb-3 line-clamp-2'>
-                  {inquiry.message}
-                </p>
-                <div className='flex gap-2'>
-                  <Button
-                    size='sm'
-                    className='bg-green-600 hover:bg-green-700 text-white text-xs rounded-full flex-1'
-                  >
-                    <FileText className='h-3 w-3 mr-1' />
-                    Info Pack
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    className='text-xs rounded-full flex-1'
-                  >
-                    <Send className='h-3 w-3 mr-1' />
-                    Reply
-                  </Button>
-                </div>
+              ))
+            ) : (
+              <div className='text-center py-4'>
+                <GraduationCap className='h-8 w-8 text-gray-400 mx-auto mb-2' />
+                <p className='text-sm text-gray-500'>No programs yet</p>
+                <Button
+                  size='sm'
+                  variant='outline'
+                  className='mt-2'
+                  onClick={() => navigate('/programs')}
+                >
+                  Create Program
+                </Button>
               </div>
-            ))}
-            <Button
-              variant='ghost'
-              className='w-full text-blue-600 hover:text-blue-700 text-sm'
-            >
-              View all inquiries →
-            </Button>
+            )}
           </CardContent>
         </Card>
 
-        {/* Upcoming Live Sessions */}
+        {/* Recent Notifications */}
         <Card className='bg-white border border-gray-200 shadow-sm'>
           <CardHeader className='pb-3'>
             <CardTitle className='text-lg font-semibold text-gray-900'>
-              Upcoming Live Sessions
+              Recent Notifications
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-3'>
-            {upcomingSessions.map((session) => (
-              <div
-                key={session.id}
-                className='border border-gray-200 rounded-lg p-3'
-              >
-                <div className='flex items-center justify-between mb-2'>
-                  <h4 className='font-semibold text-sm text-gray-900'>
-                    {session.title}
-                  </h4>
-                  <Badge
-                    variant={
-                      session.status === 'Live' ? 'destructive' : 'secondary'
-                    }
-                    className='text-xs'
-                  >
-                    {session.status}
-                  </Badge>
-                </div>
-                <div className='text-xs text-gray-600 mb-3'>
-                  <div className='flex items-center gap-2'>
-                    <Calendar className='h-3 w-3' />
-                    {session.date}
-                  </div>
-                  <div className='flex items-center gap-2 mt-1'>
-                    <Users className='h-3 w-3' />
-                    {session.registrations} registrations
-                  </div>
-                </div>
-                <div className='grid grid-cols-2 gap-2'>
-                  <Button
-                    size='sm'
-                    className='bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-full'
-                  >
-                    <Video className='h-3 w-3 mr-1' />
-                    Start
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    className='text-xs rounded-full'
-                  >
-                    <Settings className='h-3 w-3 mr-1' />
-                    Settings
-                  </Button>
-                </div>
+            {notificationsLoading ? (
+              <div className='text-center py-4'>
+                <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto'></div>
+                <p className='text-sm text-gray-500 mt-2'>
+                  Loading notifications...
+                </p>
               </div>
-            ))}
-            <Button
-              variant='ghost'
-              className='w-full text-blue-600 hover:text-blue-700 text-sm'
-            >
-              View all sessions →
-            </Button>
+            ) : notifications.length > 0 ? (
+              notifications.slice(0, 3).map((notification) => (
+                <div
+                  key={notification.id}
+                  className='border border-gray-200 rounded-lg p-3 hover:bg-gray-50'
+                >
+                  <div className='flex items-center gap-3 mb-2'>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        notification.type === 'connection_request'
+                          ? 'bg-blue-100'
+                          : notification.type === 'connection_accepted'
+                          ? 'bg-green-100'
+                          : notification.type === 'group_invite'
+                          ? 'bg-purple-100'
+                          : 'bg-gray-100'
+                      }`}
+                    >
+                      {notification.type === 'connection_request' ? (
+                        <UserPlus className='h-4 w-4 text-blue-600' />
+                      ) : notification.type === 'connection_accepted' ? (
+                        <Check className='h-4 w-4 text-green-600' />
+                      ) : notification.type === 'group_invite' ? (
+                        <Users className='h-4 w-4 text-purple-600' />
+                      ) : (
+                        <Bell className='h-4 w-4 text-gray-600' />
+                      )}
+                    </div>
+                    <div className='flex-1'>
+                      <h4 className='font-semibold text-sm text-gray-900'>
+                        {notification.title}
+                      </h4>
+                      <p className='text-xs text-gray-600'>
+                        {notification.message?.substring(0, 60)}...
+                      </p>
+                      <p className='text-xs text-gray-500 mt-1'>
+                        {new Date(notification.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {!notification.is_read && (
+                      <div className='w-2 h-2 bg-blue-600 rounded-full'></div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className='text-center py-4'>
+                <Bell className='h-8 w-8 text-gray-400 mx-auto mb-2' />
+                <p className='text-sm text-gray-500'>No notifications yet</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

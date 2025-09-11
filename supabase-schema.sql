@@ -52,15 +52,29 @@ CREATE TABLE IF NOT EXISTS public.users (
   verification_status TEXT CHECK (verification_status IN ('pending', 'verified', 'rejected'))
 );
 
--- Add foreign key constraint after table creation
-ALTER TABLE public.users 
-ADD CONSTRAINT fk_users_auth_id 
-FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+-- Add foreign key constraint after table creation (if it doesn't exist)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints 
+        WHERE constraint_name = 'fk_users_auth_id' 
+        AND table_name = 'users' 
+        AND table_schema = 'public'
+    ) THEN
+        ALTER TABLE public.users 
+        ADD CONSTRAINT fk_users_auth_id 
+        FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+    END IF;
+END $$;
 
 -- Enable Row Level Security on users table
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
--- Create policies for users table
+-- Create policies for users table (drop existing first to avoid conflicts)
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.users;
+
 CREATE POLICY "Users can view their own profile" ON public.users
   FOR SELECT USING (auth.uid() = id);
 

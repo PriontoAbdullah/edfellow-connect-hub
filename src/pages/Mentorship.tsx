@@ -363,7 +363,7 @@ const Mentorship = () => {
                   key={stat.label}
                   className='text-center'
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.02, sm: 1.05 }}
+                  whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
                   <div className='flex justify-center mb-3 sm:mb-4'>
@@ -426,7 +426,7 @@ const Mentorship = () => {
                   key={step.step}
                   className='relative group'
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.02, sm: 1.05 }}
+                  whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
                   <div className='bg-white rounded-2xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200'>
@@ -568,7 +568,7 @@ const Mentorship = () => {
               <motion.div
                 key={professor.id}
                 variants={fadeInScale}
-                whileHover={{ scale: 1.02, sm: 1.05 }}
+                whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
                 <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white rounded-lg overflow-hidden'>

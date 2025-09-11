@@ -354,7 +354,7 @@ const Opportunities = () => {
                   key={stat.label}
                   className='text-center'
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.02, sm: 1.05 }}
+                  whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
                   <div className='flex justify-center mb-3 sm:mb-4'>
@@ -415,7 +415,7 @@ const Opportunities = () => {
                 <motion.div
                   key={category.name}
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.02, sm: 1.05 }}
+                  whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
                   <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white cursor-pointer'>
@@ -561,7 +561,7 @@ const Opportunities = () => {
                 <motion.div
                   key={type.name}
                   variants={fadeInScale}
-                  whileHover={{ scale: 1.02, sm: 1.05 }}
+                  whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
                   <Card className='border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white cursor-pointer'>
@@ -613,7 +613,7 @@ const Opportunities = () => {
                     <motion.div
                       key={opportunity.id}
                       variants={fadeInScale}
-                      whileHover={{ scale: 1.02, sm: 1.05 }}
+                      whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.3 }}
                     >
                       <Card
