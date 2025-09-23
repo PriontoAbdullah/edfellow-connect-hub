@@ -246,7 +246,7 @@ const Dashboard = () => {
       ) : (
         // Normal layout for other pages
         <div className='max-w-8xl mx-auto px-4 py-6'>
-          <div className='grid grid-cols-1 lg:grid-cols-12'>
+          <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
             <div className='lg:col-span-3'>
               <LinkedInSidebar user={user} onLogout={handleLogout} />
             </div>
