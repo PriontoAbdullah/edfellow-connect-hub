@@ -363,7 +363,13 @@ CREATE POLICY "Users can update their own presence" ON public.user_presence
 CREATE POLICY "Users can insert their own presence" ON public.user_presence
   FOR INSERT WITH CHECK (TRUE);
 
--- Create triggers for updated_at timestamps
+-- Create triggers for updated_at timestamps (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS update_messages_updated_at ON public.messages;
+DROP TRIGGER IF EXISTS update_conversations_updated_at ON public.conversations;
+DROP TRIGGER IF EXISTS update_posts_updated_at ON public.posts;
+DROP TRIGGER IF EXISTS update_post_comments_updated_at ON public.post_comments;
+DROP TRIGGER IF EXISTS update_user_presence_updated_at ON public.user_presence;
+
 CREATE TRIGGER update_messages_updated_at
   BEFORE UPDATE ON public.messages
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -408,7 +414,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to update post like count
+-- Create trigger to update post like count (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS update_post_like_count_trigger ON public.post_likes;
 CREATE TRIGGER update_post_like_count_trigger
   AFTER INSERT OR DELETE ON public.post_likes
   FOR EACH ROW EXECUTE FUNCTION public.update_post_like_count();
@@ -437,7 +444,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to update comment like count
+-- Create trigger to update comment like count (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS update_comment_like_count_trigger ON public.comment_likes;
 CREATE TRIGGER update_comment_like_count_trigger
   AFTER INSERT OR DELETE ON public.comment_likes
   FOR EACH ROW EXECUTE FUNCTION public.update_comment_like_count();
@@ -466,7 +474,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to update post comment count
+-- Create trigger to update post comment count (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS update_post_comment_count_trigger ON public.post_comments;
 CREATE TRIGGER update_post_comment_count_trigger
   AFTER INSERT OR DELETE ON public.post_comments
   FOR EACH ROW EXECUTE FUNCTION public.update_post_comment_count();
@@ -504,7 +513,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to create mention notifications
+-- Create trigger to create mention notifications (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS create_mention_notifications_trigger ON public.posts;
 CREATE TRIGGER create_mention_notifications_trigger
   AFTER INSERT ON public.posts
   FOR EACH ROW EXECUTE FUNCTION public.create_mention_notifications();
@@ -534,7 +544,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to create like notifications
+-- Create trigger to create like notifications (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS create_like_notifications_trigger ON public.post_likes;
 CREATE TRIGGER create_like_notifications_trigger
   AFTER INSERT ON public.post_likes
   FOR EACH ROW EXECUTE FUNCTION public.create_like_notifications();
@@ -564,7 +575,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to create comment notifications
+-- Create trigger to create comment notifications (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS create_comment_notifications_trigger ON public.post_comments;
 CREATE TRIGGER create_comment_notifications_trigger
   AFTER INSERT ON public.post_comments
   FOR EACH ROW EXECUTE FUNCTION public.create_comment_notifications();
@@ -585,7 +597,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to update user last seen on message send
+-- Create trigger to update user last seen on message send (drop existing first to avoid conflicts)
+DROP TRIGGER IF EXISTS update_user_last_seen_trigger ON public.messages;
 CREATE TRIGGER update_user_last_seen_trigger
   AFTER INSERT ON public.messages
   FOR EACH ROW EXECUTE FUNCTION public.update_user_last_seen();

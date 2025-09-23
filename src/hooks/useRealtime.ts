@@ -92,7 +92,7 @@ export const useRealtime = () => {
 
     const setupRealtimeSubscriptions = async () => {
       try {
-        // Messages channel
+        // Messages channel - subscribe to all messages for conversations the user participates in
         const messagesChannel = supabase
           .channel('messages')
           .on(
@@ -101,11 +101,21 @@ export const useRealtime = () => {
               event: 'INSERT',
               schema: 'public',
               table: 'messages',
-              filter: `receiver_id=eq.${user.id}`,
             },
-            (payload) => {
+            async (payload) => {
               const newMessage = payload.new as RealtimeMessage;
-              setMessages((prev) => [newMessage, ...prev]);
+
+              // Check if the user is a participant in this conversation
+              const { data: participant } = await supabase
+                .from('conversation_participants')
+                .select('user_id')
+                .eq('conversation_id', newMessage.conversation_id)
+                .eq('user_id', user.id)
+                .single();
+
+              if (participant) {
+                setMessages((prev) => [newMessage, ...prev]);
+              }
             }
           )
           .on(
@@ -114,15 +124,25 @@ export const useRealtime = () => {
               event: 'UPDATE',
               schema: 'public',
               table: 'messages',
-              filter: `receiver_id=eq.${user.id}`,
             },
-            (payload) => {
+            async (payload) => {
               const updatedMessage = payload.new as RealtimeMessage;
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === updatedMessage.id ? updatedMessage : msg
-                )
-              );
+
+              // Check if the user is a participant in this conversation
+              const { data: participant } = await supabase
+                .from('conversation_participants')
+                .select('user_id')
+                .eq('conversation_id', updatedMessage.conversation_id)
+                .eq('user_id', user.id)
+                .single();
+
+              if (participant) {
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === updatedMessage.id ? updatedMessage : msg
+                  )
+                );
+              }
             }
           )
           .subscribe();

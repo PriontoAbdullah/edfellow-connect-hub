@@ -29,6 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useRealtime } from '@/hooks/useRealtime';
 
 interface DashboardHeaderProps {
   user: {
@@ -49,6 +50,9 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { getUnreadCount } = useRealtime();
+
+  const unreadCounts = getUnreadCount();
 
   const handleNotificationClick = () => {
     navigate('/dashboard/notifications');
@@ -165,9 +169,11 @@ export function DashboardHeader({
               >
                 <MessageSquare className='h-5 w-5' />
                 <span className='text-xs'>Messaging</span>
-                <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
-                  5
-                </span>
+                {unreadCounts.messages > 0 && (
+                  <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
+                    {unreadCounts.messages > 99 ? '99+' : unreadCounts.messages}
+                  </span>
+                )}
               </Button>
 
               <Button
@@ -177,9 +183,13 @@ export function DashboardHeader({
               >
                 <Bell className='h-5 w-5' />
                 <span className='text-xs'>Notifications</span>
-                <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
-                  3
-                </span>
+                {unreadCounts.notifications > 0 && (
+                  <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
+                    {unreadCounts.notifications > 99
+                      ? '99+'
+                      : unreadCounts.notifications}
+                  </span>
+                )}
               </Button>
             </nav>
 

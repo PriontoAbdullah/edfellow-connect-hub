@@ -9,6 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CountryFlag } from '@/components/ui/CountryFlag';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { sendConnectionRequest, checkConnection } from '@/lib/api/connections';
+import { PublicProfile } from '@/types/profile';
 import {
   User,
   GraduationCap,
@@ -25,12 +29,15 @@ import {
   Heart,
   Lightbulb,
   Target,
+  UserPlus,
+  Check,
+  Loader2,
 } from 'lucide-react';
 
 interface ViewProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  profileData: any; // We'll type this properly based on the data structure
+  profileData: PublicProfile;
   userType: 'student' | 'professor' | 'university';
 }
 
@@ -40,6 +47,111 @@ const ViewProfileModal = ({
   profileData,
   userType,
 }: ViewProfileModalProps) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [connectionStatus, setConnectionStatus] = useState<
+    'connected' | 'pending_sent' | 'pending_received' | 'not_connected'
+  >('not_connected');
+  const [connectionLoading, setConnectionLoading] = useState(false);
+
+  // Check connection status when modal opens
+  useState(() => {
+    if (isOpen && user?.id && profileData.id !== user.id) {
+      checkConnection(user.id, profileData.id)
+        .then(({ data }) => {
+          if (data?.isConnected) {
+            setConnectionStatus('connected');
+          } else if (data?.isRequestSent) {
+            setConnectionStatus('pending_sent');
+          } else if (data?.isRequestReceived) {
+            setConnectionStatus('pending_received');
+          } else {
+            setConnectionStatus('not_connected');
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isOpen, user?.id, profileData.id]);
+
+  const handleConnect = async () => {
+    if (!user?.id || profileData.id === user.id) return;
+
+    try {
+      setConnectionLoading(true);
+
+      if (connectionStatus === 'connected') {
+        toast({
+          title: 'Already Connected',
+          description: `You are already connected to ${profileData.display_name}`,
+        });
+        return;
+      }
+
+      if (connectionStatus === 'pending_sent') {
+        toast({
+          title: 'Request Already Sent',
+          description: `You have already sent a connection request to ${profileData.display_name}`,
+        });
+        return;
+      }
+
+      // Send connection request
+      const { error } = await sendConnectionRequest({
+        addressee_id: profileData.id,
+        message: `Hi ${profileData.display_name}, I'd like to connect with you!`,
+      });
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      setConnectionStatus('pending_sent');
+      toast({
+        title: 'Connection Request Sent',
+        description: `Your connection request has been sent to ${profileData.display_name}`,
+      });
+    } catch (error) {
+      console.error('Error sending connection request:', error);
+      toast({
+        title: 'Error',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to send connection request',
+        variant: 'destructive',
+      });
+    } finally {
+      setConnectionLoading(false);
+    }
+  };
+
+  const getConnectionButtonText = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return 'Connected';
+      case 'pending_sent':
+        return 'Request Sent';
+      case 'pending_received':
+        return 'Accept Request';
+      case 'not_connected':
+      default:
+        return 'Connect';
+    }
+  };
+
+  const getConnectionButtonVariant = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return 'outline';
+      case 'pending_sent':
+        return 'secondary';
+      case 'pending_received':
+        return 'default';
+      case 'not_connected':
+      default:
+        return 'default';
+    }
+  };
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'student':
@@ -95,17 +207,25 @@ const ViewProfileModal = ({
           {/* Header Section */}
           <div className='flex items-start space-x-4'>
             <Avatar className='h-16 w-16'>
-              <AvatarFallback className={getRoleColor(userType)}>
-                {profileData.name
-                  ?.split(' ')
-                  .map((n: string) => n[0])
-                  .join('')}
-              </AvatarFallback>
+              {profileData.avatar ? (
+                <img
+                  src={profileData.avatar}
+                  alt={profileData.display_name}
+                  className='h-16 w-16 rounded-full object-cover'
+                />
+              ) : (
+                <AvatarFallback className={getRoleColor(userType)}>
+                  {profileData.display_name
+                    ?.split(' ')
+                    .map((n: string) => n[0])
+                    .join('')}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div className='flex-1'>
               <div className='flex items-center gap-2 mb-1'>
                 <h3 className='text-xl font-semibold text-gray-900'>
-                  {profileData.name}
+                  {profileData.display_name}
                 </h3>
                 <CountryFlag code={profileData.country} size={20} />
                 <Badge
@@ -118,18 +238,22 @@ const ViewProfileModal = ({
               </div>
               <div className='text-gray-600 text-sm'>
                 {userType === 'student' && profileData.major}
-                {userType === 'professor' && profileData.title}
-                {userType === 'university' && profileData.tagline}
+                {userType === 'professor' && profileData.position}
+                {userType === 'university' && profileData.institution}
               </div>
               <div className='flex items-center gap-4 mt-2 text-sm text-gray-500'>
                 <div className='flex items-center gap-1'>
                   <MapPin className='h-4 w-4' />
-                  {profileData.location || profileData.address}
+                  {profileData.city && profileData.country
+                    ? `${profileData.city}, ${profileData.country}`
+                    : profileData.country || 'Location not specified'}
                 </div>
-                <div className='flex items-center gap-1'>
-                  <Mail className='h-4 w-4' />
-                  {profileData.email}
-                </div>
+                {profileData.university && (
+                  <div className='flex items-center gap-1'>
+                    <GraduationCap className='h-4 w-4' />
+                    {profileData.university}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -502,7 +626,23 @@ const ViewProfileModal = ({
             >
               Close
             </Button>
-            <Button className='bg-blue-600 hover:bg-blue-700'>Connect</Button>
+            {user?.id !== profileData.id && (
+              <Button
+                variant={getConnectionButtonVariant()}
+                onClick={handleConnect}
+                disabled={connectionLoading || connectionStatus === 'connected'}
+                className='flex items-center gap-2'
+              >
+                {connectionLoading ? (
+                  <Loader2 className='h-4 w-4 animate-spin' />
+                ) : connectionStatus === 'connected' ? (
+                  <Check className='h-4 w-4' />
+                ) : (
+                  <UserPlus className='h-4 w-4' />
+                )}
+                {getConnectionButtonText()}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>

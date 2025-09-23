@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { FeedProvider } from './contexts/FeedContext';
 import { LoadingProvider } from './contexts/LoadingContext';
+import { ChatProvider } from './contexts/ChatContext';
 import ScrollToTop from '@/components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import {
@@ -27,6 +28,7 @@ import Mentorship from './pages/Mentorship';
 import Forum from './pages/Forum';
 import Opportunities from './pages/Opportunities';
 import RecentPosts from './pages/RecentPosts';
+import Chat from './pages/Chat';
 
 const queryClient = new QueryClient();
 
@@ -34,103 +36,113 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <LoadingProvider>
       <AuthProvider>
-        <FeedProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ScrollToTop />
-              <PageTransitionLoader />
-              <GlobalLoadingOverlay />
-              <ConnectionStatus isOnline={navigator.onLine} />
-              <Routes>
-                <Route path='/' element={<Index />} />
-                <Route path='/about' element={<About />} />
-                <Route path='/features' element={<Features />} />
-                <Route path='/community' element={<Community />} />
-                <Route
-                  path='/signup'
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <SignUp />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/login'
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <Login />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/forgot-password'
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <ForgotPassword />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/complete-profile'
-                  element={
-                    <ProtectedRoute
-                      requireAuth={true}
-                      requireProfileCompletion={false}
-                    >
-                      <CompleteProfile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/dashboard/*'
-                  element={
-                    <ProtectedRoute
-                      requireAuth={true}
-                      requireProfileCompletion={true}
-                    >
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/mentorship'
-                  element={
-                    <ProtectedRoute requireAuth={true}>
-                      <Mentorship />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/forum'
-                  element={
-                    <ProtectedRoute requireAuth={true}>
-                      <Forum />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/opportunities'
-                  element={
-                    <ProtectedRoute requireAuth={true}>
-                      <Opportunities />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/recent-posts'
-                  element={
-                    <ProtectedRoute requireAuth={true}>
-                      <RecentPosts />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path='*' element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </FeedProvider>
+        <ChatProvider>
+          <FeedProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <ScrollToTop />
+                <PageTransitionLoader />
+                <GlobalLoadingOverlay />
+                <ConnectionStatus isOnline={navigator.onLine} />
+                <Routes>
+                  <Route path='/' element={<Index />} />
+                  <Route path='/about' element={<About />} />
+                  <Route path='/features' element={<Features />} />
+                  <Route path='/community' element={<Community />} />
+                  <Route
+                    path='/signup'
+                    element={
+                      <ProtectedRoute requireAuth={false}>
+                        <SignUp />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/login'
+                    element={
+                      <ProtectedRoute requireAuth={false}>
+                        <Login />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/forgot-password'
+                    element={
+                      <ProtectedRoute requireAuth={false}>
+                        <ForgotPassword />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/complete-profile'
+                    element={
+                      <ProtectedRoute
+                        requireAuth={true}
+                        requireProfileCompletion={false}
+                      >
+                        <CompleteProfile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/dashboard/*'
+                    element={
+                      <ProtectedRoute
+                        requireAuth={true}
+                        requireProfileCompletion={true}
+                      >
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/mentorship'
+                    element={
+                      <ProtectedRoute requireAuth={true}>
+                        <Mentorship />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/forum'
+                    element={
+                      <ProtectedRoute requireAuth={true}>
+                        <Forum />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/opportunities'
+                    element={
+                      <ProtectedRoute requireAuth={true}>
+                        <Opportunities />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/recent-posts'
+                    element={
+                      <ProtectedRoute requireAuth={true}>
+                        <RecentPosts />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/chat'
+                    element={
+                      <ProtectedRoute requireAuth={true}>
+                        <Chat />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path='*' element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </FeedProvider>
+        </ChatProvider>
       </AuthProvider>
     </LoadingProvider>
   </QueryClientProvider>

@@ -220,6 +220,9 @@ const Dashboard = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
 
+  // Check if we're on the chat route for special layout
+  const isChatRoute = location.pathname.includes('/chat');
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <DashboardHeader
@@ -228,83 +231,104 @@ const Dashboard = () => {
         subtitle={getPageSubtitle()}
         onLogout={handleLogout}
       />
-      <div className='max-w-8xl mx-auto px-4 py-6'>
-        <div className='grid grid-cols-1 lg:grid-cols-12'>
-          <div className='lg:col-span-3'>
+      {isChatRoute ? (
+        // Full screen layout for chat with LinkedIn sidebar
+        <div className='h-[calc(100vh-80px)] flex'>
+          <div className='w-80 border-r border-gray-200 overflow-y-auto'>
             <LinkedInSidebar user={user} onLogout={handleLogout} />
           </div>
-          <div className='lg:col-span-9'>
+          <div className='flex-1'>
             <Routes>
-              {/* Student Routes */}
-              <Route path='/' element={<StudentDashboard />} />
-              <Route path='/field-of-study' element={<StudentFieldOfStudy />} />
-              <Route path='/announcements' element={<StudentAnnouncements />} />
-              <Route path='/mentorship' element={<StudentMentorship />} />
-              <Route
-                path='/career-exploration'
-                element={<StudentCareerExploration />}
-              />
-              <Route path='/scholarships' element={<StudentScholarships />} />
-              <Route path='/portfolio' element={<StudentPortfolio />} />
-
-              {/* Professor Routes */}
-              <Route path='/professor' element={<ProfessorDashboard />} />
-              <Route path='/courses' element={<ProfessorCourses />} />
-              <Route
-                path='/field-of-study'
-                element={<ProfessorFieldOfStudy />}
-              />
-              <Route
-                path='/announcements'
-                element={<ProfessorAnnouncements />}
-              />
-              <Route
-                path='/research-assistant'
-                element={<ProfessorResearchAssistant />}
-              />
-              <Route
-                path='/admission-advisory'
-                element={<ProfessorAdmissionAdvisory />}
-              />
-              <Route path='/portfolio' element={<ProfessorPortfolio />} />
-
-              {/* Top Navigation Routes */}
-              <Route path='/notifications' element={<Notifications />} />
-              <Route path='/profile' element={<Profile />} />
               <Route path='/chat' element={<Chat />} />
-              <Route path='/groups' element={<Groups />} />
-              <Route path='/explore' element={<Explore />} />
-              <Route path='/analytics' element={<Analytics />} />
-
-              {/* University Routes */}
-              <Route path='/university' element={<UniversityDashboard />} />
-              <Route
-                path='/institution'
-                element={<UniversityInstitutionDashboard />}
-              />
-              <Route path='/programs' element={<UniversityPrograms />} />
-              <Route
-                path='/student-requirement'
-                element={<UniversityStudentRequirement />}
-              />
-              <Route
-                path='/professor-requirement'
-                element={<UniversityProfessorRequirement />}
-              />
-              <Route
-                path='/alumni-engagement'
-                element={<UniversityAlumniEngagement />}
-              />
-              <Route
-                path='/live-sessions'
-                element={<UniversityLiveSessions />}
-              />
-              <Route path='/messages' element={<UniversityMessages />} />
-              <Route path='/profile' element={<UniversityProfile />} />
             </Routes>
           </div>
         </div>
-      </div>
+      ) : (
+        // Normal layout for other pages
+        <div className='max-w-8xl mx-auto px-4 py-6'>
+          <div className='grid grid-cols-1 lg:grid-cols-12'>
+            <div className='lg:col-span-3'>
+              <LinkedInSidebar user={user} onLogout={handleLogout} />
+            </div>
+            <div className='lg:col-span-9'>
+              <Routes>
+                {/* Student Routes */}
+                <Route path='/' element={<StudentDashboard />} />
+                <Route
+                  path='/field-of-study'
+                  element={<StudentFieldOfStudy />}
+                />
+                <Route
+                  path='/announcements'
+                  element={<StudentAnnouncements />}
+                />
+                <Route path='/mentorship' element={<StudentMentorship />} />
+                <Route
+                  path='/career-exploration'
+                  element={<StudentCareerExploration />}
+                />
+                <Route path='/scholarships' element={<StudentScholarships />} />
+                <Route path='/portfolio' element={<StudentPortfolio />} />
+
+                {/* Professor Routes */}
+                <Route path='/professor' element={<ProfessorDashboard />} />
+                <Route path='/courses' element={<ProfessorCourses />} />
+                <Route
+                  path='/field-of-study'
+                  element={<ProfessorFieldOfStudy />}
+                />
+                <Route
+                  path='/announcements'
+                  element={<ProfessorAnnouncements />}
+                />
+                <Route
+                  path='/research-assistant'
+                  element={<ProfessorResearchAssistant />}
+                />
+                <Route
+                  path='/admission-advisory'
+                  element={<ProfessorAdmissionAdvisory />}
+                />
+                <Route path='/portfolio' element={<ProfessorPortfolio />} />
+
+                {/* Top Navigation Routes */}
+                <Route path='/notifications' element={<Notifications />} />
+                <Route path='/profile' element={<Profile />} />
+                <Route path='/chat' element={<Chat />} />
+                <Route path='/groups' element={<Groups />} />
+                <Route path='/explore' element={<Explore />} />
+                <Route path='/analytics' element={<Analytics />} />
+
+                {/* University Routes */}
+                <Route path='/university' element={<UniversityDashboard />} />
+                <Route
+                  path='/institution'
+                  element={<UniversityInstitutionDashboard />}
+                />
+                <Route path='/programs' element={<UniversityPrograms />} />
+                <Route
+                  path='/student-requirement'
+                  element={<UniversityStudentRequirement />}
+                />
+                <Route
+                  path='/professor-requirement'
+                  element={<UniversityProfessorRequirement />}
+                />
+                <Route
+                  path='/alumni-engagement'
+                  element={<UniversityAlumniEngagement />}
+                />
+                <Route
+                  path='/live-sessions'
+                  element={<UniversityLiveSessions />}
+                />
+                <Route path='/messages' element={<UniversityMessages />} />
+                <Route path='/profile' element={<UniversityProfile />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

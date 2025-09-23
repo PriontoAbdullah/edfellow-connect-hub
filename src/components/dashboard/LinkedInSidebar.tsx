@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CountryFlag } from '@/components/ui/CountryFlag';
 import { useToast } from '@/hooks/use-toast';
 import { getCountryCode } from '@/lib/countries';
+import { useRealtime } from '@/hooks/useRealtime';
 import {
   Bookmark,
   Users,
@@ -59,6 +60,9 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { getUnreadCount } = useRealtime();
+
+  const unreadCounts = getUnreadCount();
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -99,7 +103,7 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
   };
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4 p-4'>
       {/* Profile Card */}
       <Card className='bg-white border border-gray-200 shadow-sm'>
         <CardContent className='p-4'>
@@ -420,7 +424,9 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
             >
               <MessageSquare className='h-4 w-4 mr-3' />
               Messages
-              <span className='absolute right-2 h-2 w-2 bg-red-500 rounded-full'></span>
+              {unreadCounts.messages > 0 && (
+                <span className='absolute right-2 h-2 w-2 bg-red-500 rounded-full'></span>
+              )}
             </Button>
             <Button
               variant='ghost'
@@ -429,7 +435,9 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
             >
               <Bell className='h-4 w-4 mr-3' />
               Notifications
-              <span className='absolute right-2 h-2 w-2 bg-red-500 rounded-full'></span>
+              {unreadCounts.notifications > 0 && (
+                <span className='absolute right-2 h-2 w-2 bg-red-500 rounded-full'></span>
+              )}
             </Button>
           </div>
         </CardContent>
