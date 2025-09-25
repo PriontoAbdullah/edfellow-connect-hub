@@ -6,6 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Users,
   Lock,
   Globe,
@@ -17,6 +24,7 @@ import {
   X,
   AlertCircle,
   CheckCircle,
+  Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -309,18 +317,21 @@ export const GroupCreation: React.FC<GroupCreationProps> = ({
 
         <div>
           <Label htmlFor='level'>Academic Level</Label>
-          <select
-            id='level'
+          <Select
             value={formData.level}
-            onChange={(e) => updateFormData('level', e.target.value)}
-            className='w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+            onValueChange={(value) => updateFormData('level', value)}
           >
-            {levels.map((level) => (
-              <option key={level.value} value={level.value}>
-                {level.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger>
+              <SelectValue placeholder='Select academic level' />
+            </SelectTrigger>
+            <SelectContent>
+              {levels.map((level) => (
+                <SelectItem key={level.value} value={level.value}>
+                  {level.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

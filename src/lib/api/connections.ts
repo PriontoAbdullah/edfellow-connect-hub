@@ -138,32 +138,13 @@ export const getConnectionRequests = async (
   total?: number;
 }> => {
   try {
-    const filterField = type === 'sent' ? 'requester_id' : 'addressee_id';
+    const filterField = type === 'sent' ? 'from_user_id' : 'to_user_id';
 
     const { data, error, count } = await supabase
       .from('connection_requests')
-      .select(
-        `
-        *,
-        requester:users!connection_requests_requester_id_fkey(
-          id,
-          display_name,
-          role,
-          avatar,
-          university,
-          country
-        ),
-        addressee:users!connection_requests_addressee_id_fkey(
-          id,
-          display_name,
-          role,
-          avatar,
-          university,
-          country
-        )
-      `,
-        { count: 'exact' }
-      )
+      .select('id, from_user_id, to_user_id, message, status, created_at', {
+        count: 'exact',
+      })
       .eq(filterField, userId)
       .eq('status', 'pending')
       .order('created_at', { ascending: false })
@@ -174,11 +155,50 @@ export const getConnectionRequests = async (
       return { data: null, error: error.message };
     }
 
-    return {
-      data: data as ConnectionRequestWithUser[],
-      error: null,
-      total: count || 0,
-    };
+    const requests = data || [];
+    if (requests.length === 0) {
+      return { data: [], error: null, total: 0 };
+    }
+
+    // Load requester user info in batch
+    const requesterIds = Array.from(
+      new Set(
+        requests.map((r: any) =>
+          type === 'sent' ? r.to_user_id : r.from_user_id
+        )
+      )
+    );
+    const { data: usersData, error: usersError } = await supabase
+      .from('users')
+      .select('id, display_name, role, avatar, university, country')
+      .in('id', requesterIds);
+
+    if (usersError) {
+      console.error('Error loading users for requests:', usersError);
+      return { data: null, error: usersError.message };
+    }
+
+    const userMap = new Map((usersData || []).map((u: any) => [u.id, u]));
+    const withUsers: ConnectionRequestWithUser[] = requests.map((r: any) => {
+      const requesterId = type === 'sent' ? r.to_user_id : r.from_user_id;
+      const requester = userMap.get(requesterId);
+      return {
+        id: r.id,
+        message: r.message,
+        created_at: r.created_at,
+        status: r.status,
+        requester: requester || {
+          id: requesterId,
+          display_name: 'Unknown',
+          role: 'student',
+          avatar: undefined,
+          university: undefined,
+          country: '',
+        },
+      } as unknown as ConnectionRequestWithUser;
+    });
+
+    return { data: withUsers, error: null, total: count || 0 };
   } catch (error) {
     console.error('Unexpected error fetching connection requests:', error);
     return { data: null, error: 'An unexpected error occurred' };
@@ -204,7 +224,7 @@ export const sendConnectionRequest = async (
       .or(
         `and(requester_id.eq.${requesterId},addressee_id.eq.${addresseeId}),and(requester_id.eq.${addresseeId},addressee_id.eq.${requesterId})`
       )
-      .single();
+      .maybeSingle();
 
     if (existingConnection) {
       return { data: null, error: 'Connection already exists' };
@@ -215,10 +235,10 @@ export const sendConnectionRequest = async (
       .from('connection_requests')
       .select('id')
       .or(
-        `and(requester_id.eq.${requesterId},addressee_id.eq.${addresseeId}),and(requester_id.eq.${addresseeId},addressee_id.eq.${requesterId})`
+        `and(from_user_id.eq.${requesterId},to_user_id.eq.${addresseeId}),and(from_user_id.eq.${addresseeId},to_user_id.eq.${requesterId})`
       )
       .eq('status', 'pending')
-      .single();
+      .maybeSingle();
 
     if (existingRequest) {
       return { data: null, error: 'Connection request already exists' };
@@ -227,8 +247,8 @@ export const sendConnectionRequest = async (
     const { data, error } = await supabase
       .from('connection_requests')
       .insert({
-        requester_id: requesterId,
-        addressee_id: addresseeId,
+        from_user_id: requesterId,
+        to_user_id: addresseeId,
         message: message || '',
         status: 'pending',
         created_at: new Date().toISOString(),
@@ -264,7 +284,7 @@ export const acceptConnectionRequest = async (
       .from('connection_requests')
       .select('*')
       .eq('id', requestId)
-      .eq('addressee_id', addresseeId)
+      .eq('to_user_id', addresseeId)
       .eq('status', 'pending')
       .single();
 
@@ -290,8 +310,8 @@ export const acceptConnectionRequest = async (
     const { data: connection, error: connectionError } = await supabase
       .from('user_connections')
       .insert({
-        requester_id: request.requester_id,
-        addressee_id: request.addressee_id,
+        requester_id: request.from_user_id,
+        addressee_id: request.to_user_id,
         status: 'accepted',
         created_at: new Date().toISOString(),
       })
@@ -327,7 +347,7 @@ export const declineConnectionRequest = async (
         updated_at: new Date().toISOString(),
       })
       .eq('id', requestId)
-      .eq('addressee_id', addresseeId)
+      .eq('to_user_id', addresseeId)
       .eq('status', 'pending');
 
     if (error) {
@@ -356,7 +376,7 @@ export const cancelConnectionRequest = async (
       .from('connection_requests')
       .delete()
       .eq('id', requestId)
-      .eq('requester_id', requesterId)
+      .eq('from_user_id', requesterId)
       .eq('status', 'pending');
 
     if (error) {
@@ -424,7 +444,7 @@ export const checkConnection = async (
         `and(requester_id.eq.${userId1},addressee_id.eq.${userId2}),and(requester_id.eq.${userId2},addressee_id.eq.${userId1})`
       )
       .eq('status', 'accepted')
-      .single();
+      .maybeSingle();
 
     if (connection) {
       return {
@@ -511,12 +531,12 @@ export const getConnectionStats = async (
       supabase
         .from('connection_requests')
         .select('*', { count: 'exact', head: true })
-        .eq('addressee_id', userId)
+        .eq('to_user_id', userId)
         .eq('status', 'pending'),
       supabase
         .from('connection_requests')
         .select('*', { count: 'exact', head: true })
-        .eq('requester_id', userId)
+        .eq('from_user_id', userId)
         .eq('status', 'pending'),
     ]);
 
@@ -657,7 +677,7 @@ export const subscribeToConnections = (
         event: '*',
         schema: 'public',
         table: 'connection_requests',
-        filter: `requester_id=eq.${userId}`,
+        filter: `from_user_id=eq.${userId}`,
       },
       callback
     )
@@ -667,7 +687,7 @@ export const subscribeToConnections = (
         event: '*',
         schema: 'public',
         table: 'connection_requests',
-        filter: `addressee_id=eq.${userId}`,
+        filter: `to_user_id=eq.${userId}`,
       },
       callback
     )

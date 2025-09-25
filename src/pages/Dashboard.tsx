@@ -33,6 +33,7 @@ import Notifications from '@/pages/Notifications';
 import Profile from '@/pages/Profile';
 import Chat from '@/pages/Chat';
 import Groups from '@/pages/Groups';
+import GroupDetail from '@/pages/GroupDetail';
 import Explore from '@/pages/Explore';
 import Analytics from '@/pages/Analytics';
 
@@ -296,6 +297,7 @@ const Dashboard = () => {
                 <Route path='/profile' element={<Profile />} />
                 <Route path='/chat' element={<Chat />} />
                 <Route path='/groups' element={<Groups />} />
+                <Route path='/groups/:groupId' element={<GroupDetail />} />
                 <Route path='/explore' element={<Explore />} />
                 <Route path='/analytics' element={<Analytics />} />
 

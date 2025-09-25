@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useRealtime } from '@/hooks/useRealtime';
+import { useChatContext } from '@/contexts/ChatContext';
 
 interface DashboardHeaderProps {
   user: {
@@ -51,8 +52,10 @@ export function DashboardHeader({
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { getUnreadCount } = useRealtime();
+  const { getTotalUnreadCount } = useChatContext();
 
   const unreadCounts = getUnreadCount();
+  const totalUnreadMessages = getTotalUnreadCount();
 
   const handleNotificationClick = () => {
     navigate('/dashboard/notifications');
@@ -169,9 +172,9 @@ export function DashboardHeader({
               >
                 <MessageSquare className='h-5 w-5' />
                 <span className='text-xs'>Messaging</span>
-                {unreadCounts.messages > 0 && (
+                {totalUnreadMessages > 0 && (
                   <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
-                    {unreadCounts.messages > 99 ? '99+' : unreadCounts.messages}
+                    {totalUnreadMessages > 99 ? '99+' : totalUnreadMessages}
                   </span>
                 )}
               </Button>

@@ -26,14 +26,13 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import {
-  sendConnectionRequest,
   acceptConnectionRequest,
   declineConnectionRequest,
   removeConnection,
-  getConnections,
+  getUserConnections,
   getConnectionRequests,
-  checkConnection,
 } from '@/lib/api/connections';
+import SearchModal from '@/components/modals/SearchModal';
 
 interface Connection {
   id: string;
@@ -91,6 +90,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
     'all' | 'student' | 'professor' | 'university'
   >('all');
   const [activeTab, setActiveTab] = useState('connections');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     fetchConnections();
@@ -99,12 +99,39 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
 
   const fetchConnections = async () => {
     try {
-      const { data, error } = await getConnections(userId);
+      const { data, error } = await getUserConnections(
+        userId,
+        'accepted',
+        50,
+        0
+      );
       if (error) {
         console.error('Error fetching connections:', error);
         return;
       }
-      setConnections(data || []);
+      const mapped = (data || []).map((conn: any) => {
+        const isRequester = conn.requester_id === userId;
+        const other = isRequester ? conn.addressee : conn.requester;
+        return {
+          id: conn.id,
+          user: {
+            id: other?.id,
+            display_name: other?.display_name,
+            avatar: other?.avatar,
+            role: other?.role,
+            university: other?.university,
+            country: other?.country,
+            city: other?.city,
+            bio: other?.bio,
+            skills: other?.skills,
+            academic_interests: other?.academic_interests,
+          },
+          status: conn.status,
+          created_at: conn.created_at,
+          is_requester: isRequester,
+        } as Connection;
+      });
+      setConnections(mapped);
     } catch (error) {
       console.error('Error fetching connections:', error);
     }
@@ -112,7 +139,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
 
   const fetchConnectionRequests = async () => {
     try {
-      const { data, error } = await getConnectionRequests(userId);
+      const { data, error } = await getConnectionRequests(userId, 'received');
       if (error) {
         console.error('Error fetching connection requests:', error);
         return;
@@ -142,7 +169,6 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
         description: 'You are now connected!',
       });
 
-      // Refresh data
       fetchConnections();
       fetchConnectionRequests();
     } catch (error) {
@@ -171,7 +197,6 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
         description: 'Connection request has been declined',
       });
 
-      // Refresh data
       fetchConnectionRequests();
     } catch (error) {
       toast({
@@ -184,7 +209,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
 
   const handleRemoveConnection = async (connectionId: string) => {
     try {
-      const { error } = await removeConnection(connectionId);
+      const { error } = await removeConnection(connectionId, userId);
       if (error) {
         toast({
           title: 'Error',
@@ -199,7 +224,6 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
         description: 'Connection has been removed',
       });
 
-      // Refresh data
       fetchConnections();
     } catch (error) {
       toast({
@@ -317,7 +341,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
             requests
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setIsSearchOpen(true)}>
           <UserPlus className='w-4 h-4 mr-2' />
           Find People
         </Button>
@@ -378,7 +402,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
                     ? 'Try adjusting your search or filter criteria'
                     : 'Start building your network by connecting with other users'}
                 </p>
-                <Button>
+                <Button onClick={() => setIsSearchOpen(true)}>
                   <UserPlus className='w-4 h-4 mr-2' />
                   Find People to Connect
                 </Button>
@@ -569,6 +593,12 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
           )}
         </TabsContent>
       </Tabs>
+
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        userRole={user?.role || 'student'}
+      />
     </div>
   );
 };

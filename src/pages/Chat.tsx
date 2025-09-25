@@ -9,6 +9,16 @@ import { MessageInput } from '@/components/chat/MessageInput';
 import { UserSearch } from '@/components/chat/UserSearch';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import ViewProfileModal from '@/components/modals/ViewProfileModal';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 const Chat = () => {
   const { user, userData } = useAuth();
@@ -28,10 +38,21 @@ const Chat = () => {
     startTyping,
     stopTyping,
     setError,
+    editMessage,
+    deleteMessage,
+    clearChat,
   } = useChatContext();
 
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const { toast } = useToast();
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileData, setProfileData] = useState<any | null>(null);
+  const [editModal, setEditModal] = useState<{
+    id: string;
+    content: string;
+  } | null>(null);
+  const [deleteModal, setDeleteModal] = useState<string | null>(null);
 
   // Load conversations on mount
   useEffect(() => {
@@ -101,13 +122,11 @@ const Chat = () => {
   };
 
   const handleEditMessage = async (messageId: string, content: string) => {
-    // TODO: Implement message editing
-    console.log('Edit message:', messageId, content);
+    setEditModal({ id: messageId, content });
   };
 
   const handleDeleteMessage = async (messageId: string) => {
-    // TODO: Implement message deletion
-    console.log('Delete message:', messageId);
+    setDeleteModal(messageId);
   };
 
   const handleReplyToMessage = (message: Message) => {
@@ -119,18 +138,88 @@ const Chat = () => {
   };
 
   const handleCall = () => {
-    // TODO: Implement voice call
-    console.log('Start voice call');
+    toast({
+      title: 'Coming soon',
+      description: 'Audio calling is coming soon.',
+    });
   };
 
   const handleVideoCall = () => {
-    // TODO: Implement video call
-    console.log('Start video call');
+    toast({
+      title: 'Coming soon',
+      description: 'Video calling is coming soon.',
+    });
   };
 
-  const handleMoreOptions = () => {
-    // TODO: Implement more options menu
-    console.log('Show more options');
+  const handleMoreOptions = () => {};
+
+  // Header option handlers
+  const handleViewProfile = () => {
+    const other = currentConversation?.participants?.find(
+      (p) => p.user_id !== currentUser.id
+    )?.user;
+    if (!other) return;
+    // Build minimal PublicProfile-compatible object
+    setProfileData({
+      id: other.id,
+      display_name: other.display_name,
+      first_name: other.first_name,
+      last_name: other.last_name,
+      role: other.role,
+      bio: '',
+      country: other.country || '',
+      city: '',
+      university: other.university,
+      institution: undefined,
+      department: other.department,
+      position: other.position,
+      major: other.major,
+      avatar: other.avatar,
+      skills: [],
+      academic_interests: [],
+      research_interests: [],
+      social_links: {},
+      profile_views: 0,
+      connections: 0,
+      endorsements: 0,
+      created_at: new Date().toISOString(),
+      verification_status: 'verified',
+    });
+    setShowProfileModal(true);
+  };
+
+  const handleMute = () => {
+    toast({
+      title: 'Muted',
+      description: 'Conversation muted (UI only for now).',
+    });
+  };
+
+  const handleArchive = () => {
+    toast({
+      title: 'Archived',
+      description: 'Conversation archived (UI only for now).',
+    });
+  };
+
+  const handleLeaveOrClear = async () => {
+    if (!currentConversation) return;
+    if (currentConversation.type === 'group') {
+      toast({
+        title: 'Coming soon',
+        description: 'Leaving group will be added soon.',
+      });
+      return;
+    }
+    // Direct chat: clear all messages
+    const ok = confirm('Clear all messages in this chat?');
+    if (!ok) return;
+    try {
+      await clearChat?.(currentConversation.id);
+      toast({ title: 'Cleared', description: 'Chat history cleared.' });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   if (!user || !userData) {
@@ -175,6 +264,8 @@ const Chat = () => {
                 onCall={handleCall}
                 onVideoCall={handleVideoCall}
                 onMoreOptions={handleMoreOptions}
+                onViewProfile={handleViewProfile}
+                onLeaveOrClear={handleLeaveOrClear}
               />
 
               {/* Messages */}
@@ -233,6 +324,79 @@ const Chat = () => {
           searchUsers={searchUsers}
           currentUser={currentUser}
         />
+      )}
+
+      {/* View Profile Modal */}
+      {showProfileModal && profileData && (
+        <ViewProfileModal
+          isOpen={showProfileModal}
+          onClose={() => setShowProfileModal(false)}
+          profileData={profileData}
+          userType={profileData.role}
+        />
+      )}
+
+      {/* Edit Message Modal */}
+      {editModal && (
+        <Dialog open={true} onOpenChange={() => setEditModal(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Message</DialogTitle>
+            </DialogHeader>
+            <div className='space-y-2'>
+              <Input
+                value={editModal.content}
+                onChange={(e) =>
+                  setEditModal((prev) =>
+                    prev ? { ...prev, content: e.target.value } : prev
+                  )
+                }
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button variant='outline' onClick={() => setEditModal(null)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  const trimmed = editModal.content.trim();
+                  if (!trimmed) return;
+                  await editMessage(editModal.id, trimmed);
+                  setEditModal(null);
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Delete Message Modal */}
+      {deleteModal && (
+        <Dialog open={true} onOpenChange={() => setDeleteModal(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Message</DialogTitle>
+            </DialogHeader>
+            <p>Are you sure you want to delete this message?</p>
+            <DialogFooter>
+              <Button variant='outline' onClick={() => setDeleteModal(null)}>
+                Cancel
+              </Button>
+              <Button
+                className='bg-red-600 hover:bg-red-700'
+                onClick={async () => {
+                  await deleteMessage(deleteModal);
+                  setDeleteModal(null);
+                }}
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
 
       {/* Error Display */}

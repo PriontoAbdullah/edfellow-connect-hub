@@ -25,7 +25,11 @@ import {
   subscribeToUserPresence,
   subscribeToTypingIndicators,
   sendTypingIndicator,
+  editMessage as editMessageAPI,
+  deleteMessage as deleteMessageAPI,
+  clearConversationMessages,
 } from '../lib/chat';
+import { supabase } from '../lib/supabase';
 
 export const useChat = () => {
   const { user, userData } = useAuth();
@@ -84,6 +88,9 @@ export const useChat = () => {
     async (data: SendMessageData) => {
       if (!user?.id) return;
 
+      // Create optimistic message for immediate UI update
+      const tempId = `temp-${Date.now()}`;
+
       try {
         setError(null);
         const messageData = {
@@ -91,12 +98,11 @@ export const useChat = () => {
           sender_id: user.id,
         };
 
-        // Create optimistic message for immediate UI update
-        const tempId = `temp-${Date.now()}`;
         const optimisticMessage: Message = {
           id: tempId, // Temporary ID
           conversation_id: data.conversation_id,
           sender_id: user.id,
+          receiver_id: undefined, // Optional for conversation-based messaging
           content: data.content,
           message_type: data.message_type || 'text',
           media_url: data.media_url,
@@ -181,6 +187,133 @@ export const useChat = () => {
     [user?.id, userData, loadConversations]
   );
 
+  // Edit a message
+  const editMessage = useCallback(
+    async (messageId: string, content: string) => {
+      try {
+        setError(null);
+
+        // Optimistic update
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId
+              ? {
+                  ...msg,
+                  content,
+                  is_edited: true,
+                  edited_at: new Date().toISOString(),
+                }
+              : msg
+          )
+        );
+
+        const updated = await editMessageAPI(messageId, content);
+
+        // Replace with authoritative server response
+        setMessages((prev) =>
+          prev.map((m) => (m.id === messageId ? updated : m))
+        );
+
+        // Update conversation last_message if applicable
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.last_message?.id === messageId
+              ? { ...conv, last_message: updated }
+              : conv
+          )
+        );
+      } catch (err) {
+        console.error('Error editing message:', err);
+        setError('Failed to edit message');
+        // Reload messages for current conversation to resync
+        if (currentConversation?.id) {
+          loadMessages(currentConversation.id);
+        }
+        throw err;
+      }
+    },
+    [currentConversation?.id, loadMessages]
+  );
+
+  // Delete a message
+  const deleteMessage = useCallback(
+    async (messageId: string) => {
+      try {
+        setError(null);
+
+        // Compute previous messages for potential rollback
+        let deletedMessage: Message | undefined;
+        setMessages((prev) => {
+          deletedMessage = prev.find((m) => m.id === messageId);
+          return prev.filter((m) => m.id !== messageId);
+        });
+
+        await deleteMessageAPI(messageId);
+
+        // Update conversation last_message if it was the deleted one
+        if (deletedMessage) {
+          setConversations((prev) =>
+            prev.map((conv) => {
+              if (conv.id !== deletedMessage!.conversation_id) return conv;
+              if (conv.last_message?.id !== deletedMessage!.id) return conv;
+
+              // Find new last message from current state
+              const convoMessages = messages
+                .filter(
+                  (m) => m.id !== messageId && m.conversation_id === conv.id
+                )
+                .slice();
+              const newLast = convoMessages[convoMessages.length - 1] || null;
+              return {
+                ...conv,
+                last_message: newLast || undefined,
+              } as Conversation;
+            })
+          );
+        }
+      } catch (err) {
+        console.error('Error deleting message:', err);
+        setError('Failed to delete message');
+        // Reload messages for current conversation to resync
+        if (currentConversation?.id) {
+          loadMessages(currentConversation.id);
+        }
+        throw err;
+      }
+    },
+    [messages, currentConversation?.id, loadMessages]
+  );
+
+  // Clear entire conversation
+  const clearChat = useCallback(
+    async (conversationId: string) => {
+      try {
+        setError(null);
+        await clearConversationMessages(conversationId);
+
+        // Update local state
+        setMessages((prev) =>
+          prev.filter((m) => m.conversation_id !== conversationId)
+        );
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === conversationId
+              ? { ...conv, last_message: undefined }
+              : conv
+          )
+        );
+      } catch (err) {
+        console.error('Error clearing chat:', err);
+        setError('Failed to clear chat');
+        if (conversationId) {
+          await loadMessages(conversationId);
+        }
+        throw err;
+      }
+    },
+    [loadMessages]
+  );
+
   // Create a new conversation
   const createConversation = useCallback(
     async (data: CreateConversationData) => {
@@ -231,6 +364,13 @@ export const useChat = () => {
       // Mark conversation as read
       if (user?.id) {
         await markConversationAsRead(conversation.id, user.id);
+
+        // Update local state to clear unread count
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === conversation.id ? { ...conv, unread_count: 0 } : conv
+          )
+        );
       }
     },
     [loadMessages, user?.id]
@@ -347,6 +487,52 @@ export const useChat = () => {
       });
     });
 
+    // Set up global message subscription for unread count updates
+    const globalMessageSubscription = supabase
+      .channel('global-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        async (payload) => {
+          const newMessage = payload.new as any;
+
+          // Check if the user is a participant in this conversation
+          const { data: participant } = await supabase
+            .from('conversation_participants')
+            .select('user_id')
+            .eq('conversation_id', newMessage.conversation_id)
+            .eq('user_id', user.id)
+            .single();
+
+          if (participant && newMessage.sender_id !== user.id) {
+            // Only update unread count if message is from another user
+            // and we're not currently viewing this conversation
+            const isCurrentConversation =
+              currentConversation?.id === newMessage.conversation_id;
+
+            if (!isCurrentConversation) {
+              setConversations((prev) =>
+                prev.map((conv) => {
+                  if (conv.id === newMessage.conversation_id) {
+                    return {
+                      ...conv,
+                      last_message: newMessage,
+                      unread_count: (conv.unread_count || 0) + 1,
+                    };
+                  }
+                  return conv;
+                })
+              );
+            }
+          }
+        }
+      )
+      .subscribe();
+
     // Load initial data
     loadConversations();
     loadOnlineUsers();
@@ -358,8 +544,9 @@ export const useChat = () => {
       if (presenceSubscriptionRef.current) {
         presenceSubscriptionRef.current.unsubscribe();
       }
+      globalMessageSubscription.unsubscribe();
     };
-  }, [user?.id, loadConversations]);
+  }, [user?.id, loadConversations, currentConversation?.id]);
 
   // Set up message subscription when conversation changes
   useEffect(() => {
@@ -385,17 +572,21 @@ export const useChat = () => {
           return [...prev, message];
         });
 
-        // Update conversation's last message
+        // Update conversation's last message and unread count
         setConversations((prev) =>
-          prev.map((conv) =>
-            conv.id === currentConversation.id
-              ? {
-                  ...conv,
-                  last_message: message,
-                  unread_count: (conv.unread_count || 0) + 1,
-                }
-              : conv
-          )
+          prev.map((conv) => {
+            if (conv.id === currentConversation.id) {
+              // Only increment unread count if message is from another user
+              // Since we're currently viewing this conversation, don't increment unread count
+              return {
+                ...conv,
+                last_message: message,
+                // Don't increment unread count for current conversation
+                unread_count: conv.unread_count || 0,
+              };
+            }
+            return conv;
+          })
         );
       }
     );
@@ -462,6 +653,13 @@ export const useChat = () => {
     };
   }, [user?.id, updatePresence]);
 
+  // Get total unread message count from all conversations
+  const getTotalUnreadCount = useCallback(() => {
+    return conversations.reduce((total, conversation) => {
+      return total + (conversation.unread_count || 0);
+    }, 0);
+  }, [conversations]);
+
   // Cleanup typing timeout on unmount
   useEffect(() => {
     return () => {
@@ -494,6 +692,10 @@ export const useChat = () => {
     startTyping,
     stopTyping,
     setError,
+    editMessage,
+    deleteMessage,
+    clearChat,
+    getTotalUnreadCount,
   };
 };
 

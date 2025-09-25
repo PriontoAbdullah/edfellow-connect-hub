@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -55,8 +55,8 @@ const ViewProfileModal = ({
   const [connectionLoading, setConnectionLoading] = useState(false);
 
   // Check connection status when modal opens
-  useState(() => {
-    if (isOpen && user?.id && profileData.id !== user.id) {
+  useEffect(() => {
+    if (isOpen && user?.id && profileData.id && profileData.id !== user.id) {
       checkConnection(user.id, profileData.id)
         .then(({ data }) => {
           if (data?.isConnected) {
@@ -96,10 +96,11 @@ const ViewProfileModal = ({
       }
 
       // Send connection request
-      const { error } = await sendConnectionRequest({
-        addressee_id: profileData.id,
-        message: `Hi ${profileData.display_name}, I'd like to connect with you!`,
-      });
+      const { error } = await sendConnectionRequest(
+        user.id,
+        profileData.id,
+        `Hi ${profileData.display_name}, I'd like to connect with you!`
+      );
 
       if (error) {
         throw new Error(error);

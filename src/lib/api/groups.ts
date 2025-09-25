@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
+// Types
 export interface Group {
   id: string;
   name: string;
@@ -39,13 +40,11 @@ export interface GroupMember {
   role: 'admin' | 'moderator' | 'member';
   status: 'active' | 'pending' | 'banned' | 'left';
   joined_at: string;
-  invited_by?: string;
   user?: {
     id: string;
     display_name: string;
     avatar?: string;
     role: string;
-    university?: string;
   };
 }
 
@@ -57,12 +56,8 @@ export interface GroupPost {
   content: string;
   post_type: 'discussion' | 'announcement' | 'resource' | 'question' | 'poll';
   is_pinned: boolean;
-  is_locked: boolean;
-  tags?: string[];
-  attachments?: any;
   created_at: string;
   updated_at: string;
-  comment_count?: number;
   author?: {
     id: string;
     display_name: string;
@@ -76,8 +71,6 @@ export interface GroupPostComment {
   post_id: string;
   author_id: string;
   content: string;
-  parent_comment_id?: string;
-  is_solution: boolean;
   created_at: string;
   updated_at: string;
   author?: {
@@ -86,7 +79,6 @@ export interface GroupPostComment {
     avatar?: string;
     role: string;
   };
-  replies?: GroupPostComment[];
 }
 
 export interface GroupInvitation {
@@ -94,17 +86,10 @@ export interface GroupInvitation {
   group_id: string;
   invited_user_id: string;
   invited_by: string;
-  message?: string;
   status: 'pending' | 'accepted' | 'declined' | 'expired';
   expires_at: string;
   created_at: string;
   group?: Group;
-  invited_user?: {
-    id: string;
-    display_name: string;
-    avatar?: string;
-    role: string;
-  };
   inviter?: {
     id: string;
     display_name: string;
@@ -117,10 +102,8 @@ export interface GroupJoinRequest {
   id: string;
   group_id: string;
   user_id: string;
-  message?: string;
   status: 'pending' | 'approved' | 'rejected';
-  reviewed_by?: string;
-  reviewed_at?: string;
+  message?: string;
   created_at: string;
   group?: Group;
   user?: {
@@ -128,7 +111,6 @@ export interface GroupJoinRequest {
     display_name: string;
     avatar?: string;
     role: string;
-    university?: string;
   };
 }
 
@@ -147,8 +129,8 @@ export const createGroup = async (groupData: {
     | 'postdoc'
     | 'faculty'
     | 'mixed';
-  max_members?: number;
-  is_private?: boolean;
+  max_members: number;
+  is_private: boolean;
   rules?: string;
 }): Promise<{ data: Group | null; error: string | null }> => {
   try {
@@ -164,8 +146,6 @@ export const createGroup = async (groupData: {
       .insert({
         ...groupData,
         created_by: user.id,
-        max_members: groupData.max_members || 50,
-        is_private: groupData.is_private || false,
       })
       .select(
         `
@@ -196,9 +176,8 @@ export const createGroup = async (groupData: {
 export const getGroups = async (filters?: {
   category?: string;
   university?: string;
-  subject_area?: string;
-  is_private?: boolean;
   search?: string;
+  limit?: number;
 }): Promise<{ data: Group[] | null; error: string | null }> => {
   try {
     let query = supabase
@@ -210,7 +189,8 @@ export const getGroups = async (filters?: {
         member_count:group_members(count)
       `
       )
-      .eq('is_private', false);
+      .eq('is_verified', true)
+      .order('created_at', { ascending: false });
 
     if (filters?.category) {
       query = query.eq('category', filters.category);
@@ -220,19 +200,17 @@ export const getGroups = async (filters?: {
       query = query.eq('university', filters.university);
     }
 
-    if (filters?.subject_area) {
-      query = query.eq('subject_area', filters.subject_area);
-    }
-
     if (filters?.search) {
       query = query.or(
-        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,subject_area.ilike.%${filters.search}%`
       );
     }
 
-    const { data, error } = await query.order('created_at', {
-      ascending: false,
-    });
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       return { data: null, error: error.message };
@@ -272,12 +250,23 @@ export const getGroup = async (
 
 export const updateGroup = async (
   groupId: string,
-  updates: Partial<Group>
+  groupData: Partial<{
+    name: string;
+    description: string;
+    category: string;
+    subject_area: string;
+    university: string;
+    department: string;
+    level: string;
+    max_members: number;
+    is_private: boolean;
+    rules: string;
+  }>
 ): Promise<{ data: Group | null; error: string | null }> => {
   try {
     const { data, error } = await supabase
       .from('groups')
-      .update(updates)
+      .update(groupData)
       .eq('id', groupId)
       .select(
         `
@@ -300,21 +289,21 @@ export const updateGroup = async (
 
 export const deleteGroup = async (
   groupId: string
-): Promise<{ error: string | null }> => {
+): Promise<{ data: null; error: string | null }> => {
   try {
     const { error } = await supabase.from('groups').delete().eq('id', groupId);
 
     if (error) {
-      return { error: error.message };
+      return { data: null, error: error.message };
     }
 
-    return { error: null };
+    return { data: null, error: null };
   } catch (error) {
-    return { error: 'Failed to delete group' };
+    return { data: null, error: 'Failed to delete group' };
   }
 };
 
-// Group Membership Functions
+// Member Management Functions
 export const getGroupMembers = async (
   groupId: string
 ): Promise<{ data: GroupMember[] | null; error: string | null }> => {
@@ -324,11 +313,12 @@ export const getGroupMembers = async (
       .select(
         `
         *,
-        user:user_id(id, display_name, avatar, role, university)
+        user:user_id(id, display_name, avatar, role)
       `
       )
       .eq('group_id', groupId)
       .eq('status', 'active')
+      .order('role', { ascending: false })
       .order('joined_at', { ascending: true });
 
     if (error) {
@@ -342,9 +332,8 @@ export const getGroupMembers = async (
 };
 
 export const joinGroup = async (
-  groupId: string,
-  message?: string
-): Promise<{ data: GroupJoinRequest | null; error: string | null }> => {
+  groupId: string
+): Promise<{ data: GroupMember | null; error: string | null }> => {
   try {
     const {
       data: { user },
@@ -353,38 +342,36 @@ export const joinGroup = async (
       return { data: null, error: 'User not authenticated' };
     }
 
-    // Check if group is private
-    const { data: group } = await supabase
+    // Check if group exists and is public
+    const { data: group, error: groupError } = await supabase
       .from('groups')
       .select('is_private')
       .eq('id', groupId)
       .single();
 
-    if (group?.is_private) {
-      // Create join request for private groups
+    if (groupError) {
+      return { data: null, error: 'Group not found' };
+    }
+
+    if (group.is_private) {
+      // For private groups, create a join request
       const { data, error } = await supabase
         .from('group_join_requests')
         .insert({
           group_id: groupId,
           user_id: user.id,
-          message,
+          status: 'pending',
         })
-        .select(
-          `
-          *,
-          group:group_id(*),
-          user:user_id(id, display_name, avatar, role, university)
-        `
-        )
+        .select()
         .single();
 
       if (error) {
         return { data: null, error: error.message };
       }
 
-      return { data, error: null };
+      return { data: null, error: 'Join request sent' };
     } else {
-      // Direct join for public groups
+      // For public groups, add directly as member
       const { data, error } = await supabase
         .from('group_members')
         .insert({
@@ -396,7 +383,7 @@ export const joinGroup = async (
         .select(
           `
           *,
-          user:user_id(id, display_name, avatar, role, university)
+          user:user_id(id, display_name, avatar, role)
         `
         )
         .single();
@@ -405,7 +392,7 @@ export const joinGroup = async (
         return { data: null, error: error.message };
       }
 
-      return { data: data as any, error: null };
+      return { data, error: null };
     }
   } catch (error) {
     return { data: null, error: 'Failed to join group' };
@@ -414,13 +401,13 @@ export const joinGroup = async (
 
 export const leaveGroup = async (
   groupId: string
-): Promise<{ error: string | null }> => {
+): Promise<{ data: null; error: string | null }> => {
   try {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return { error: 'User not authenticated' };
+      return { data: null, error: 'User not authenticated' };
     }
 
     const { error } = await supabase
@@ -430,12 +417,12 @@ export const leaveGroup = async (
       .eq('user_id', user.id);
 
     if (error) {
-      return { error: error.message };
+      return { data: null, error: error.message };
     }
 
-    return { error: null };
+    return { data: null, error: null };
   } catch (error) {
-    return { error: 'Failed to leave group' };
+    return { data: null, error: 'Failed to leave group' };
   }
 };
 
@@ -458,13 +445,15 @@ export const inviteToGroup = async (
         group_id: groupId,
         invited_user_id: userId,
         invited_by: user.id,
-        message,
+        status: 'pending',
+        expires_at: new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000
+        ).toISOString(), // 7 days
       })
       .select(
         `
         *,
         group:group_id(*),
-        invited_user:invited_user_id(id, display_name, avatar, role),
         inviter:invited_by(id, display_name, avatar, role)
       `
       )
@@ -482,55 +471,57 @@ export const inviteToGroup = async (
 
 export const respondToInvitation = async (
   invitationId: string,
-  status: 'accepted' | 'declined'
-): Promise<{ error: string | null }> => {
+  response: 'accepted' | 'declined'
+): Promise<{ data: null; error: string | null }> => {
   try {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return { error: 'User not authenticated' };
+      return { data: null, error: 'User not authenticated' };
     }
 
     // Update invitation status
-    const { error: updateError } = await supabase
+    const { error: invitationError } = await supabase
       .from('group_invitations')
-      .update({ status })
+      .update({ status: response })
       .eq('id', invitationId)
       .eq('invited_user_id', user.id);
 
-    if (updateError) {
-      return { error: updateError.message };
+    if (invitationError) {
+      return { data: null, error: invitationError.message };
     }
 
-    // If accepted, add user to group
-    if (status === 'accepted') {
-      const { data: invitation } = await supabase
+    if (response === 'accepted') {
+      // Get invitation details
+      const { data: invitation, error: fetchError } = await supabase
         .from('group_invitations')
         .select('group_id')
         .eq('id', invitationId)
         .single();
 
-      if (invitation) {
-        const { error: joinError } = await supabase
-          .from('group_members')
-          .insert({
-            group_id: invitation.group_id,
-            user_id: user.id,
-            role: 'member',
-            status: 'active',
-            invited_by: user.id,
-          });
+      if (fetchError) {
+        return { data: null, error: fetchError.message };
+      }
 
-        if (joinError) {
-          return { error: joinError.message };
-        }
+      // Add user to group
+      const { error: memberError } = await supabase
+        .from('group_members')
+        .insert({
+          group_id: invitation.group_id,
+          user_id: user.id,
+          role: 'member',
+          status: 'active',
+        });
+
+      if (memberError) {
+        return { data: null, error: memberError.message };
       }
     }
 
-    return { error: null };
+    return { data: null, error: null };
   } catch (error) {
-    return { error: 'Failed to respond to invitation' };
+    return { data: null, error: 'Failed to respond to invitation' };
   }
 };
 
@@ -588,13 +579,7 @@ export const createGroupPost = async (
   postData: {
     title: string;
     content: string;
-    post_type?:
-      | 'discussion'
-      | 'announcement'
-      | 'resource'
-      | 'question'
-      | 'poll';
-    tags?: string[];
+    post_type: 'discussion' | 'announcement' | 'resource' | 'question' | 'poll';
   }
 ): Promise<{ data: GroupPost | null; error: string | null }> => {
   try {
@@ -608,10 +593,9 @@ export const createGroupPost = async (
     const { data, error } = await supabase
       .from('group_posts')
       .insert({
+        ...postData,
         group_id: groupId,
         author_id: user.id,
-        ...postData,
-        post_type: postData.post_type || 'discussion',
       })
       .select(
         `
@@ -631,6 +615,94 @@ export const createGroupPost = async (
   }
 };
 
+export const updateGroupPost = async (
+  postId: string,
+  postData: Partial<{
+    title: string;
+    content: string;
+    post_type: string;
+  }>
+): Promise<{ data: GroupPost | null; error: string | null }> => {
+  try {
+    const { data, error } = await supabase
+      .from('group_posts')
+      .update(postData)
+      .eq('id', postId)
+      .select(
+        `
+        *,
+        author:author_id(id, display_name, avatar, role)
+      `
+      )
+      .single();
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to update post' };
+  }
+};
+
+export const deleteGroupPost = async (
+  postId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const { error } = await supabase
+      .from('group_posts')
+      .delete()
+      .eq('id', postId);
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to delete post' };
+  }
+};
+
+export const pinGroupPost = async (
+  postId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const { error } = await supabase
+      .from('group_posts')
+      .update({ is_pinned: true })
+      .eq('id', postId);
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to pin post' };
+  }
+};
+
+export const unpinGroupPost = async (
+  postId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const { error } = await supabase
+      .from('group_posts')
+      .update({ is_pinned: false })
+      .eq('id', postId);
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to unpin post' };
+  }
+};
+
 export const getGroupPostComments = async (
   postId: string
 ): Promise<{ data: GroupPostComment[] | null; error: string | null }> => {
@@ -640,12 +712,10 @@ export const getGroupPostComments = async (
       .select(
         `
         *,
-        author:author_id(id, display_name, avatar, role),
-        replies:parent_comment_id(*, author:author_id(id, display_name, avatar, role))
+        author:author_id(id, display_name, avatar, role)
       `
       )
       .eq('post_id', postId)
-      .is('parent_comment_id', null)
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -660,8 +730,9 @@ export const getGroupPostComments = async (
 
 export const createGroupPostComment = async (
   postId: string,
-  content: string,
-  parentCommentId?: string
+  commentData: {
+    content: string;
+  }
 ): Promise<{ data: GroupPostComment | null; error: string | null }> => {
   try {
     const {
@@ -674,10 +745,9 @@ export const createGroupPostComment = async (
     const { data, error } = await supabase
       .from('group_post_comments')
       .insert({
+        ...commentData,
         post_id: postId,
         author_id: user.id,
-        content,
-        parent_comment_id: parentCommentId,
       })
       .select(
         `
@@ -729,10 +799,82 @@ export const getUserGroups = async (
       return { data: null, error: error.message };
     }
 
-    const groups = data?.map((item) => item.group).filter(Boolean) || [];
+    const groups =
+      (data?.map((item) => item.group).filter(Boolean) as unknown as Group[]) ||
+      [];
     return { data: groups, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to fetch user groups' };
+  }
+};
+
+// Additional helper functions
+export const getGroupById = async (
+  groupId: string
+): Promise<{ data: Group | null; error: string | null }> => {
+  return getGroup(groupId);
+};
+
+export const removeGroupMember = async (
+  groupId: string,
+  userId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const { error } = await supabase
+      .from('group_members')
+      .update({ status: 'left' })
+      .eq('group_id', groupId)
+      .eq('user_id', userId);
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to remove member' };
+  }
+};
+
+export const promoteGroupMember = async (
+  groupId: string,
+  userId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const { error } = await supabase
+      .from('group_members')
+      .update({ role: 'moderator' })
+      .eq('group_id', groupId)
+      .eq('user_id', userId);
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to promote member' };
+  }
+};
+
+export const demoteGroupMember = async (
+  groupId: string,
+  userId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const { error } = await supabase
+      .from('group_members')
+      .update({ role: 'member' })
+      .eq('group_id', groupId)
+      .eq('user_id', userId);
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to demote member' };
   }
 };
 

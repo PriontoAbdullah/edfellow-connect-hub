@@ -370,7 +370,7 @@ const ProfessorDashboard = () => {
                   size='sm'
                   variant='outline'
                   className='mt-2'
-                  onClick={() => navigate('/explore')}
+                  onClick={() => navigate('/dashboard/explore')}
                 >
                   Find Connections
                 </Button>

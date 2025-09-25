@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ViewProfileModal from './ViewProfileModal';
 import { searchProfiles } from '@/lib/api/profiles';
 import { sendConnectionRequest, checkConnection } from '@/lib/api/connections';
-import { PublicProfile } from '@/types/profile';
+import { PublicProfile } from '@/lib/api/profiles';
 import {
   Search,
   Filter,
@@ -178,7 +178,7 @@ const SearchModal = ({ isOpen, onClose, userRole }: SearchModalProps) => {
         })
       );
 
-      setUsers(usersWithConnectionStatus);
+      setUsers(usersWithConnectionStatus as UserWithConnectionStatus[]);
     } catch (error) {
       console.error('Error searching users:', error);
       setError(
@@ -292,6 +292,12 @@ const SearchModal = ({ isOpen, onClose, userRole }: SearchModalProps) => {
     try {
       setConnectionLoading((prev) => new Set(prev).add(targetUser.id));
 
+      // Ensure only one modal is open
+      if (isViewProfileOpen) {
+        setIsViewProfileOpen(false);
+        setViewProfileData(null);
+      }
+
       if (targetUser.connectionStatus === 'pending_received') {
         // Handle accept request logic here if needed
         toast({
@@ -310,11 +316,12 @@ const SearchModal = ({ isOpen, onClose, userRole }: SearchModalProps) => {
         return;
       }
 
-      // Send connection request
-      const { error: requestError } = await sendConnectionRequest({
-        addressee_id: targetUser.id,
-        message: `Hi ${targetUser.display_name}, I'd like to connect with you!`,
-      });
+      // Send connection request (requesterId, addresseeId, message)
+      const { error: requestError } = await sendConnectionRequest(
+        user.id,
+        targetUser.id,
+        `Hi ${targetUser.display_name}, I'd like to connect with you!`
+      );
 
       if (requestError) {
         throw new Error(requestError);
@@ -504,7 +511,9 @@ const SearchModal = ({ isOpen, onClose, userRole }: SearchModalProps) => {
                               )}
                               {user.bio && (
                                 <p className='text-gray-500 text-xs truncate'>
-                                  {user.bio}
+                                  {user.bio.length > 50
+                                    ? `${user.bio.substring(0, 50)}...`
+                                    : user.bio}
                                 </p>
                               )}
                             </div>
@@ -528,7 +537,9 @@ const SearchModal = ({ isOpen, onClose, userRole }: SearchModalProps) => {
                             onClick={() => handleConnect(user)}
                             disabled={
                               isConnectionLoading ||
-                              user.connectionStatus === 'connected'
+                              user.connectionStatus === 'connected' ||
+                              user.connectionStatus === 'pending_sent' ||
+                              user.connectionStatus === 'pending_received'
                             }
                             className='flex items-center gap-1 min-w-[100px]'
                           >

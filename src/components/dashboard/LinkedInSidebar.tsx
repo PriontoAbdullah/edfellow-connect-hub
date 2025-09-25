@@ -6,6 +6,7 @@ import { CountryFlag } from '@/components/ui/CountryFlag';
 import { useToast } from '@/hooks/use-toast';
 import { getCountryCode } from '@/lib/countries';
 import { useRealtime } from '@/hooks/useRealtime';
+import { useChatContext } from '@/contexts/ChatContext';
 import {
   Bookmark,
   Users,
@@ -61,8 +62,10 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
   const location = useLocation();
   const { toast } = useToast();
   const { getUnreadCount } = useRealtime();
+  const { getTotalUnreadCount } = useChatContext();
 
   const unreadCounts = getUnreadCount();
+  const totalUnreadMessages = getTotalUnreadCount();
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -424,7 +427,7 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
             >
               <MessageSquare className='h-4 w-4 mr-3' />
               Messages
-              {unreadCounts.messages > 0 && (
+              {totalUnreadMessages > 0 && (
                 <span className='absolute right-2 h-2 w-2 bg-red-500 rounded-full'></span>
               )}
             </Button>

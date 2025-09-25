@@ -2,7 +2,7 @@ export interface Message {
   id: string;
   conversation_id: string;
   sender_id: string;
-  receiver_id: string;
+  receiver_id?: string; // Optional for conversation-based messaging
   content: string;
   message_type: 'text' | 'image' | 'file' | 'system';
   media_url?: string;
@@ -137,7 +137,9 @@ export interface ChatContextType {
   ) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
   editMessage: (messageId: string, content: string) => Promise<void>;
+  clearChat?: (conversationId: string) => Promise<void>;
   setError: (error: string | null) => void;
+  getTotalUnreadCount: () => number;
 }
 
 export interface MessageNotification {

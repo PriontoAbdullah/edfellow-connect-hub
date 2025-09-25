@@ -109,6 +109,21 @@ export const ConversationList: React.FC<ConversationListProps> = ({
     );
   }
 
+  // Filter conversations by search query
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filtered = normalizedQuery
+    ? conversations.filter((c) => {
+        const name = (getConversationName(c) || '').toLowerCase();
+        const role = (getConversationRole(c) || '').toLowerCase();
+        const last = (c.last_message?.content || '').toLowerCase();
+        return (
+          name.includes(normalizedQuery) ||
+          role.includes(normalizedQuery) ||
+          last.includes(normalizedQuery)
+        );
+      })
+    : conversations;
+
   return (
     <div className='h-full flex flex-col bg-gray-50'>
       <div className='p-4 border-b border-gray-200'>
@@ -129,18 +144,20 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
       <div className='flex-1 overflow-y-auto'>
         <div className='p-2'>
-          {conversations.length === 0 ? (
+          {filtered.length === 0 ? (
             <div className='text-center py-8'>
               <MessageSquare className='h-12 w-12 text-gray-400 mx-auto mb-4' />
               <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                No conversations yet
+                {normalizedQuery ? 'No matches found' : 'No conversations yet'}
               </h3>
               <p className='text-gray-600'>
-                Start a conversation with someone to begin messaging
+                {normalizedQuery
+                  ? 'Try a different search term'
+                  : 'Start a conversation with someone to begin messaging'}
               </p>
             </div>
           ) : (
-            conversations.map((conversation) => {
+            filtered.map((conversation) => {
               const isSelected = currentConversation?.id === conversation.id;
               const Icon = getConversationIcon(conversation);
 
@@ -186,17 +203,18 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                               )}
                             </span>
                           )}
-                          {conversation.unread_count &&
-                            conversation.unread_count > 0 && (
-                              <Badge
-                                variant='default'
-                                className='h-5 w-5 p-0 flex items-center justify-center text-xs'
-                              >
-                                {conversation.unread_count > 99
-                                  ? '99+'
-                                  : conversation.unread_count}
-                              </Badge>
-                            )}
+                          {conversation.unread_count
+                            ? conversation.unread_count > 0 && (
+                                <Badge
+                                  variant='default'
+                                  className='h-5 w-5 p-0 flex items-center justify-center text-xs'
+                                >
+                                  {conversation.unread_count > 99
+                                    ? '99+'
+                                    : conversation.unread_count}
+                                </Badge>
+                              )
+                            : null}
                         </div>
                       </div>
 

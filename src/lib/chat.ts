@@ -556,6 +556,21 @@ export const deleteMessage = async (messageId: string): Promise<void> => {
   }
 };
 
+export const clearConversationMessages = async (
+  conversationId: string
+): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('messages')
+      .delete()
+      .eq('conversation_id', conversationId);
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error clearing conversation messages:', error);
+    throw error;
+  }
+};
+
 // ============================================================================
 // USER FUNCTIONS
 // ============================================================================
