@@ -654,12 +654,17 @@ export const updateUserPresence = async (
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) return;
 
-    const { error } = await supabase.from('user_presence').upsert({
-      user_id: user.id,
-      status,
-      last_seen: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+    const { error } = await supabase.from('user_presence').upsert(
+      {
+        user_id: user.id,
+        status,
+        last_seen: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: 'user_id',
+      }
+    );
 
     if (error) throw error;
   } catch (error) {

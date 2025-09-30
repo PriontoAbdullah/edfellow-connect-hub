@@ -280,7 +280,7 @@ export const useGroups = (
           `
           *,
           creator:creator_id(*),
-          members:group_members(count)
+          group_members(count)
         `,
           { count: 'exact' }
         )
@@ -303,7 +303,15 @@ export const useGroups = (
       );
 
       if (error) throw error;
-      return { data: data || [], count: count || 0 };
+
+      // Transform the data to extract member_count from group_members
+      const transformedData =
+        data?.map((group) => ({
+          ...group,
+          member_count: group.group_members?.[0]?.count || 0,
+        })) || [];
+
+      return { data: transformedData, count: count || 0 };
     },
     { page, limit }
   );

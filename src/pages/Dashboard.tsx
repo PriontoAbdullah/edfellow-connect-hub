@@ -36,6 +36,7 @@ import Groups from '@/pages/Groups';
 import GroupDetail from '@/pages/GroupDetail';
 import Explore from '@/pages/Explore';
 import Analytics from '@/pages/Analytics';
+import Connections from '@/pages/Connections';
 
 const Dashboard = () => {
   const location = useLocation();
@@ -165,6 +166,7 @@ const Dashboard = () => {
     if (path.includes('/groups')) return 'Study Groups';
     if (path.includes('/explore')) return 'Explore';
     if (path.includes('/analytics')) return 'Analytics';
+    if (path.includes('/connections')) return 'My Network';
     return 'Dashboard';
   };
 
@@ -213,6 +215,8 @@ const Dashboard = () => {
     if (path.includes('/groups')) return 'Join and manage study groups';
     if (path.includes('/explore')) return 'Discover new opportunities';
     if (path.includes('/analytics')) return 'View your analytics and insights';
+    if (path.includes('/connections'))
+      return 'Manage your professional network and connections';
     return 'Welcome to your academic journey';
   };
 
@@ -300,6 +304,7 @@ const Dashboard = () => {
                 <Route path='/groups/:groupId' element={<GroupDetail />} />
                 <Route path='/explore' element={<Explore />} />
                 <Route path='/analytics' element={<Analytics />} />
+                <Route path='/connections' element={<Connections />} />
 
                 {/* University Routes */}
                 <Route path='/university' element={<UniversityDashboard />} />

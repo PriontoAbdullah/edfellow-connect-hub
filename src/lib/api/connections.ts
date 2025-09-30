@@ -461,8 +461,8 @@ export const checkConnection = async (
     const { data: sentRequest } = await supabase
       .from('connection_requests')
       .select('id, status')
-      .eq('requester_id', userId1)
-      .eq('addressee_id', userId2)
+      .eq('from_user_id', userId1)
+      .eq('to_user_id', userId2)
       .eq('status', 'pending')
       .single();
 
@@ -480,8 +480,8 @@ export const checkConnection = async (
     const { data: receivedRequest } = await supabase
       .from('connection_requests')
       .select('id, status')
-      .eq('requester_id', userId2)
-      .eq('addressee_id', userId1)
+      .eq('from_user_id', userId2)
+      .eq('to_user_id', userId1)
       .eq('status', 'pending')
       .single();
 

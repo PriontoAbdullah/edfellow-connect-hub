@@ -186,7 +186,7 @@ export const getGroups = async (filters?: {
         `
         *,
         creator:created_by(id, display_name, avatar, role),
-        member_count:group_members(count)
+        group_members(count)
       `
       )
       .eq('is_verified', true)
@@ -216,7 +216,13 @@ export const getGroups = async (filters?: {
       return { data: null, error: error.message };
     }
 
-    return { data, error: null };
+    // Transform the data to extract member_count from group_members
+    const transformedData = data?.map((group) => ({
+      ...group,
+      member_count: group.group_members?.[0]?.count || 0,
+    }));
+
+    return { data: transformedData || null, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to fetch groups' };
   }
@@ -232,7 +238,7 @@ export const getGroup = async (
         `
         *,
         creator:created_by(id, display_name, avatar, role),
-        member_count:group_members(count)
+        group_members(count)
       `
       )
       .eq('id', groupId)
@@ -242,7 +248,15 @@ export const getGroup = async (
       return { data: null, error: error.message };
     }
 
-    return { data, error: null };
+    // Transform the data to extract member_count from group_members
+    const transformedData = data
+      ? {
+          ...data,
+          member_count: data.group_members?.[0]?.count || 0,
+        }
+      : null;
+
+    return { data: transformedData, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to fetch group' };
   }
@@ -272,7 +286,7 @@ export const updateGroup = async (
         `
         *,
         creator:created_by(id, display_name, avatar, role),
-        member_count:group_members(count)
+        group_members(count)
       `
       )
       .single();
@@ -281,7 +295,15 @@ export const updateGroup = async (
       return { data: null, error: error.message };
     }
 
-    return { data, error: null };
+    // Transform the data to extract member_count from group_members
+    const transformedData = data
+      ? {
+          ...data,
+          member_count: data.group_members?.[0]?.count || 0,
+        }
+      : null;
+
+    return { data: transformedData, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to update group' };
   }
@@ -788,7 +810,7 @@ export const getUserGroups = async (
         group:group_id(
           *,
           creator:created_by(id, display_name, avatar, role),
-          member_count:group_members(count)
+          group_members(count)
         )
       `
       )
@@ -800,8 +822,17 @@ export const getUserGroups = async (
     }
 
     const groups =
-      (data?.map((item) => item.group).filter(Boolean) as unknown as Group[]) ||
-      [];
+      (data
+        ?.map((item) => {
+          const group = item.group;
+          return group
+            ? {
+                ...group,
+                member_count: group.group_members?.[0]?.count || 0,
+              }
+            : null;
+        })
+        .filter(Boolean) as unknown as Group[]) || [];
     return { data: groups, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to fetch user groups' };

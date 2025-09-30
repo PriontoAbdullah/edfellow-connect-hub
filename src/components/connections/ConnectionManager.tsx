@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import {
   acceptConnectionRequest,
   declineConnectionRequest,
+  cancelConnectionRequest,
   removeConnection,
   getUserConnections,
   getConnectionRequests,
@@ -72,11 +73,13 @@ interface ConnectionRequest {
 interface ConnectionManagerProps {
   userId: string;
   compact?: boolean;
+  onStatsUpdate?: () => void;
 }
 
 export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   userId,
   compact = false,
+  onStatsUpdate,
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -84,6 +87,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   const [connectionRequests, setConnectionRequests] = useState<
     ConnectionRequest[]
   >([]);
+  const [sentRequests, setSentRequests] = useState<ConnectionRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<
@@ -95,6 +99,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   useEffect(() => {
     fetchConnections();
     fetchConnectionRequests();
+    fetchSentRequests();
   }, [userId]);
 
   const fetchConnections = async () => {
@@ -144,11 +149,46 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
         console.error('Error fetching connection requests:', error);
         return;
       }
-      setConnectionRequests(data || []);
+      setConnectionRequests(
+        (data || []).map((request) => ({
+          ...request,
+          requester: {
+            ...request.requester,
+            role: request.requester.role as
+              | 'student'
+              | 'professor'
+              | 'university',
+          },
+        }))
+      );
     } catch (error) {
       console.error('Error fetching connection requests:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSentRequests = async () => {
+    try {
+      const { data, error } = await getConnectionRequests(userId, 'sent');
+      if (error) {
+        console.error('Error fetching sent requests:', error);
+        return;
+      }
+      setSentRequests(
+        (data || []).map((request) => ({
+          ...request,
+          requester: {
+            ...request.requester,
+            role: request.requester.role as
+              | 'student'
+              | 'professor'
+              | 'university',
+          },
+        }))
+      );
+    } catch (error) {
+      console.error('Error fetching sent requests:', error);
     }
   };
 
@@ -171,6 +211,8 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
 
       fetchConnections();
       fetchConnectionRequests();
+      fetchSentRequests();
+      onStatsUpdate?.();
     } catch (error) {
       toast({
         title: 'Error',
@@ -198,6 +240,8 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
       });
 
       fetchConnectionRequests();
+      fetchSentRequests();
+      onStatsUpdate?.();
     } catch (error) {
       toast({
         title: 'Error',
@@ -225,10 +269,40 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
       });
 
       fetchConnections();
+      fetchSentRequests();
+      onStatsUpdate?.();
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to remove connection',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCancelRequest = async (requestId: string) => {
+    try {
+      const { error } = await cancelConnectionRequest(requestId, userId);
+      if (error) {
+        toast({
+          title: 'Error',
+          description: error,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: 'Request Cancelled',
+        description: 'Connection request has been cancelled',
+      });
+
+      fetchSentRequests();
+      onStatsUpdate?.();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to cancel connection request',
         variant: 'destructive',
       });
     }
@@ -271,6 +345,9 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   });
 
   const pendingRequests = connectionRequests.filter(
+    (request) => request.status === 'pending'
+  );
+  const pendingSentRequests = sentRequests.filter(
     (request) => request.status === 'pending'
   );
 
@@ -338,7 +415,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
           <h3 className='text-lg font-semibold'>Connections</h3>
           <p className='text-sm text-muted-foreground'>
             {connections.length} connections • {pendingRequests.length} pending
-            requests
+            requests • {pendingSentRequests.length} sent requests
           </p>
         </div>
         <Button onClick={() => setIsSearchOpen(true)}>
@@ -385,7 +462,10 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
             Connections ({connections.length})
           </TabsTrigger>
           <TabsTrigger value='requests'>
-            Requests ({pendingRequests.length})
+            Received ({pendingRequests.length})
+          </TabsTrigger>
+          <TabsTrigger value='sent'>
+            Sent ({pendingSentRequests.length})
           </TabsTrigger>
         </TabsList>
 
@@ -583,6 +663,95 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
                         >
                           <XCircle className='w-3 h-3 mr-1' />
                           Decline
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value='sent' className='space-y-4'>
+          {pendingSentRequests.length === 0 ? (
+            <Card>
+              <CardContent className='p-6 text-center'>
+                <UserPlus className='w-12 h-12 text-muted-foreground mx-auto mb-4' />
+                <h3 className='text-lg font-medium mb-2'>No sent requests</h3>
+                <p className='text-muted-foreground'>
+                  You haven't sent any connection requests yet.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className='space-y-4'>
+              {pendingSentRequests.map((request) => (
+                <Card key={request.id}>
+                  <CardContent className='p-4'>
+                    <div className='flex items-start gap-3'>
+                      <Avatar className='w-12 h-12'>
+                        <AvatarImage src={request.requester.avatar} />
+                        <AvatarFallback>
+                          {request.requester.display_name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className='flex-1 min-w-0'>
+                        <div className='flex items-center gap-2 mb-1'>
+                          <h4 className='font-medium'>
+                            {request.requester.display_name}
+                          </h4>
+                          <Badge
+                            className={`text-xs ${getRoleColor(
+                              request.requester.role
+                            )}`}
+                          >
+                            {getRoleIcon(request.requester.role)}
+                            <span className='ml-1 capitalize'>
+                              {request.requester.role}
+                            </span>
+                          </Badge>
+                        </div>
+
+                        <div className='space-y-1 text-sm text-muted-foreground mb-2'>
+                          {request.requester.university && (
+                            <div className='flex items-center gap-1'>
+                              <GraduationCap className='w-3 h-3' />
+                              <span>{request.requester.university}</span>
+                            </div>
+                          )}
+                          <div className='flex items-center gap-1'>
+                            <MapPin className='w-3 h-3' />
+                            <span>{request.requester.country}</span>
+                          </div>
+                          <div className='flex items-center gap-1'>
+                            <Clock className='w-3 h-3' />
+                            <span>
+                              Sent{' '}
+                              {new Date(
+                                request.created_at
+                              ).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {request.message && (
+                          <div className='p-2 bg-muted rounded text-sm'>
+                            "{request.message}"
+                          </div>
+                        )}
+                      </div>
+
+                      <div className='flex flex-col gap-2'>
+                        <Button
+                          size='sm'
+                          variant='outline'
+                          onClick={() => handleCancelRequest(request.id)}
+                          className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                        >
+                          <XCircle className='w-3 h-3 mr-1' />
+                          Cancel
                         </Button>
                       </div>
                     </div>

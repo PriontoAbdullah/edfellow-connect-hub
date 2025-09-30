@@ -23,6 +23,7 @@ import {
   Globe,
   Star,
   TrendingUp,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';

@@ -40,6 +40,7 @@ import {
   Plus,
   ExternalLink,
   BarChart3,
+  UserPlus,
 } from 'lucide-react';
 
 interface LinkedInSidebarProps {
@@ -441,6 +442,14 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
               {unreadCounts.notifications > 0 && (
                 <span className='absolute right-2 h-2 w-2 bg-red-500 rounded-full'></span>
               )}
+            </Button>
+            <Button
+              variant='ghost'
+              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              onClick={() => navigate('/dashboard/connections')}
+            >
+              <UserPlus className='h-4 w-4 mr-3' />
+              My Network
             </Button>
           </div>
         </CardContent>
