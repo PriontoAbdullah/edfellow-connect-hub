@@ -63,6 +63,7 @@ import {
   joinGroup,
   leaveGroup,
   getGroupPosts,
+  getGroupPostsWithCommentCounts,
   createGroupPost,
   getGroupMembers,
   checkUserMembership,
@@ -221,7 +222,7 @@ const GroupDetail = () => {
     setPostsLoading(true);
     setPostError(null);
     try {
-      const { data, error } = await getGroupPosts(groupId);
+      const { data, error } = await getGroupPostsWithCommentCounts(groupId);
 
       if (error) {
         setPostError('Failed to load posts. Please try again.');
@@ -1301,7 +1302,8 @@ const GroupDetail = () => {
                                 <Reply className='h-4 w-4 mr-1' />
                                 Reply (
                                 {postComments[post.id]?.length ||
-                                  Math.floor(Math.random() * 10)}
+                                  (post as any).comment_count ||
+                                  0}
                                 )
                               </Button>
 
@@ -1651,7 +1653,7 @@ const GroupDetail = () => {
                               <div className='flex items-center gap-4 text-xs text-gray-500'>
                                 <span className='flex items-center gap-1'>
                                   <Users className='h-3 w-3' />
-                                  {postComments[post.id]?.length || 0} comments
+                                  {(post as any).comment_count || 0} comments
                                 </span>
                                 <span className='flex items-center gap-1'>
                                   <Heart className='h-3 w-3' />

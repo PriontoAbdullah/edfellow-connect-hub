@@ -706,8 +706,7 @@ export const getGroupPosts = async (
       .select(
         `
         *,
-        author:author_id(id, display_name, avatar, role, country),
-        comment_count:group_post_comments(count)
+        author:author_id(id, display_name, avatar, role, country)
       `
       )
       .eq('group_id', groupId)
@@ -890,6 +889,68 @@ export const getGroupPostComments = async (
     return { data, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to fetch comments' };
+  }
+};
+
+export const getGroupPostCommentCount = async (
+  postId: string
+): Promise<{ data: number; error: string | null }> => {
+  try {
+    const { count, error } = await supabase
+      .from('group_post_comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('post_id', postId);
+
+    if (error) {
+      return { data: 0, error: error.message };
+    }
+
+    return { data: count || 0, error: null };
+  } catch (error) {
+    return { data: 0, error: 'Failed to fetch comment count' };
+  }
+};
+
+export const getGroupPostsWithCommentCounts = async (
+  groupId: string,
+  filters?: {
+    post_type?: string;
+    search?: string;
+    pinned?: boolean;
+  }
+): Promise<{
+  data: (GroupPost & { comment_count: number })[] | null;
+  error: string | null;
+}> => {
+  try {
+    // First get the posts
+    const { data: posts, error: postsError } = await getGroupPosts(
+      groupId,
+      filters
+    );
+
+    if (postsError) {
+      return { data: null, error: postsError };
+    }
+
+    if (!posts) {
+      return { data: [], error: null };
+    }
+
+    // Get comment counts for each post
+    const postsWithCounts = await Promise.all(
+      posts.map(async (post) => {
+        const { data: commentCount } = await getGroupPostCommentCount(post.id);
+        return {
+          ...post,
+          comment_count: commentCount,
+        };
+      })
+    );
+
+    return { data: postsWithCounts, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to fetch posts with comment counts' };
   }
 };
 
