@@ -408,6 +408,101 @@ CREATE TRIGGER update_thread_reply_info_trigger
   AFTER INSERT OR DELETE ON public.forum_replies
   FOR EACH ROW EXECUTE FUNCTION public.update_thread_reply_info();
 
+-- Create group_post_likes table
+CREATE TABLE IF NOT EXISTS public.group_post_likes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id UUID NOT NULL REFERENCES public.group_posts(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(post_id, user_id)
+);
+
+-- Create group_events table
+CREATE TABLE IF NOT EXISTS public.group_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id UUID NOT NULL REFERENCES public.groups(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  event_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  event_end_date TIMESTAMP WITH TIME ZONE,
+  location TEXT,
+  is_online BOOLEAN DEFAULT FALSE,
+  meeting_url TEXT,
+  max_attendees INTEGER,
+  created_by UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create group_resources table
+CREATE TABLE IF NOT EXISTS public.group_resources (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id UUID NOT NULL REFERENCES public.groups(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  file_url TEXT NOT NULL,
+  file_name TEXT NOT NULL,
+  file_size INTEGER,
+  file_type TEXT,
+  resource_type TEXT NOT NULL DEFAULT 'file' CHECK (resource_type IN ('file', 'link', 'document', 'image', 'video')),
+  uploaded_by UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create group_polls table
+CREATE TABLE IF NOT EXISTS public.group_polls (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id UUID NOT NULL REFERENCES public.groups(id) ON DELETE CASCADE,
+  question TEXT NOT NULL,
+  description TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  is_multiple_choice BOOLEAN DEFAULT FALSE,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  created_by UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create group_poll_options table
+CREATE TABLE IF NOT EXISTS public.group_poll_options (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  poll_id UUID NOT NULL REFERENCES public.group_polls(id) ON DELETE CASCADE,
+  option_text TEXT NOT NULL,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create group_poll_votes table
+CREATE TABLE IF NOT EXISTS public.group_poll_votes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  poll_id UUID NOT NULL REFERENCES public.group_polls(id) ON DELETE CASCADE,
+  option_id UUID NOT NULL REFERENCES public.group_poll_options(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(poll_id, user_id)
+);
+
+-- Create indexes for new tables
+CREATE INDEX IF NOT EXISTS idx_group_post_likes_post_id ON public.group_post_likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_group_post_likes_user_id ON public.group_post_likes(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_group_events_group_id ON public.group_events(group_id);
+CREATE INDEX IF NOT EXISTS idx_group_events_event_date ON public.group_events(event_date);
+CREATE INDEX IF NOT EXISTS idx_group_events_created_by ON public.group_events(created_by);
+
+CREATE INDEX IF NOT EXISTS idx_group_resources_group_id ON public.group_resources(group_id);
+CREATE INDEX IF NOT EXISTS idx_group_resources_uploaded_by ON public.group_resources(uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_group_resources_resource_type ON public.group_resources(resource_type);
+
+CREATE INDEX IF NOT EXISTS idx_group_polls_group_id ON public.group_polls(group_id);
+CREATE INDEX IF NOT EXISTS idx_group_polls_created_by ON public.group_polls(created_by);
+CREATE INDEX IF NOT EXISTS idx_group_polls_is_active ON public.group_polls(is_active);
+
+CREATE INDEX IF NOT EXISTS idx_group_poll_options_poll_id ON public.group_poll_options(poll_id);
+CREATE INDEX IF NOT EXISTS idx_group_poll_votes_poll_id ON public.group_poll_votes(poll_id);
+CREATE INDEX IF NOT EXISTS idx_group_poll_votes_user_id ON public.group_poll_votes(user_id);
+
 -- Insert default forum categories
 INSERT INTO public.forum_categories (name, description, slug, sort_order) VALUES
 ('General Discussion', 'General topics and discussions', 'general', 1),

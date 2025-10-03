@@ -23,7 +23,6 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import CompleteProfile from './pages/CompleteProfile';
 import Dashboard from './pages/Dashboard';
-import PublicGroupDetail from './pages/PublicGroupDetail';
 import NotFound from './pages/NotFound';
 import Mentorship from './pages/Mentorship';
 import Forum from './pages/Forum';
@@ -31,6 +30,7 @@ import Opportunities from './pages/Opportunities';
 import RecentPosts from './pages/RecentPosts';
 import Chat from './pages/Chat';
 import Connections from './pages/Connections';
+import GroupDetail from './pages/GroupDetail';
 
 const queryClient = new QueryClient();
 
@@ -53,10 +53,7 @@ const App = () => (
                   <Route path='/about' element={<About />} />
                   <Route path='/features' element={<Features />} />
                   <Route path='/community' element={<Community />} />
-                  <Route
-                    path='/groups/:groupId'
-                    element={<PublicGroupDetail />}
-                  />
+                  <Route path='/groups/:groupId' element={<GroupDetail />} />
                   <Route
                     path='/signup'
                     element={

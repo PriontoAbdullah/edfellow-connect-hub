@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -12,8 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { getCountryCode } from '@/lib/countries';
+import { supabase } from '@/lib/supabase';
 import {
   Users,
   MessageSquare,
@@ -52,6 +55,8 @@ import {
   Clock,
   MapPin,
   Zap,
+  Upload,
+  X,
 } from 'lucide-react';
 import {
   getGroupById,
@@ -60,10 +65,22 @@ import {
   getGroupPosts,
   createGroupPost,
   getGroupMembers,
+  checkUserMembership,
+  likeGroupPost,
+  getGroupPostLikes,
+  checkUserLikedPost,
+  createGroupPostComment,
+  getGroupPostComments,
+  getGroupActivities,
+  getGroupEvents,
+  getGroupResources,
+  getGroupPolls,
+  voteOnPoll,
   type Group,
   type GroupPost,
   type GroupMember,
 } from '@/lib/api/groups';
+import { useGroupRealtime, usePostRealtime } from '@/hooks/useGroupRealtime';
 
 const GroupDetail = () => {
   const { groupId } = useParams<{ groupId: string }>();
@@ -75,12 +92,36 @@ const GroupDetail = () => {
   const [group, setGroup] = useState<Group | null>(null);
   const [posts, setPosts] = useState<GroupPost[]>([]);
   const [members, setMembers] = useState<GroupMember[]>([]);
+  const [userMembership, setUserMembership] = useState<GroupMember | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(false);
   const [membersLoading, setMembersLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<
     'posts' | 'members' | 'about' | 'activities'
   >('posts');
+
+  // Real-time data
+  const { activities, isConnected } = useGroupRealtime(groupId || '');
+
+  // Activities tab state
+  const [groupActivities, setGroupActivities] = useState<any[]>([]);
+  const [groupEvents, setGroupEvents] = useState<any[]>([]);
+  const [groupResources, setGroupResources] = useState<any[]>([]);
+  const [groupPolls, setGroupPolls] = useState<any[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+
+  // File upload state
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Error states
+  const [error, setError] = useState<string | null>(null);
+  const [postError, setPostError] = useState<string | null>(null);
+  const [membersError, setMembersError] = useState<string | null>(null);
+  const [activitiesError, setActivitiesError] = useState<string | null>(null);
 
   // Post creation state
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -108,6 +149,7 @@ const GroupDetail = () => {
   useEffect(() => {
     if (groupId) {
       loadGroupData();
+      loadActivitiesData();
     }
   }, [groupId]);
 
@@ -126,15 +168,16 @@ const GroupDetail = () => {
           description: groupError,
           variant: 'destructive',
         });
-        navigate('/groups');
+        navigate('/dashboard/groups');
         return;
       }
 
       setGroup(groupData);
 
-      // Load posts and members in parallel
+      // Load posts, members, and user membership in parallel
       loadPosts();
       loadMembers();
+      loadUserMembership();
     } catch (error) {
       console.error('Error loading group:', error);
       toast({
@@ -142,9 +185,33 @@ const GroupDetail = () => {
         description: 'Failed to load group',
         variant: 'destructive',
       });
-      navigate('/groups');
+      // Navigate back based on the current route
+      if (window.location.pathname.startsWith('/dashboard/')) {
+        navigate('/dashboard/groups');
+      } else {
+        navigate('/');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserMembership = async () => {
+    if (!groupId || !user) {
+      return;
+    }
+
+    try {
+      const { data, error } = await checkUserMembership(groupId, user.id);
+
+      if (error) {
+        setUserMembership(null);
+        return;
+      }
+
+      setUserMembership(data);
+    } catch (error) {
+      setUserMembership(null);
     }
   };
 
@@ -152,16 +219,46 @@ const GroupDetail = () => {
     if (!groupId) return;
 
     setPostsLoading(true);
+    setPostError(null);
     try {
       const { data, error } = await getGroupPosts(groupId);
 
       if (error) {
+        setPostError('Failed to load posts. Please try again.');
         console.error('Error loading posts:', error);
         return;
       }
 
       setPosts(data || []);
+
+      // Load like counts and user like status for each post
+      if (data && user) {
+        for (const post of data) {
+          try {
+            // Load like count
+            const { data: likesData } = await getGroupPostLikes(post.id);
+            if (likesData) {
+              setPostLikes((prev) => ({
+                ...prev,
+                [post.id]: likesData.length,
+              }));
+            }
+
+            // Check if user liked this post
+            const { data: userLiked } = await checkUserLikedPost(
+              post.id,
+              user.id
+            );
+            if (userLiked) {
+              setUserLikes((prev) => new Set(prev).add(post.id));
+            }
+          } catch (error) {
+            console.error('Error loading post interactions:', error);
+          }
+        }
+      }
     } catch (error) {
+      setPostError('Failed to load posts. Please try again.');
       console.error('Error loading posts:', error);
     } finally {
       setPostsLoading(false);
@@ -172,29 +269,111 @@ const GroupDetail = () => {
     if (!groupId) return;
 
     setMembersLoading(true);
+    setMembersError(null);
     try {
       const { data, error } = await getGroupMembers(groupId);
 
       if (error) {
+        setMembersError('Failed to load members. Please try again.');
         console.error('Error loading members:', error);
         return;
       }
 
       setMembers(data || []);
     } catch (error) {
+      setMembersError('Failed to load members. Please try again.');
       console.error('Error loading members:', error);
     } finally {
       setMembersLoading(false);
     }
   };
 
-  // Handle join/leave group
-  const handleJoinGroup = async () => {
-    if (!user || !groupId) return;
+  const loadActivitiesData = async () => {
+    if (!groupId) return;
+
+    setActivitiesLoading(true);
+    setActivitiesError(null);
+    try {
+      const [activitiesResult, eventsResult, resourcesResult, pollsResult] =
+        await Promise.all([
+          getGroupActivities(groupId),
+          getGroupEvents(groupId),
+          getGroupResources(groupId),
+          getGroupPolls(groupId),
+        ]);
+
+      if (activitiesResult.data) {
+        setGroupActivities(activitiesResult.data);
+      }
+      if (eventsResult.data) {
+        setGroupEvents(eventsResult.data);
+      }
+      if (resourcesResult.data) {
+        setGroupResources(resourcesResult.data);
+      }
+      if (pollsResult.data) {
+        setGroupPolls(pollsResult.data);
+      }
+    } catch (error) {
+      setActivitiesError('Failed to load activities data. Please try again.');
+      console.error('Error loading activities data:', error);
+    } finally {
+      setActivitiesLoading(false);
+    }
+  };
+
+  // File upload functions
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setSelectedFiles((prev) => [...prev, ...files]);
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadFiles = async (files: File[]): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
+
+    for (const file of files) {
+      try {
+        // Create a unique filename
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .substring(2)}.${fileExt}`;
+        const filePath = `group-attachments/${groupId}/${fileName}`;
+
+        // Upload to Supabase Storage
+        const { data, error } = await supabase.storage
+          .from('group-attachments')
+          .upload(filePath, file);
+
+        if (error) {
+          console.error('Error uploading file:', error);
+          continue;
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('group-attachments')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(urlData.publicUrl);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+
+    return uploadedUrls;
+  };
+
+  // Poll voting function
+  const handleVoteOnPoll = async (pollId: string, optionId: string) => {
+    if (!user || !isMember) return;
 
     try {
-      const { data, error } = await joinGroup(groupId);
-
+      const { error } = await voteOnPoll(pollId, optionId);
       if (error) {
         toast({
           title: 'Error',
@@ -206,11 +385,70 @@ const GroupDetail = () => {
 
       toast({
         title: 'Success',
+        description: 'Vote recorded successfully!',
+      });
+
+      // Refresh polls data
+      loadActivitiesData();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to vote on poll',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Handle join/leave group
+  const handleJoinGroup = async () => {
+    if (!user || !groupId) return;
+
+    // Check if user is already a member
+    if (isUserMember()) {
+      toast({
+        title: 'Already a Member',
+        description: 'You are already a member of this group',
+        variant: 'default',
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await joinGroup(groupId);
+
+      if (error) {
+        // Handle specific error cases
+        if (error.includes('already a member')) {
+          toast({
+            title: 'Already a Member',
+            description: 'You are already a member of this group',
+            variant: 'default',
+          });
+        } else if (error.includes('pending request')) {
+          toast({
+            title: 'Request Pending',
+            description:
+              'You already have a pending request to join this group',
+            variant: 'default',
+          });
+        } else {
+          toast({
+            title: 'Error',
+            description: error,
+            variant: 'destructive',
+          });
+        }
+        return;
+      }
+
+      toast({
+        title: 'Success',
         description: 'Join request sent successfully!',
       });
 
-      // Refresh group data
+      // Refresh group data and user membership
       loadGroupData();
+      loadUserMembership();
     } catch (error) {
       toast({
         title: 'Error',
@@ -240,7 +478,12 @@ const GroupDetail = () => {
         description: 'Left group successfully',
       });
 
-      navigate('/groups');
+      // Navigate back based on the current route
+      if (window.location.pathname.startsWith('/dashboard/')) {
+        navigate('/dashboard/groups');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast({
         title: 'Error',
@@ -256,8 +499,18 @@ const GroupDetail = () => {
     if (!groupId || !user) return;
 
     setCreatingPost(true);
+    setUploading(true);
     try {
-      const { data, error } = await createGroupPost(groupId, newPost);
+      // Upload files if any
+      let attachmentUrls: string[] = [];
+      if (selectedFiles.length > 0) {
+        attachmentUrls = await uploadFiles(selectedFiles);
+      }
+
+      const { data, error } = await createGroupPost(groupId, {
+        ...newPost,
+        attachments: attachmentUrls.length > 0 ? attachmentUrls : undefined,
+      });
 
       if (error) {
         toast({
@@ -274,6 +527,7 @@ const GroupDetail = () => {
       });
 
       setNewPost({ title: '', content: '', post_type: 'discussion' });
+      setSelectedFiles([]);
       setShowCreatePost(false);
       loadPosts();
     } catch (error) {
@@ -284,18 +538,30 @@ const GroupDetail = () => {
       });
     } finally {
       setCreatingPost(false);
+      setUploading(false);
     }
   };
 
   // Check if user is member
   const isUserMember = () => {
-    if (!user) return false;
-    // If members haven't loaded yet, return false to prevent showing join button
-    if (membersLoading) return false;
-    if (!members.length) return false;
-    return members.some(
-      (member) => member.user_id === user.id && member.status === 'active'
-    );
+    if (!user) {
+      return false;
+    }
+
+    // First try the dedicated userMembership state
+    if (userMembership) {
+      return userMembership.status === 'active';
+    }
+
+    // Fallback: check if user is in the members list
+    if (members && members.length > 0) {
+      const isInMembersList = members.some(
+        (member) => member.user_id === user.id && member.status === 'active'
+      );
+      return isInMembersList;
+    }
+
+    return false;
   };
 
   // Check if user is admin
@@ -320,74 +586,94 @@ const GroupDetail = () => {
   };
 
   const loadPostComments = async (postId: string) => {
-    // Simulate loading comments - replace with actual API call
-    const mockComments = [
-      {
-        id: `${postId}-comment-1`,
-        content: 'Great point! I think we should discuss this further.',
-        author: { display_name: 'Sarah Wilson', avatar: null },
-        created_at: new Date().toISOString(),
-        likes: 3,
-        replies: [],
-      },
-      {
-        id: `${postId}-comment-2`,
-        content:
-          'I agree with Sarah. This is really important for our study group.',
-        author: { display_name: 'Mike Chen', avatar: null },
-        created_at: new Date().toISOString(),
-        likes: 1,
-        replies: [],
-      },
-    ];
-    setPostComments((prev) => ({ ...prev, [postId]: mockComments }));
+    try {
+      const { data, error } = await getGroupPostComments(postId);
+      if (error) {
+        console.error('Error loading comments:', error);
+        return;
+      }
+      setPostComments((prev) => ({ ...prev, [postId]: data || [] }));
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    }
   };
 
-  const handleLikePost = (postId: string) => {
+  const handleLikePost = async (postId: string) => {
     if (!user) return;
 
-    setPostLikes((prev) => ({
-      ...prev,
-      [postId]: (prev[postId] || 0) + (userLikes.has(postId) ? -1 : 1),
-    }));
-
-    setUserLikes((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
+    try {
+      const { error } = await likeGroupPost(postId);
+      if (error) {
+        toast({
+          title: 'Error',
+          description: error,
+          variant: 'destructive',
+        });
+        return;
       }
-      return newSet;
-    });
+
+      // Update local state optimistically
+      setPostLikes((prev) => ({
+        ...prev,
+        [postId]: (prev[postId] || 0) + (userLikes.has(postId) ? -1 : 1),
+      }));
+
+      setUserLikes((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(postId)) {
+          newSet.delete(postId);
+        } else {
+          newSet.add(postId);
+        }
+        return newSet;
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to like post',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleAddComment = async (postId: string) => {
     if (!user || !newComments[postId]?.trim()) return;
 
-    const newComment = {
-      id: `${postId}-comment-${Date.now()}`,
-      content: newComments[postId],
-      author: {
-        display_name: userData?.displayName || 'You',
-        avatar: userData?.avatar,
-      },
-      created_at: new Date().toISOString(),
-      likes: 0,
-      replies: [],
-    };
+    try {
+      const { data, error } = await createGroupPostComment(postId, {
+        content: newComments[postId],
+      });
 
-    setPostComments((prev) => ({
-      ...prev,
-      [postId]: [...(prev[postId] || []), newComment],
-    }));
+      if (error) {
+        toast({
+          title: 'Error',
+          description: error,
+          variant: 'destructive',
+        });
+        return;
+      }
 
-    setNewComments((prev) => ({ ...prev, [postId]: '' }));
+      // Add the new comment to local state
+      if (data) {
+        setPostComments((prev) => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), data],
+        }));
+      }
 
-    toast({
-      title: 'Success',
-      description: 'Comment added successfully!',
-    });
+      setNewComments((prev) => ({ ...prev, [postId]: '' }));
+
+      toast({
+        title: 'Success',
+        description: 'Comment added successfully!',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to add comment',
+        variant: 'destructive',
+      });
+    }
   };
 
   const toggleReactions = (postId: string) => {
@@ -458,7 +744,16 @@ const GroupDetail = () => {
           <p className='text-gray-600 mb-4'>
             The group you're looking for doesn't exist or has been removed.
           </p>
-          <Button onClick={() => navigate('/groups')}>
+          <Button
+            onClick={() => {
+              // Navigate back based on the current route
+              if (window.location.pathname.startsWith('/dashboard/')) {
+                navigate('/dashboard/groups');
+              } else {
+                navigate('/');
+              }
+            }}
+          >
             <ArrowLeft className='h-4 w-4 mr-2' />
             Back to Groups
           </Button>
@@ -481,7 +776,9 @@ const GroupDetail = () => {
               <Button
                 variant='ghost'
                 size='sm'
-                onClick={() => navigate('/groups')}
+                onClick={() => {
+                  navigate('/dashboard/groups');
+                }}
               >
                 <ArrowLeft className='h-4 w-4 mr-2' />
                 Back
@@ -735,25 +1032,67 @@ const GroupDetail = () => {
                             />
                           </div>
 
-                          {/* Attachment Options */}
-                          <div className='flex items-center gap-2 text-sm text-gray-600'>
-                            <Button type='button' variant='ghost' size='sm'>
-                              <Image className='h-4 w-4 mr-1' />
-                              Image
-                            </Button>
-                            <Button type='button' variant='ghost' size='sm'>
-                              <FileText className='h-4 w-4 mr-1' />
-                              File
-                            </Button>
-                            <Button type='button' variant='ghost' size='sm'>
-                              <Link className='h-4 w-4 mr-1' />
-                              Link
-                            </Button>
-                            <Button type='button' variant='ghost' size='sm'>
-                              <BarChart3 className='h-4 w-4 mr-1' />
-                              Poll
+                          {/* File Upload */}
+                          <div>
+                            <input
+                              type='file'
+                              ref={fileInputRef}
+                              onChange={handleFileSelect}
+                              multiple
+                              accept='image/*,video/*,.pdf,.doc,.docx,.txt,.zip,.rar'
+                              className='hidden'
+                            />
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploading}
+                            >
+                              <Upload className='h-4 w-4 mr-2' />
+                              {uploading ? 'Uploading...' : 'Attach Files'}
                             </Button>
                           </div>
+
+                          {/* Selected Files */}
+                          {selectedFiles.length > 0 && (
+                            <div className='space-y-2'>
+                              <p className='text-sm font-medium text-gray-700'>
+                                Selected Files:
+                              </p>
+                              {selectedFiles.map((file, index) => (
+                                <div
+                                  key={index}
+                                  className='flex items-center justify-between p-2 bg-gray-50 rounded-lg'
+                                >
+                                  <div className='flex items-center gap-2'>
+                                    {file.type.startsWith('image/') ? (
+                                      <Image className='h-4 w-4 text-blue-600' />
+                                    ) : file.type.startsWith('video/') ? (
+                                      <Video className='h-4 w-4 text-purple-600' />
+                                    ) : (
+                                      <FileText className='h-4 w-4 text-gray-600' />
+                                    )}
+                                    <span className='text-sm text-gray-700'>
+                                      {file.name}
+                                    </span>
+                                    <span className='text-xs text-gray-500'>
+                                      ({(file.size / 1024 / 1024).toFixed(2)}{' '}
+                                      MB)
+                                    </span>
+                                  </div>
+                                  <Button
+                                    type='button'
+                                    variant='ghost'
+                                    size='sm'
+                                    onClick={() => removeFile(index)}
+                                  >
+                                    <X className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
 
                           <div className='flex justify-end gap-2'>
                             <Button
@@ -763,13 +1102,16 @@ const GroupDetail = () => {
                             >
                               Cancel
                             </Button>
-                            <Button type='submit' disabled={creatingPost}>
-                              {creatingPost ? (
+                            <Button
+                              type='submit'
+                              disabled={creatingPost || uploading}
+                            >
+                              {creatingPost || uploading ? (
                                 <Loader2 className='h-4 w-4 animate-spin mr-2' />
                               ) : (
                                 <Send className='h-4 w-4 mr-2' />
                               )}
-                              Post
+                              {uploading ? 'Uploading...' : 'Post'}
                             </Button>
                           </div>
                         </form>
@@ -784,6 +1126,23 @@ const GroupDetail = () => {
                     <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
                     <span className='ml-2 text-gray-600'>Loading posts...</span>
                   </div>
+                ) : postError ? (
+                  <Card>
+                    <CardContent className='p-8 text-center'>
+                      <div className='text-red-600 mb-4'>
+                        <MessageSquare className='h-12 w-12 mx-auto mb-2' />
+                        <p className='text-lg font-medium'>
+                          Error Loading Posts
+                        </p>
+                        <p className='text-sm text-gray-600 mt-2'>
+                          {postError}
+                        </p>
+                      </div>
+                      <Button onClick={loadPosts} variant='outline'>
+                        Try Again
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ) : posts.length === 0 ? (
                   <Card>
                     <CardContent className='p-8 text-center'>
@@ -805,12 +1164,26 @@ const GroupDetail = () => {
                         <CardHeader>
                           <div className='flex items-start justify-between'>
                             <div className='flex items-center gap-3'>
-                              <Avatar className='h-8 w-8'>
-                                <AvatarImage src={post.author?.avatar} />
-                                <AvatarFallback>
-                                  {post.author?.display_name?.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
+                              <div className='relative'>
+                                <Avatar className='h-8 w-8'>
+                                  <AvatarImage src={post.author?.avatar} />
+                                  <AvatarFallback>
+                                    {post.author?.display_name?.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {post.author?.country && (
+                                  <div className='absolute -bottom-1 -right-1'>
+                                    <CountryFlag
+                                      code={
+                                        getCountryCode(post.author.country) ||
+                                        ''
+                                      }
+                                      size={12}
+                                      className='rounded-full border border-white'
+                                    />
+                                  </div>
+                                )}
+                              </div>
                               <div>
                                 <h3 className='font-semibold'>{post.title}</h3>
                                 <p className='text-sm text-gray-600'>
@@ -833,6 +1206,39 @@ const GroupDetail = () => {
                         </CardHeader>
                         <CardContent>
                           <p className='text-gray-700 mb-4'>{post.content}</p>
+
+                          {/* Post Attachments */}
+                          {post.attachments && post.attachments.length > 0 && (
+                            <div className='mb-4'>
+                              <p className='text-sm font-medium text-gray-700 mb-2'>
+                                Attachments:
+                              </p>
+                              <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
+                                {post.attachments.map((attachment, index) => (
+                                  <div
+                                    key={index}
+                                    className='flex items-center gap-2 p-2 bg-gray-50 rounded-lg'
+                                  >
+                                    {attachment.includes('image') ? (
+                                      <Image className='h-4 w-4 text-blue-600' />
+                                    ) : attachment.includes('video') ? (
+                                      <Video className='h-4 w-4 text-purple-600' />
+                                    ) : (
+                                      <FileText className='h-4 w-4 text-gray-600' />
+                                    )}
+                                    <a
+                                      href={attachment}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-sm text-blue-600 hover:underline truncate'
+                                    >
+                                      {attachment.split('/').pop()}
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
                           {/* Post Actions */}
                           <div className='flex items-center justify-between'>
@@ -959,16 +1365,31 @@ const GroupDetail = () => {
                                         key={comment.id}
                                         className='flex gap-3 p-3 bg-gray-50 rounded-lg'
                                       >
-                                        <Avatar className='h-8 w-8'>
-                                          <AvatarImage
-                                            src={comment.author.avatar}
-                                          />
-                                          <AvatarFallback>
-                                            {comment.author.display_name?.charAt(
-                                              0
-                                            )}
-                                          </AvatarFallback>
-                                        </Avatar>
+                                        <div className='relative'>
+                                          <Avatar className='h-8 w-8'>
+                                            <AvatarImage
+                                              src={comment.author.avatar}
+                                            />
+                                            <AvatarFallback>
+                                              {comment.author.display_name?.charAt(
+                                                0
+                                              )}
+                                            </AvatarFallback>
+                                          </Avatar>
+                                          {comment.author.country && (
+                                            <div className='absolute -bottom-1 -right-1'>
+                                              <CountryFlag
+                                                code={
+                                                  getCountryCode(
+                                                    comment.author.country
+                                                  ) || ''
+                                                }
+                                                size={10}
+                                                className='rounded-full border border-white'
+                                              />
+                                            </div>
+                                          )}
+                                        </div>
                                         <div className='flex-1'>
                                           <div className='flex items-center gap-2 mb-1'>
                                             <span className='font-medium text-sm'>
@@ -1019,12 +1440,27 @@ const GroupDetail = () => {
                               {isMember && (
                                 <div className='bg-blue-50 p-4 rounded-lg'>
                                   <div className='flex items-start gap-3'>
-                                    <Avatar className='h-8 w-8'>
-                                      <AvatarImage src={userData?.avatar} />
-                                      <AvatarFallback>
-                                        {userData?.displayName?.charAt(0)}
-                                      </AvatarFallback>
-                                    </Avatar>
+                                    <div className='relative'>
+                                      <Avatar className='h-8 w-8'>
+                                        <AvatarImage src={userData?.avatar} />
+                                        <AvatarFallback>
+                                          {userData?.displayName?.charAt(0)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      {userData?.country && (
+                                        <div className='absolute -bottom-1 -right-1'>
+                                          <CountryFlag
+                                            code={
+                                              getCountryCode(
+                                                userData.country
+                                              ) || ''
+                                            }
+                                            size={10}
+                                            className='rounded-full border border-white'
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
                                     <div className='flex-1'>
                                       <Textarea
                                         placeholder='Join the discussion...'
@@ -1169,96 +1605,75 @@ const GroupDetail = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className='space-y-4'>
-                      <div className='flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer'>
-                        <div className='p-2 bg-blue-100 rounded-full'>
-                          <MessageSquare className='h-4 w-4 text-blue-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <h4 className='font-medium text-sm mb-1'>
-                            Study session for upcoming exam
-                          </h4>
-                          <p className='text-xs text-gray-600 mb-2'>
-                            "When should we schedule our group study session? I
-                            think we need at least 3 hours..."
-                          </p>
-                          <div className='flex items-center gap-4 text-xs text-gray-500'>
-                            <span className='flex items-center gap-1'>
-                              <Users className='h-3 w-3' />
-                              12 participants
-                            </span>
-                            <span className='flex items-center gap-1'>
-                              <MessageSquare className='h-3 w-3' />8 comments
-                            </span>
-                            <span className='flex items-center gap-1'>
-                              <Heart className='h-3 w-3' />
-                              15 likes
-                            </span>
-                          </div>
-                        </div>
-                        <Badge variant='outline' className='text-xs'>
-                          Hot 🔥
-                        </Badge>
+                    {activitiesLoading ? (
+                      <div className='flex items-center justify-center py-8'>
+                        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
+                        <span className='ml-2 text-gray-600'>
+                          Loading discussions...
+                        </span>
                       </div>
-
-                      <div className='flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer'>
-                        <div className='p-2 bg-green-100 rounded-full'>
-                          <MessageSquare className='h-4 w-4 text-green-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <h4 className='font-medium text-sm mb-1'>
-                            Best resources for machine learning
-                          </h4>
-                          <p className='text-xs text-gray-600 mb-2'>
-                            "What are the best online courses and books you've
-                            found for ML?"
-                          </p>
-                          <div className='flex items-center gap-4 text-xs text-gray-500'>
-                            <span className='flex items-center gap-1'>
-                              <Users className='h-3 w-3' />8 participants
-                            </span>
-                            <span className='flex items-center gap-1'>
-                              <MessageSquare className='h-3 w-3' />5 comments
-                            </span>
-                            <span className='flex items-center gap-1'>
-                              <Heart className='h-3 w-3' />9 likes
-                            </span>
-                          </div>
-                        </div>
-                        <Badge variant='outline' className='text-xs'>
-                          Active
-                        </Badge>
+                    ) : activitiesError ? (
+                      <div className='text-center py-8 text-red-600'>
+                        <MessageSquare className='h-12 w-12 mx-auto mb-4 text-red-300' />
+                        <p>Error loading activities</p>
+                        <p className='text-sm text-gray-600 mt-2'>
+                          {activitiesError}
+                        </p>
+                        <Button
+                          onClick={loadActivitiesData}
+                          variant='outline'
+                          className='mt-4'
+                        >
+                          Try Again
+                        </Button>
                       </div>
-
-                      <div className='flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer'>
-                        <div className='p-2 bg-purple-100 rounded-full'>
-                          <MessageSquare className='h-4 w-4 text-purple-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <h4 className='font-medium text-sm mb-1'>
-                            Group project ideas
-                          </h4>
-                          <p className='text-xs text-gray-600 mb-2'>
-                            "Let's brainstorm some interesting project ideas for
-                            our final semester..."
-                          </p>
-                          <div className='flex items-center gap-4 text-xs text-gray-500'>
-                            <span className='flex items-center gap-1'>
-                              <Users className='h-3 w-3' />6 participants
-                            </span>
-                            <span className='flex items-center gap-1'>
-                              <MessageSquare className='h-3 w-3' />3 comments
-                            </span>
-                            <span className='flex items-center gap-1'>
-                              <Heart className='h-3 w-3' />7 likes
-                            </span>
+                    ) : posts.length > 0 ? (
+                      <div className='space-y-4'>
+                        {posts.slice(0, 3).map((post) => (
+                          <div
+                            key={post.id}
+                            className='flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer'
+                            onClick={() => setActiveTab('posts')}
+                          >
+                            <div className='p-2 bg-blue-100 rounded-full'>
+                              <MessageSquare className='h-4 w-4 text-blue-600' />
+                            </div>
+                            <div className='flex-1'>
+                              <h4 className='font-medium text-sm mb-1'>
+                                {post.title || 'Discussion'}
+                              </h4>
+                              <p className='text-xs text-gray-600 mb-2'>
+                                {post.content?.substring(0, 100)}
+                                {post.content &&
+                                  post.content.length > 100 &&
+                                  '...'}
+                              </p>
+                              <div className='flex items-center gap-4 text-xs text-gray-500'>
+                                <span className='flex items-center gap-1'>
+                                  <Users className='h-3 w-3' />
+                                  {postComments[post.id]?.length || 0} comments
+                                </span>
+                                <span className='flex items-center gap-1'>
+                                  <Heart className='h-3 w-3' />
+                                  {postLikes[post.id] || 0} likes
+                                </span>
+                              </div>
+                            </div>
+                            <Badge variant='outline' className='text-xs'>
+                              {postLikes[post.id] > 5 ? 'Hot 🔥' : 'Active'}
+                            </Badge>
                           </div>
-                        </div>
-                        <Badge variant='outline' className='text-xs'>
-                          New
-                        </Badge>
+                        ))}
                       </div>
-                    </div>
+                    ) : (
+                      <div className='text-center py-8 text-gray-500'>
+                        <MessageSquare className='h-12 w-12 mx-auto mb-4 text-gray-300' />
+                        <p>No discussions yet</p>
+                        <p className='text-sm'>
+                          Be the first to start a conversation!
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1271,72 +1686,58 @@ const GroupDetail = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className='space-y-4'>
-                      {/* Sample Activity Items */}
-                      <div className='flex items-start gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-blue-100 rounded-full'>
-                          <MessageSquare className='h-4 w-4 text-blue-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>
-                            New discussion started
-                          </p>
-                          <p className='text-xs text-gray-600'>
-                            "Study session for upcoming exam" by John Doe
-                          </p>
-                          <p className='text-xs text-gray-500 mt-1'>
-                            2 hours ago
-                          </p>
-                        </div>
+                    {activitiesLoading ? (
+                      <div className='flex items-center justify-center py-8'>
+                        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
+                        <span className='ml-2 text-gray-600'>
+                          Loading activities...
+                        </span>
                       </div>
-
-                      <div className='flex items-start gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-green-100 rounded-full'>
-                          <UserPlus className='h-4 w-4 text-green-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>
-                            New member joined
-                          </p>
-                          <p className='text-xs text-gray-600'>
-                            Sarah Wilson joined the group
-                          </p>
-                          <p className='text-xs text-gray-500 mt-1'>
-                            4 hours ago
-                          </p>
-                        </div>
+                    ) : groupActivities.length > 0 ? (
+                      <div className='space-y-4'>
+                        {groupActivities.slice(0, 5).map((activity, index) => (
+                          <div
+                            key={index}
+                            className='flex items-start gap-3 p-3 border rounded-lg'
+                          >
+                            <div className='p-2 bg-blue-100 rounded-full'>
+                              {activity.type === 'post' ? (
+                                <MessageSquare className='h-4 w-4 text-blue-600' />
+                              ) : activity.type === 'member_join' ? (
+                                <UserPlus className='h-4 w-4 text-green-600' />
+                              ) : (
+                                <MessageSquare className='h-4 w-4 text-blue-600' />
+                              )}
+                            </div>
+                            <div className='flex-1'>
+                              <p className='text-sm font-medium'>
+                                {activity.type === 'post'
+                                  ? 'New discussion started'
+                                  : activity.type === 'member_join'
+                                  ? 'New member joined'
+                                  : 'Activity'}
+                              </p>
+                              <p className='text-xs text-gray-600'>
+                                {activity.description}
+                              </p>
+                              <p className='text-xs text-gray-500 mt-1'>
+                                {new Date(
+                                  activity.created_at
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-
-                      <div className='flex items-start gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-purple-100 rounded-full'>
-                          <Calendar className='h-4 w-4 text-purple-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>Event created</p>
-                          <p className='text-xs text-gray-600'>
-                            "Weekly Study Group" - Tomorrow at 2:00 PM
-                          </p>
-                          <p className='text-xs text-gray-500 mt-1'>
-                            1 day ago
-                          </p>
-                        </div>
+                    ) : (
+                      <div className='text-center py-8 text-gray-500'>
+                        <MessageSquare className='h-12 w-12 mx-auto mb-4 text-gray-300' />
+                        <p>No recent activities</p>
+                        <p className='text-sm'>
+                          Activities will appear here as they happen
+                        </p>
                       </div>
-
-                      <div className='flex items-start gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-orange-100 rounded-full'>
-                          <FileText className='h-4 w-4 text-orange-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>Resource shared</p>
-                          <p className='text-xs text-gray-600'>
-                            "Chapter 5 Notes.pdf" by Mike Chen
-                          </p>
-                          <p className='text-xs text-gray-500 mt-1'>
-                            2 days ago
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1349,45 +1750,65 @@ const GroupDetail = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className='space-y-3'>
-                      <div className='flex items-center gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-blue-100 rounded-full'>
-                          <Calendar className='h-4 w-4 text-blue-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>
-                            Weekly Study Session
-                          </p>
-                          <p className='text-xs text-gray-600'>
-                            Tomorrow, 2:00 PM - 4:00 PM
-                          </p>
-                          <p className='text-xs text-gray-500'>
-                            Library Room 201
-                          </p>
-                        </div>
-                        <Button size='sm' variant='outline'>
-                          Join
-                        </Button>
+                    {activitiesLoading ? (
+                      <div className='flex items-center justify-center py-8'>
+                        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
+                        <span className='ml-2 text-gray-600'>
+                          Loading events...
+                        </span>
                       </div>
-
-                      <div className='flex items-center gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-green-100 rounded-full'>
-                          <Video className='h-4 w-4 text-green-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>
-                            Online Discussion
-                          </p>
-                          <p className='text-xs text-gray-600'>
-                            Friday, 7:00 PM - 8:00 PM
-                          </p>
-                          <p className='text-xs text-gray-500'>Zoom Meeting</p>
-                        </div>
-                        <Button size='sm' variant='outline'>
-                          Join
-                        </Button>
+                    ) : groupEvents.length > 0 ? (
+                      <div className='space-y-3'>
+                        {groupEvents.slice(0, 3).map((event) => (
+                          <div
+                            key={event.id}
+                            className='flex items-center gap-3 p-3 border rounded-lg'
+                          >
+                            <div className='p-2 bg-blue-100 rounded-full'>
+                              {event.is_online ? (
+                                <Video className='h-4 w-4 text-green-600' />
+                              ) : (
+                                <Calendar className='h-4 w-4 text-blue-600' />
+                              )}
+                            </div>
+                            <div className='flex-1'>
+                              <p className='text-sm font-medium'>
+                                {event.title}
+                              </p>
+                              <p className='text-xs text-gray-600'>
+                                {new Date(
+                                  event.event_date
+                                ).toLocaleDateString()}{' '}
+                                at{' '}
+                                {new Date(
+                                  event.event_date
+                                ).toLocaleTimeString()}
+                                {event.event_end_date &&
+                                  ` - ${new Date(
+                                    event.event_end_date
+                                  ).toLocaleTimeString()}`}
+                              </p>
+                              <p className='text-xs text-gray-500'>
+                                {event.is_online
+                                  ? 'Online Event'
+                                  : event.location || 'Location TBD'}
+                              </p>
+                            </div>
+                            <Button size='sm' variant='outline'>
+                              Join
+                            </Button>
+                          </div>
+                        ))}
                       </div>
-                    </div>
+                    ) : (
+                      <div className='text-center py-8 text-gray-500'>
+                        <Calendar className='h-12 w-12 mx-auto mb-4 text-gray-300' />
+                        <p>No upcoming events</p>
+                        <p className='text-sm'>
+                          Events will appear here when scheduled
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1400,39 +1821,70 @@ const GroupDetail = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className='space-y-3'>
-                      <div className='flex items-center gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-gray-100 rounded-full'>
-                          <FileText className='h-4 w-4 text-gray-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>
-                            Study Guide - Chapter 1-3
-                          </p>
-                          <p className='text-xs text-gray-600'>
-                            PDF • 2.3 MB • Shared by John Doe
-                          </p>
-                        </div>
-                        <Button size='sm' variant='outline'>
-                          Download
-                        </Button>
+                    {activitiesLoading ? (
+                      <div className='flex items-center justify-center py-8'>
+                        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
+                        <span className='ml-2 text-gray-600'>
+                          Loading resources...
+                        </span>
                       </div>
-
-                      <div className='flex items-center gap-3 p-3 border rounded-lg'>
-                        <div className='p-2 bg-gray-100 rounded-full'>
-                          <Image className='h-4 w-4 text-gray-600' />
-                        </div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium'>Formula Sheet</p>
-                          <p className='text-xs text-gray-600'>
-                            PNG • 1.1 MB • Shared by Sarah Wilson
-                          </p>
-                        </div>
-                        <Button size='sm' variant='outline'>
-                          Download
-                        </Button>
+                    ) : groupResources.length > 0 ? (
+                      <div className='space-y-3'>
+                        {groupResources.slice(0, 5).map((resource) => (
+                          <div
+                            key={resource.id}
+                            className='flex items-center gap-3 p-3 border rounded-lg'
+                          >
+                            <div className='p-2 bg-gray-100 rounded-full'>
+                              {resource.resource_type === 'image' ? (
+                                <Image className='h-4 w-4 text-gray-600' />
+                              ) : resource.resource_type === 'video' ? (
+                                <Video className='h-4 w-4 text-gray-600' />
+                              ) : (
+                                <FileText className='h-4 w-4 text-gray-600' />
+                              )}
+                            </div>
+                            <div className='flex-1'>
+                              <p className='text-sm font-medium'>
+                                {resource.title}
+                              </p>
+                              <p className='text-xs text-gray-600'>
+                                {resource.file_type?.toUpperCase()} •{' '}
+                                {resource.file_size
+                                  ? `${(
+                                      resource.file_size /
+                                      1024 /
+                                      1024
+                                    ).toFixed(1)} MB`
+                                  : 'Unknown size'}{' '}
+                                • Shared by{' '}
+                                {resource.uploaded_by?.display_name ||
+                                  'Unknown'}
+                              </p>
+                            </div>
+                            <Button
+                              size='sm'
+                              variant='outline'
+                              onClick={() =>
+                                window.open(resource.file_url, '_blank')
+                              }
+                            >
+                              {resource.resource_type === 'link'
+                                ? 'Open'
+                                : 'Download'}
+                            </Button>
+                          </div>
+                        ))}
                       </div>
-                    </div>
+                    ) : (
+                      <div className='text-center py-8 text-gray-500'>
+                        <FileText className='h-12 w-12 mx-auto mb-4 text-gray-300' />
+                        <p>No resources shared yet</p>
+                        <p className='text-sm'>
+                          Resources will appear here when shared
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1445,45 +1897,68 @@ const GroupDetail = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className='space-y-4'>
-                      <div className='p-4 border rounded-lg'>
-                        <h4 className='font-medium mb-3'>
-                          When should we schedule our next study session?
-                        </h4>
-                        <div className='space-y-2'>
-                          <div className='flex items-center gap-2'>
-                            <input type='radio' name='poll1' id='option1' />
-                            <label htmlFor='option1' className='text-sm'>
-                              Monday 2:00 PM
-                            </label>
-                            <span className='text-xs text-gray-500 ml-auto'>
-                              5 votes
-                            </span>
-                          </div>
-                          <div className='flex items-center gap-2'>
-                            <input type='radio' name='poll1' id='option2' />
-                            <label htmlFor='option2' className='text-sm'>
-                              Wednesday 3:00 PM
-                            </label>
-                            <span className='text-xs text-gray-500 ml-auto'>
-                              8 votes
-                            </span>
-                          </div>
-                          <div className='flex items-center gap-2'>
-                            <input type='radio' name='poll1' id='option3' />
-                            <label htmlFor='option3' className='text-sm'>
-                              Friday 1:00 PM
-                            </label>
-                            <span className='text-xs text-gray-500 ml-auto'>
-                              3 votes
-                            </span>
-                          </div>
-                        </div>
-                        <Button size='sm' className='mt-3'>
-                          Vote
-                        </Button>
+                    {activitiesLoading ? (
+                      <div className='flex items-center justify-center py-8'>
+                        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
+                        <span className='ml-2 text-gray-600'>
+                          Loading polls...
+                        </span>
                       </div>
-                    </div>
+                    ) : groupPolls.length > 0 ? (
+                      <div className='space-y-4'>
+                        {groupPolls.slice(0, 2).map((poll) => (
+                          <div key={poll.id} className='p-4 border rounded-lg'>
+                            <h4 className='font-medium mb-3'>
+                              {poll.question}
+                            </h4>
+                            {poll.description && (
+                              <p className='text-sm text-gray-600 mb-3'>
+                                {poll.description}
+                              </p>
+                            )}
+                            <div className='space-y-2'>
+                              {poll.options?.map((option) => (
+                                <div
+                                  key={option.id}
+                                  className='flex items-center gap-2'
+                                >
+                                  <input
+                                    type={
+                                      poll.is_multiple_choice
+                                        ? 'checkbox'
+                                        : 'radio'
+                                    }
+                                    name={`poll-${poll.id}`}
+                                    id={`option-${option.id}`}
+                                    disabled={!isMember}
+                                    onChange={() =>
+                                      handleVoteOnPoll(poll.id, option.id)
+                                    }
+                                  />
+                                  <label
+                                    htmlFor={`option-${option.id}`}
+                                    className='text-sm flex-1'
+                                  >
+                                    {option.option_text}
+                                  </label>
+                                  <span className='text-xs text-gray-500'>
+                                    {option.vote_count || 0} votes
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className='text-center py-8 text-gray-500'>
+                        <BarChart3 className='h-12 w-12 mx-auto mb-4 text-gray-300' />
+                        <p>No active polls</p>
+                        <p className='text-sm'>
+                          Polls will appear here when created
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -1499,18 +1974,48 @@ const GroupDetail = () => {
                       Loading members...
                     </span>
                   </div>
+                ) : membersError ? (
+                  <Card>
+                    <CardContent className='p-8 text-center'>
+                      <div className='text-red-600 mb-4'>
+                        <Users className='h-12 w-12 mx-auto mb-2' />
+                        <p className='text-lg font-medium'>
+                          Error Loading Members
+                        </p>
+                        <p className='text-sm text-gray-600 mt-2'>
+                          {membersError}
+                        </p>
+                      </div>
+                      <Button onClick={loadMembers} variant='outline'>
+                        Try Again
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ) : (
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                     {members.map((member) => (
                       <Card key={member.id}>
                         <CardContent className='p-4'>
                           <div className='flex items-center gap-3'>
-                            <Avatar className='h-10 w-10'>
-                              <AvatarImage src={member.user?.avatar} />
-                              <AvatarFallback>
-                                {member.user?.display_name?.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
+                            <div className='relative'>
+                              <Avatar className='h-10 w-10'>
+                                <AvatarImage src={member.user?.avatar} />
+                                <AvatarFallback>
+                                  {member.user?.display_name?.charAt(0)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {member.user?.country && (
+                                <div className='absolute -bottom-1 -right-1'>
+                                  <CountryFlag
+                                    code={
+                                      getCountryCode(member.user.country) || ''
+                                    }
+                                    size={12}
+                                    className='rounded-full border border-white'
+                                  />
+                                </div>
+                              )}
+                            </div>
                             <div className='flex-1'>
                               <h4 className='font-medium'>
                                 {member.user?.display_name}
@@ -1642,12 +2147,23 @@ const GroupDetail = () => {
                 <div className='space-y-3'>
                   {members.slice(0, 5).map((member) => (
                     <div key={member.id} className='flex items-center gap-3'>
-                      <Avatar className='h-8 w-8'>
-                        <AvatarImage src={member.user?.avatar} />
-                        <AvatarFallback>
-                          {member.user?.display_name?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className='relative'>
+                        <Avatar className='h-8 w-8'>
+                          <AvatarImage src={member.user?.avatar} />
+                          <AvatarFallback>
+                            {member.user?.display_name?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {member.user?.country && (
+                          <div className='absolute -bottom-1 -right-1'>
+                            <CountryFlag
+                              code={getCountryCode(member.user.country) || ''}
+                              size={10}
+                              className='rounded-full border border-white'
+                            />
+                          </div>
+                        )}
+                      </div>
                       <div className='flex-1'>
                         <p className='text-sm font-medium'>
                           {member.user?.display_name}

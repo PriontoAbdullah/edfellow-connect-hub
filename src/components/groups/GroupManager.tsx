@@ -122,17 +122,44 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
   const handleJoinGroup = async (groupId: string) => {
     if (!user) return;
 
+    // Check if user is already in the group
+    const isAlreadyMember = userGroups.some((group) => group.id === groupId);
+    if (isAlreadyMember) {
+      toast({
+        title: 'Already a Member',
+        description: 'You are already a member of this group',
+        variant: 'default',
+      });
+      return;
+    }
+
     setJoiningGroups((prev) => new Set(prev).add(groupId));
 
     try {
       const { data, error } = await joinGroup(groupId);
 
       if (error) {
-        toast({
-          title: 'Error',
-          description: error,
-          variant: 'destructive',
-        });
+        // Handle specific error cases
+        if (error.includes('already a member')) {
+          toast({
+            title: 'Already a Member',
+            description: 'You are already a member of this group',
+            variant: 'default',
+          });
+        } else if (error.includes('pending request')) {
+          toast({
+            title: 'Request Pending',
+            description:
+              'You already have a pending request to join this group',
+            variant: 'default',
+          });
+        } else {
+          toast({
+            title: 'Error',
+            description: error,
+            variant: 'destructive',
+          });
+        }
         return;
       }
 

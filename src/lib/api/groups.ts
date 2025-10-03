@@ -30,6 +30,7 @@ export interface Group {
     display_name: string;
     avatar?: string;
     role: string;
+    country?: string;
   };
 }
 
@@ -45,6 +46,7 @@ export interface GroupMember {
     display_name: string;
     avatar?: string;
     role: string;
+    country?: string;
   };
 }
 
@@ -55,7 +57,8 @@ export interface GroupPost {
   title: string;
   content: string;
   post_type: 'discussion' | 'announcement' | 'resource' | 'question' | 'poll';
-  is_pinned: boolean;
+  is_pinned?: boolean;
+  attachments?: string[];
   created_at: string;
   updated_at: string;
   author?: {
@@ -63,6 +66,7 @@ export interface GroupPost {
     display_name: string;
     avatar?: string;
     role: string;
+    country?: string;
   };
 }
 
@@ -78,6 +82,7 @@ export interface GroupPostComment {
     display_name: string;
     avatar?: string;
     role: string;
+    country?: string;
   };
 }
 
@@ -95,6 +100,7 @@ export interface GroupInvitation {
     display_name: string;
     avatar?: string;
     role: string;
+    country?: string;
   };
 }
 
@@ -111,6 +117,7 @@ export interface GroupJoinRequest {
     display_name: string;
     avatar?: string;
     role: string;
+    country?: string;
   };
 }
 
@@ -150,7 +157,7 @@ export const createGroup = async (groupData: {
       .select(
         `
         *,
-        creator:created_by(id, display_name, avatar, role)
+        creator:created_by(id, display_name, avatar, role, country)
       `
       )
       .single();
@@ -185,7 +192,7 @@ export const getGroups = async (filters?: {
       .select(
         `
         *,
-        creator:created_by(id, display_name, avatar, role),
+        creator:created_by(id, display_name, avatar, role, country),
         group_members(count)
       `
       )
@@ -237,7 +244,7 @@ export const getGroup = async (
       .select(
         `
         *,
-        creator:created_by(id, display_name, avatar, role),
+        creator:created_by(id, display_name, avatar, role, country),
         group_members(count)
       `
       )
@@ -285,7 +292,7 @@ export const updateGroup = async (
       .select(
         `
         *,
-        creator:created_by(id, display_name, avatar, role),
+        creator:created_by(id, display_name, avatar, role, country),
         group_members(count)
       `
       )
@@ -335,7 +342,7 @@ export const getGroupMembers = async (
       .select(
         `
         *,
-        user:user_id(id, display_name, avatar, role)
+        user:user_id(id, display_name, avatar, role, country)
       `
       )
       .eq('group_id', groupId)
@@ -353,6 +360,46 @@ export const getGroupMembers = async (
   }
 };
 
+export const checkUserMembership = async (
+  groupId: string,
+  userId: string
+): Promise<{ data: GroupMember | null; error: string | null }> => {
+  try {
+    console.log(
+      `[checkUserMembership] Checking membership for user ${userId} in group ${groupId}`
+    );
+
+    const { data, error } = await supabase
+      .from('group_members')
+      .select(
+        `
+        *,
+        user:user_id(id, display_name, avatar, role, country)
+      `
+      )
+      .eq('group_id', groupId)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('[checkUserMembership] Error:', error);
+      return { data: null, error: error.message };
+    }
+
+    console.log(`[checkUserMembership] Query result:`, data);
+
+    if (data && data.length > 0) {
+      console.log(`[checkUserMembership] Found membership:`, data[0]);
+      return { data: data[0], error: null };
+    } else {
+      console.log(`[checkUserMembership] No membership found`);
+      return { data: null, error: null };
+    }
+  } catch (error) {
+    console.error('[checkUserMembership] Exception:', error);
+    return { data: null, error: 'Failed to check membership' };
+  }
+};
+
 export const joinGroup = async (
   groupId: string
 ): Promise<{ data: GroupMember | null; error: string | null }> => {
@@ -362,6 +409,45 @@ export const joinGroup = async (
     } = await supabase.auth.getUser();
     if (!user) {
       return { data: null, error: 'User not authenticated' };
+    }
+
+    console.log(
+      `[joinGroup] User ${user.id} attempting to join group ${groupId}`
+    );
+
+    // Check if user is already a member
+    const { data: existingMembers, error: memberCheckError } = await supabase
+      .from('group_members')
+      .select('id, status')
+      .eq('group_id', groupId)
+      .eq('user_id', user.id);
+
+    if (memberCheckError) {
+      return { data: null, error: memberCheckError.message };
+    }
+
+    if (existingMembers && existingMembers.length > 0) {
+      const existingMember = existingMembers[0];
+      console.log(
+        `[joinGroup] User ${user.id} already has membership with status: ${existingMember.status}`
+      );
+      if (existingMember.status === 'active') {
+        return { data: null, error: 'You are already a member of this group' };
+      } else if (existingMember.status === 'pending') {
+        return {
+          data: null,
+          error: 'You already have a pending request to join this group',
+        };
+      } else if (existingMember.status === 'banned') {
+        return {
+          data: null,
+          error: 'You have been banned from this group',
+        };
+      }
+    } else {
+      console.log(
+        `[joinGroup] User ${user.id} is not a member of group ${groupId}`
+      );
     }
 
     // Check if group exists and is public
@@ -376,6 +462,39 @@ export const joinGroup = async (
     }
 
     if (group.is_private) {
+      // Check if user already has a pending join request
+      const { data: existingRequests, error: requestCheckError } =
+        await supabase
+          .from('group_join_requests')
+          .select('id, status')
+          .eq('group_id', groupId)
+          .eq('user_id', user.id);
+
+      if (requestCheckError) {
+        return { data: null, error: requestCheckError.message };
+      }
+
+      if (existingRequests && existingRequests.length > 0) {
+        const existingRequest = existingRequests[0];
+        if (existingRequest.status === 'pending') {
+          return {
+            data: null,
+            error: 'You already have a pending request to join this group',
+          };
+        } else if (existingRequest.status === 'approved') {
+          return {
+            data: null,
+            error: 'Your join request has already been approved',
+          };
+        } else if (existingRequest.status === 'rejected') {
+          return {
+            data: null,
+            error:
+              'Your previous join request was rejected. Please contact the group admin.',
+          };
+        }
+      }
+
       // For private groups, create a join request
       const { data, error } = await supabase
         .from('group_join_requests')
@@ -394,23 +513,48 @@ export const joinGroup = async (
       return { data: null, error: 'Join request sent' };
     } else {
       // For public groups, add directly as member
+      // Use upsert to handle potential race conditions
       const { data, error } = await supabase
         .from('group_members')
-        .insert({
-          group_id: groupId,
-          user_id: user.id,
-          role: 'member',
-          status: 'active',
-        })
+        .upsert(
+          {
+            group_id: groupId,
+            user_id: user.id,
+            role: 'member',
+            status: 'active',
+          },
+          {
+            onConflict: 'group_id,user_id',
+            ignoreDuplicates: false,
+          }
+        )
         .select(
           `
           *,
-          user:user_id(id, display_name, avatar, role)
+          user:user_id(id, display_name, avatar, role, country)
         `
         )
         .single();
 
       if (error) {
+        // If it's a duplicate key error, check if user is already a member
+        if (error.code === '23505') {
+          const { data: memberCheck } = await supabase
+            .from('group_members')
+            .select('status')
+            .eq('group_id', groupId)
+            .eq('user_id', user.id)
+            .single();
+
+          if (memberCheck?.status === 'active') {
+            return {
+              data: null,
+              error: 'You are already a member of this group',
+            };
+          } else {
+            return { data: null, error: 'Unable to join group at this time' };
+          }
+        }
         return { data: null, error: error.message };
       }
 
@@ -476,7 +620,7 @@ export const inviteToGroup = async (
         `
         *,
         group:group_id(*),
-        inviter:invited_by(id, display_name, avatar, role)
+        inviter:invited_by(id, display_name, avatar, role, country)
       `
       )
       .single();
@@ -562,12 +706,11 @@ export const getGroupPosts = async (
       .select(
         `
         *,
-        author:author_id(id, display_name, avatar, role),
+        author:author_id(id, display_name, avatar, role, country),
         comment_count:group_post_comments(count)
       `
       )
       .eq('group_id', groupId)
-      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (filters?.post_type) {
@@ -578,10 +721,6 @@ export const getGroupPosts = async (
       query = query.or(
         `title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`
       );
-    }
-
-    if (filters?.pinned !== undefined) {
-      query = query.eq('is_pinned', filters.pinned);
     }
 
     const { data, error } = await query;
@@ -602,6 +741,7 @@ export const createGroupPost = async (
     title: string;
     content: string;
     post_type: 'discussion' | 'announcement' | 'resource' | 'question' | 'poll';
+    attachments?: string[];
   }
 ): Promise<{ data: GroupPost | null; error: string | null }> => {
   try {
@@ -615,14 +755,17 @@ export const createGroupPost = async (
     const { data, error } = await supabase
       .from('group_posts')
       .insert({
-        ...postData,
+        title: postData.title,
+        content: postData.content,
+        post_type: postData.post_type,
+        attachments: postData.attachments || null,
         group_id: groupId,
         author_id: user.id,
       })
       .select(
         `
         *,
-        author:author_id(id, display_name, avatar, role)
+        author:author_id(id, display_name, avatar, role, country)
       `
       )
       .single();
@@ -653,7 +796,7 @@ export const updateGroupPost = async (
       .select(
         `
         *,
-        author:author_id(id, display_name, avatar, role)
+        author:author_id(id, display_name, avatar, role, country)
       `
       )
       .single();
@@ -734,7 +877,7 @@ export const getGroupPostComments = async (
       .select(
         `
         *,
-        author:author_id(id, display_name, avatar, role)
+        author:author_id(id, display_name, avatar, role, country)
       `
       )
       .eq('post_id', postId)
@@ -774,7 +917,7 @@ export const createGroupPostComment = async (
       .select(
         `
         *,
-        author:author_id(id, display_name, avatar, role)
+        author:author_id(id, display_name, avatar, role, country)
       `
       )
       .single();
@@ -809,7 +952,7 @@ export const getUserGroups = async (
         `
         group:group_id(
           *,
-          creator:created_by(id, display_name, avatar, role),
+          creator:created_by(id, display_name, avatar, role, country),
           group_members(count)
         )
       `
@@ -927,7 +1070,7 @@ export const getUserInvitations = async (): Promise<{
         `
         *,
         group:group_id(*),
-        inviter:invited_by(id, display_name, avatar, role)
+        inviter:invited_by(id, display_name, avatar, role, country)
       `
       )
       .eq('invited_user_id', user.id)
@@ -942,5 +1085,304 @@ export const getUserInvitations = async (): Promise<{
     return { data, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to fetch invitations' };
+  }
+};
+
+// Group Post Likes and Reactions
+export const likeGroupPost = async (
+  postId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { data: null, error: 'User not authenticated' };
+    }
+
+    // Check if already liked
+    const { data: existingLike } = await supabase
+      .from('group_post_likes')
+      .select('id')
+      .eq('post_id', postId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (existingLike) {
+      // Unlike the post
+      const { error } = await supabase
+        .from('group_post_likes')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        return { data: null, error: error.message };
+      }
+    } else {
+      // Like the post
+      const { error } = await supabase.from('group_post_likes').insert({
+        post_id: postId,
+        user_id: user.id,
+      });
+
+      if (error) {
+        return { data: null, error: error.message };
+      }
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to like/unlike post' };
+  }
+};
+
+export const getGroupPostLikes = async (
+  postId: string
+): Promise<{ data: any[] | null; error: string | null }> => {
+  try {
+    const { data, error } = await supabase
+      .from('group_post_likes')
+      .select(
+        `
+        *,
+        user:user_id(id, display_name, avatar, role, country)
+      `
+      )
+      .eq('post_id', postId);
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to fetch post likes' };
+  }
+};
+
+export const checkUserLikedPost = async (
+  postId: string,
+  userId?: string
+): Promise<{ data: boolean; error: string | null }> => {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const targetUserId = userId || user?.id;
+
+    if (!targetUserId) {
+      return { data: false, error: 'User not authenticated' };
+    }
+
+    const { data, error } = await supabase
+      .from('group_post_likes')
+      .select('id')
+      .eq('post_id', postId)
+      .eq('user_id', targetUserId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      return { data: false, error: error.message };
+    }
+
+    return { data: !!data, error: null };
+  } catch (error) {
+    return { data: false, error: 'Failed to check like status' };
+  }
+};
+
+// Group Activities
+export const getGroupActivities = async (
+  groupId: string,
+  limit: number = 20
+): Promise<{ data: any[] | null; error: string | null }> => {
+  try {
+    // Get recent posts
+    const { data: posts, error: postsError } = await supabase
+      .from('group_posts')
+      .select(
+        `
+        id,
+        title,
+        post_type,
+        created_at,
+        author:author_id(id, display_name, avatar, role, country)
+      `
+      )
+      .eq('group_id', groupId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (postsError) {
+      return { data: null, error: postsError.message };
+    }
+
+    // Get recent member joins
+    const { data: members, error: membersError } = await supabase
+      .from('group_members')
+      .select(
+        `
+        id,
+        joined_at,
+        user:user_id(id, display_name, avatar, role, country)
+      `
+      )
+      .eq('group_id', groupId)
+      .eq('status', 'active')
+      .order('joined_at', { ascending: false })
+      .limit(limit);
+
+    if (membersError) {
+      return { data: null, error: membersError.message };
+    }
+
+    // Combine and sort activities
+    const activities = [
+      ...(posts || []).map((post) => ({
+        id: post.id,
+        type: 'post',
+        action: 'created',
+        data: post,
+        created_at: post.created_at,
+      })),
+      ...(members || []).map((member) => ({
+        id: member.id,
+        type: 'member',
+        action: 'joined',
+        data: member,
+        created_at: member.joined_at,
+      })),
+    ].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    return { data: activities.slice(0, limit), error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to fetch group activities' };
+  }
+};
+
+// Group Events
+export const getGroupEvents = async (
+  groupId: string
+): Promise<{ data: any[] | null; error: string | null }> => {
+  try {
+    const { data, error } = await supabase
+      .from('group_events')
+      .select(
+        `
+        *,
+        created_by:created_by(id, display_name, avatar, role, country)
+      `
+      )
+      .eq('group_id', groupId)
+      .gte('event_date', new Date().toISOString())
+      .order('event_date', { ascending: true });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to fetch group events' };
+  }
+};
+
+// Group Resources
+export const getGroupResources = async (
+  groupId: string
+): Promise<{ data: any[] | null; error: string | null }> => {
+  try {
+    const { data, error } = await supabase
+      .from('group_resources')
+      .select(
+        `
+        *,
+        uploaded_by:uploaded_by(id, display_name, avatar, role, country)
+      `
+      )
+      .eq('group_id', groupId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to fetch group resources' };
+  }
+};
+
+// Group Polls
+export const getGroupPolls = async (
+  groupId: string
+): Promise<{ data: any[] | null; error: string | null }> => {
+  try {
+    const { data, error } = await supabase
+      .from('group_polls')
+      .select(
+        `
+        *,
+        created_by:created_by(id, display_name, avatar, role, country),
+        poll_options(*),
+        poll_votes(*)
+      `
+      )
+      .eq('group_id', groupId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to fetch group polls' };
+  }
+};
+
+export const voteOnPoll = async (
+  pollId: string,
+  optionId: string
+): Promise<{ data: null; error: string | null }> => {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { data: null, error: 'User not authenticated' };
+    }
+
+    // Check if user already voted
+    const { data: existingVote } = await supabase
+      .from('group_poll_votes')
+      .select('id')
+      .eq('poll_id', pollId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (existingVote) {
+      return { data: null, error: 'You have already voted on this poll' };
+    }
+
+    // Add vote
+    const { error } = await supabase.from('group_poll_votes').insert({
+      poll_id: pollId,
+      option_id: optionId,
+      user_id: user.id,
+    });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: 'Failed to vote on poll' };
   }
 };
