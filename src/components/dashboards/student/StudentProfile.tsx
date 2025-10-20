@@ -60,6 +60,7 @@ import { CountryFlag } from '@/components/ui/CountryFlag';
 import CountrySelect from '@/components/ui/CountrySelect';
 import { getCountryCode } from '@/lib/countries';
 import { useToast } from '@/hooks/use-toast';
+import { useDocumentUpload } from '@/hooks/useFileUpload';
 import {
   Dialog,
   DialogContent,
@@ -465,21 +466,44 @@ const StudentProfile = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleUploadCV = () => {
-    // Simulate file upload
-    const newCV: CV = {
-      id: Date.now().toString(),
-      name: 'New_CV.pdf',
-      url: '/uploads/cv/new_cv.pdf',
-      uploadedAt: new Date().toISOString().split('T')[0],
-      isPublic: false,
-      type: 'resume',
-    };
-    setCvs([...cvs, newCV]);
-    toast({
-      title: 'CV Uploaded',
-      description: 'Your CV has been successfully uploaded.',
-    });
+  const { uploadDocument, uploading: uploadingDoc } = useDocumentUpload();
+
+  const handleUploadCV = async (
+    file?: File,
+    type: CV['type'] = 'resume',
+    isPublic = false
+  ) => {
+    try {
+      if (!file) return;
+      const { data, error } = await uploadDocument(file, 'cv');
+      if (error || !data) {
+        toast({
+          title: 'Upload failed',
+          description: error || 'Please try again',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const newCV: CV = {
+        id: Date.now().toString(),
+        name: file.name,
+        url: data.url,
+        uploadedAt: new Date().toISOString().split('T')[0],
+        isPublic,
+        type,
+      };
+      setCvs((prev) => [...prev, newCV]);
+      toast({
+        title: 'CV Uploaded',
+        description: 'Your document has been uploaded.',
+      });
+    } catch (e) {
+      toast({
+        title: 'Upload failed',
+        description: 'Unexpected error',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDownloadCV = (cv: CV) => {
@@ -2360,15 +2384,17 @@ const StudentProfile = () => {
                       </div>
                       <div>
                         <label className='text-sm font-medium'>File</label>
-                        <div className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center'>
-                          <Upload className='h-8 w-8 mx-auto text-gray-400 mb-2' />
-                          <p className='text-sm text-gray-600'>
-                            Click to upload or drag and drop
-                          </p>
-                          <p className='text-xs text-gray-500 mt-1'>
-                            PDF, DOC, DOCX up to 10MB
-                          </p>
-                        </div>
+                        <input
+                          type='file'
+                          accept='.pdf,.doc,.docx,.txt,image/*'
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleUploadCV(file);
+                            }
+                          }}
+                          className='block w-full text-sm border rounded p-2'
+                        />
                       </div>
                       <div className='flex gap-2'>
                         <Button
@@ -2377,8 +2403,11 @@ const StudentProfile = () => {
                         >
                           Cancel
                         </Button>
-                        <Button className='flex-1 bg-blue-600 hover:bg-blue-700 text-white border-blue-600'>
-                          Upload Document
+                        <Button
+                          disabled
+                          className='flex-1 bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                        >
+                          {uploadingDoc ? 'Uploading...' : 'Upload Document'}
                         </Button>
                       </div>
                     </div>

@@ -364,6 +364,40 @@ const UniversityDashboard = () => {
 
       {/* Right Sidebar */}
       <div className='lg:col-span-4 space-y-4'>
+        {/* Actions */}
+        <Card className='bg-white border border-gray-200 shadow-sm'>
+          <CardHeader className='pb-3'>
+            <CardTitle className='text-lg font-semibold text-gray-900'>
+              Quick Actions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-2'>
+            <Button
+              size='sm'
+              className='w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full'
+              onClick={() => navigate('/programs')}
+            >
+              <Megaphone className='h-4 w-4 mr-2' /> Promote Program
+            </Button>
+            <Button
+              size='sm'
+              variant='outline'
+              className='w-full rounded-full'
+              onClick={() => navigate('/opportunities')}
+            >
+              <Grid3X3 className='h-4 w-4 mr-2' /> Opportunities Portal
+            </Button>
+            <Button
+              size='sm'
+              variant='outline'
+              className='w-full rounded-full'
+              onClick={() => navigate('/recruiting')}
+            >
+              <UserPlus className='h-4 w-4 mr-2' /> Recruitment Tools
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* My Programs */}
         <Card className='bg-white border border-gray-200 shadow-sm'>
           <CardHeader className='pb-3'>

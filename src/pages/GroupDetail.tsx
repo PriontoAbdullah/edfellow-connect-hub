@@ -82,6 +82,7 @@ import {
   type GroupMember,
 } from '@/lib/api/groups';
 import { useGroupRealtime, usePostRealtime } from '@/hooks/useGroupRealtime';
+import { sendConnectionRequest } from '@/lib/api/connections';
 
 const GroupDetail = () => {
   const { groupId } = useParams<{ groupId: string }>();
@@ -902,13 +903,29 @@ const GroupDetail = () => {
                     </CardHeader>
                     <CardContent>
                       {!showCreatePost ? (
-                        <Button
-                          onClick={() => setShowCreatePost(true)}
-                          className='w-full'
-                        >
-                          <MessageSquare className='h-4 w-4 mr-2' />
-                          What's on your mind?
-                        </Button>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+                          <Button
+                            onClick={() => setShowCreatePost(true)}
+                            className='w-full'
+                          >
+                            <MessageSquare className='h-4 w-4 mr-2' />
+                            Start Discussion
+                          </Button>
+                          <Button
+                            variant='outline'
+                            onClick={() => {
+                              setShowCreatePost(true);
+                              setNewPost((p) => ({
+                                ...p,
+                                post_type: 'announcement',
+                              }));
+                            }}
+                            className='w-full'
+                          >
+                            <Megaphone className='h-4 w-4 mr-2' />
+                            Announcement
+                          </Button>
+                        </div>
                       ) : (
                         <form onSubmit={handleCreatePost} className='space-y-4'>
                           <div>
@@ -2035,6 +2052,48 @@ const GroupDetail = () => {
                                 </Badge>
                               )}
                             </div>
+                            {user?.id &&
+                              member.user?.id &&
+                              member.user.id !== user.id && (
+                                <Button
+                                  size='sm'
+                                  variant='outline'
+                                  className='text-xs'
+                                  onClick={async () => {
+                                    try {
+                                      const { error } =
+                                        await sendConnectionRequest(
+                                          user.id,
+                                          member.user!.id,
+                                          `Hi ${
+                                            member.user!.display_name
+                                          }, let’s connect from our group!`
+                                        );
+                                      if (error) {
+                                        toast({
+                                          title: 'Error',
+                                          description: error,
+                                          variant: 'destructive',
+                                        });
+                                      } else {
+                                        toast({
+                                          title: 'Request sent',
+                                          description:
+                                            'Connection request sent.',
+                                        });
+                                      }
+                                    } catch (e) {
+                                      toast({
+                                        title: 'Error',
+                                        description: 'Failed to send request',
+                                        variant: 'destructive',
+                                      });
+                                    }
+                                  }}
+                                >
+                                  Connect
+                                </Button>
+                              )}
                           </div>
                         </CardContent>
                       </Card>
@@ -2175,6 +2234,46 @@ const GroupDetail = () => {
                           {new Date(member.joined_at).toLocaleDateString()}
                         </p>
                       </div>
+                      {user?.id &&
+                        member.user?.id &&
+                        member.user.id !== user.id && (
+                          <Button
+                            size='sm'
+                            variant='outline'
+                            className='text-xs'
+                            onClick={async () => {
+                              try {
+                                const { error } = await sendConnectionRequest(
+                                  user.id,
+                                  member.user!.id,
+                                  `Hi ${
+                                    member.user!.display_name
+                                  }, let’s connect from our group!`
+                                );
+                                if (error) {
+                                  toast({
+                                    title: 'Error',
+                                    description: error,
+                                    variant: 'destructive',
+                                  });
+                                } else {
+                                  toast({
+                                    title: 'Request sent',
+                                    description: 'Connection request sent.',
+                                  });
+                                }
+                              } catch (e) {
+                                toast({
+                                  title: 'Error',
+                                  description: 'Failed to send request',
+                                  variant: 'destructive',
+                                });
+                              }
+                            }}
+                          >
+                            Connect
+                          </Button>
+                        )}
                     </div>
                   ))}
                 </div>

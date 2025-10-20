@@ -37,6 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { registerUser } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import InteractiveLoading from '@/components/InteractiveLoading';
+import CountrySelect from '@/components/ui/CountrySelect';
 
 interface FormData {
   firstName: string;
@@ -741,22 +742,13 @@ const SignUp = () => {
                   <Label htmlFor='country' className='text-sm sm:text-base'>
                     Country/Region *
                   </Label>
-                  <Select
-                    onValueChange={(value) =>
+                  <CountrySelect
+                    value={formData.country}
+                    onChange={(value) =>
                       setFormData((prev) => ({ ...prev, country: value }))
                     }
-                  >
-                    <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
-                      <SelectValue placeholder='Select your country' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country} value={country}>
-                          {country}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    className='mt-1'
+                  />
                 </div>
                 <div>
                   <Label htmlFor='city' className='text-sm sm:text-base'>
@@ -781,27 +773,27 @@ const SignUp = () => {
                       htmlFor='universityName'
                       className='text-sm sm:text-base'
                     >
-                      University Name *
+                      Affiliation (University/Organization) *
                     </Label>
-                    <Select
-                      onValueChange={(value) =>
+                    <Input
+                      id='universityName'
+                      list='universities'
+                      value={formData.universityName}
+                      onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          universityName: value,
+                          universityName: e.target.value,
                         }))
                       }
-                    >
-                      <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
-                        <SelectValue placeholder='Select your university' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {universities.map((university) => (
-                          <SelectItem key={university} value={university}>
-                            {university}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      required
+                      placeholder='Search or enter your university/organization'
+                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
+                    />
+                    <datalist id='universities'>
+                      {universities.map((u) => (
+                        <option key={u} value={u} />
+                      ))}
+                    </datalist>
                   </div>
                   <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                     <div>
@@ -862,25 +854,20 @@ const SignUp = () => {
                     >
                       University/Institution Affiliation *
                     </Label>
-                    <Select
-                      onValueChange={(value) =>
+                    <Input
+                      id='institutionAffiliation'
+                      list='universities'
+                      value={formData.institutionAffiliation}
+                      onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          institutionAffiliation: value,
+                          institutionAffiliation: e.target.value,
                         }))
                       }
-                    >
-                      <SelectTrigger className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'>
-                        <SelectValue placeholder='Select your institution' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {universities.map((university) => (
-                          <SelectItem key={university} value={university}>
-                            {university}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      required
+                      placeholder='Search or enter your institution'
+                      className='border-gray-200 focus:border-[#007BFF] focus:ring-[#007BFF] text-sm sm:text-base'
+                    />
                   </div>
                   <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                     <div>
