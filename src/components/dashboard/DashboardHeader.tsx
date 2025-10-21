@@ -70,7 +70,7 @@ export function DashboardHeader({
   };
 
   const handleNetworkClick = () => {
-    navigate('/dashboard/groups');
+    navigate('/dashboard/connections');
   };
 
   const handleOpportunitiesClick = () => {

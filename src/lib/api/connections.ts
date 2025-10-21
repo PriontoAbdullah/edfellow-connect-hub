@@ -297,7 +297,6 @@ export const acceptConnectionRequest = async (
       .from('connection_requests')
       .update({
         status: 'accepted',
-        updated_at: new Date().toISOString(),
       })
       .eq('id', requestId);
 
@@ -344,7 +343,6 @@ export const declineConnectionRequest = async (
       .from('connection_requests')
       .update({
         status: 'declined',
-        updated_at: new Date().toISOString(),
       })
       .eq('id', requestId)
       .eq('to_user_id', addresseeId)

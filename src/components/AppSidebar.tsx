@@ -121,9 +121,24 @@ const getMenuItems = (role: string) => {
         icon: UserCheck,
       },
       {
-        title: 'Alumni Engagement',
+        title: 'Program Promotion Tools',
+        url: '/dashboard/program-promotion',
+        icon: Target,
+      },
+      {
+        title: 'Recruitment Tools',
+        url: '/dashboard/recruitment-tools',
+        icon: Briefcase,
+      },
+      {
+        title: 'Alumni Engagement Network',
         url: '/dashboard/alumni-engagement',
         icon: Users,
+      },
+      {
+        title: 'All Events, Sessions & Webinars',
+        url: '/dashboard/events-sessions',
+        icon: Calendar,
       },
       { title: 'Live Sessions', url: '/dashboard/live-sessions', icon: Video },
       { title: 'Profile', url: '/dashboard/profile', icon: Building2 },

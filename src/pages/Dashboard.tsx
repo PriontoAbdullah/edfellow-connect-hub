@@ -25,7 +25,10 @@ import UniversityInstitutionDashboard from '@/components/dashboards/university/U
 import UniversityPrograms from '@/components/dashboards/university/UniversityPrograms';
 import UniversityStudentRequirement from '@/components/dashboards/university/UniversityStudentRequirement';
 import UniversityProfessorRequirement from '@/components/dashboards/university/UniversityProfessorRequirement';
+import UniversityProgramPromotion from '@/components/dashboards/university/UniversityProgramPromotion';
+import UniversityRecruitmentTools from '@/components/dashboards/university/UniversityRecruitmentTools';
 import UniversityAlumniEngagement from '@/components/dashboards/university/UniversityAlumniEngagement';
+import UniversityEventsSessions from '@/components/dashboards/university/UniversityEventsSessions';
 import UniversityLiveSessions from '@/components/dashboards/university/UniversityLiveSessions';
 import UniversityProfile from '@/components/dashboards/university/UniversityProfile';
 import UniversityMessages from '@/components/dashboards/university/UniversityMessages';
@@ -37,6 +40,7 @@ import GroupDetail from '@/pages/GroupDetail';
 import Explore from '@/pages/Explore';
 import Analytics from '@/pages/Analytics';
 import Connections from '@/pages/Connections';
+import MyNetwork from '@/components/network/MyNetwork';
 
 const Dashboard = () => {
   const location = useLocation();
@@ -156,7 +160,10 @@ const Dashboard = () => {
     if (path.includes('/student-requirement')) return 'Student Requirements';
     if (path.includes('/professor-requirement'))
       return 'Professor Requirements';
+    if (path.includes('/program-promotion')) return 'Program Promotion Tools';
+    if (path.includes('/recruitment-tools')) return 'Recruitment Tools';
     if (path.includes('/alumni-engagement')) return 'Alumni Engagement';
+    if (path.includes('/events-sessions')) return 'Events, Sessions & Webinars';
     if (path.includes('/live-sessions')) return 'Live Sessions';
     if (path.includes('/messages')) return 'Messages';
     // Common routes
@@ -201,8 +208,14 @@ const Dashboard = () => {
       return 'Manage student requirements and applications';
     if (path.includes('/professor-requirement'))
       return 'Manage professor requirements and recruitment';
+    if (path.includes('/program-promotion'))
+      return 'Create and manage marketing campaigns for your programs';
+    if (path.includes('/recruitment-tools'))
+      return 'Manage student recruitment campaigns and tools';
     if (path.includes('/alumni-engagement'))
       return 'Engage with alumni and manage networking events';
+    if (path.includes('/events-sessions'))
+      return 'Manage university events, live sessions, and webinars';
     if (path.includes('/live-sessions'))
       return 'Manage and host live sessions for students and faculty';
     if (path.includes('/messages'))
@@ -304,7 +317,7 @@ const Dashboard = () => {
                 <Route path='/groups/:groupId' element={<GroupDetail />} />
                 <Route path='/explore' element={<Explore />} />
                 <Route path='/analytics' element={<Analytics />} />
-                <Route path='/connections' element={<Connections />} />
+                <Route path='/connections' element={<MyNetwork />} />
 
                 {/* University Routes */}
                 <Route path='/university' element={<UniversityDashboard />} />
@@ -322,8 +335,20 @@ const Dashboard = () => {
                   element={<UniversityProfessorRequirement />}
                 />
                 <Route
+                  path='/program-promotion'
+                  element={<UniversityProgramPromotion />}
+                />
+                <Route
+                  path='/recruitment-tools'
+                  element={<UniversityRecruitmentTools />}
+                />
+                <Route
                   path='/alumni-engagement'
                   element={<UniversityAlumniEngagement />}
+                />
+                <Route
+                  path='/events-sessions'
+                  element={<UniversityEventsSessions />}
                 />
                 <Route
                   path='/live-sessions'

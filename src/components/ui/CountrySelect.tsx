@@ -17,8 +17,9 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -27,23 +28,71 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setSearchQuery('');
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
 
   const selectedCountry = countries.find((country) => country.name === value);
-  const filtered = query
-    ? countries.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query.toLowerCase()) ||
-          (c.code || '').toLowerCase().includes(query.toLowerCase())
-      )
-    : countries;
+
+  // Filter and sort countries by relevance
+  const getFilteredCountries = () => {
+    if (!searchQuery.trim()) {
+      return countries;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+
+    const filtered = countries.filter((country) => {
+      const nameMatch = country.name.toLowerCase().includes(query);
+      const codeMatch = country.code.toLowerCase().includes(query);
+      return nameMatch || codeMatch;
+    });
+
+    // Sort by relevance: starts with query first, then contains query
+    return filtered.sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      const aStartsWith = aName.startsWith(query);
+      const bStartsWith = bName.startsWith(query);
+
+      if (aStartsWith && !bStartsWith) return -1;
+      if (!aStartsWith && bStartsWith) return 1;
+      return aName.localeCompare(bName);
+    });
+  };
+
+  const filteredCountries = getFilteredCountries();
+
+  const handleSelect = (countryName: string) => {
+    onChange(countryName);
+    setIsOpen(false);
+    setSearchQuery('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setIsOpen(false);
+      setSearchQuery('');
+    } else if (e.key === 'Enter' && filteredCountries.length > 0) {
+      handleSelect(filteredCountries[0].name);
+    }
+  };
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -71,37 +120,42 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
 
       {isOpen && (
         <div className='absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-72 overflow-hidden'>
-          <div className='p-2 border-b border-gray-200'>
+          <div className='p-2 border-b border-gray-200 sticky top-0 bg-white'>
             <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder='Search country...'
-              className='w-full px-2 py-1.5 text-sm border border-gray-300 rounded'
+              ref={searchInputRef}
+              type='text'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder='Type to search...'
+              className='w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              autoComplete='off'
             />
           </div>
           <div className='max-h-60 overflow-y-auto'>
-            {filtered.map((country) => (
-              <button
-                key={country.code || country.name}
-                type='button'
-                onClick={() => {
-                  onChange(country.name);
-                  setIsOpen(false);
-                  setQuery('');
-                }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 ${
-                  country.name === value
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-900'
-                }`}
-              >
-                <CountryFlag code={country.code} size={16} />
-                <span>{country.name}</span>
-              </button>
-            ))}
-            {filtered.length === 0 && (
-              <div className='px-3 py-2 text-sm text-gray-500'>No results</div>
+            {filteredCountries.length > 0 ? (
+              filteredCountries.map((country) => (
+                <button
+                  key={`${country.code}-${country.name}`}
+                  type='button'
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelect(country.name);
+                  }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
+                    country.name === value
+                      ? 'bg-blue-50 text-blue-700'
+                      : 'text-gray-900'
+                  }`}
+                >
+                  <CountryFlag code={country.code} size={16} />
+                  <span>{country.name}</span>
+                </button>
+              ))
+            ) : (
+              <div className='px-3 py-4 text-sm text-gray-500 text-center'>
+                No countries found for "{searchQuery}"
+              </div>
             )}
           </div>
         </div>

@@ -214,18 +214,6 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
             {user.role === 'student' && (
               <>
                 <Button
-                  variant={isActive('/field-of-study') ? 'default' : 'ghost'}
-                  className={`w-full justify-start ${
-                    isActive('/field-of-study')
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                  onClick={() => navigate('/dashboard/field-of-study')}
-                >
-                  <BookOpen className='h-4 w-4 mr-3' />
-                  Field of Study
-                </Button>
-                <Button
                   variant={isActive('/mentorship') ? 'default' : 'ghost'}
                   className={`w-full justify-start ${
                     isActive('/mentorship')
@@ -304,18 +292,6 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
                   Courses
                 </Button>
                 <Button
-                  variant={isActive('/field-of-study') ? 'default' : 'ghost'}
-                  className={`w-full justify-start ${
-                    isActive('/field-of-study')
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                  onClick={() => navigate('/dashboard/field-of-study')}
-                >
-                  <Target className='h-4 w-4 mr-3' />
-                  Field of Study
-                </Button>
-                <Button
                   variant={isActive('/mentorship') ? 'default' : 'ghost'}
                   className={`w-full justify-start ${
                     isActive('/mentorship')
@@ -391,23 +367,47 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
           <h4 className='font-semibold text-gray-900 mb-3'>Study Groups</h4>
           <div className='space-y-2'>
             <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              variant={isActive('/field-of-study') ? 'default' : 'ghost'}
+              className={`w-full justify-start ${
+                isActive('/field-of-study')
+                  ? user.role === 'professor'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              onClick={() => navigate('/dashboard/field-of-study')}
+            >
+              <BookOpen className='h-4 w-4 mr-3' />
+              Field of Study
+            </Button>
+            <Button
+              variant={isActive('/dashboard/groups') ? 'default' : 'ghost'}
+              className={`w-full justify-start ${
+                isActive('/dashboard/groups')
+                  ? user.role === 'professor'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
               onClick={() => navigate('/dashboard/groups')}
             >
               <Users className='h-4 w-4 mr-3' />
               My Groups
             </Button>
+            {user.role !== 'student' && (
+              <Button
+                variant='ghost'
+                className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                onClick={() => navigate('/dashboard/groups/create')}
+              >
+                <Plus className='h-4 w-4 mr-3' />
+                Create Group
+              </Button>
+            )}
             <Button
               variant='ghost'
               className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            >
-              <Plus className='h-4 w-4 mr-3' />
-              Create Group
-            </Button>
-            <Button
-              variant='ghost'
-              className='w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              onClick={() => navigate('/dashboard/groups/discover')}
             >
               <Search className='h-4 w-4 mr-3' />
               Discover Groups
@@ -456,7 +456,7 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
       </Card>
 
       {/* Explore Programs */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
+      {/* <Card className='bg-white border border-gray-200 shadow-sm'>
         <CardContent className='p-4'>
           <h4 className='font-semibold text-gray-900 mb-3'>Explore</h4>
           <div className='space-y-2'>
@@ -484,10 +484,10 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Saved Items */}
-      <Card className='bg-white border border-gray-200 shadow-sm'>
+      {/* <Card className='bg-white border border-gray-200 shadow-sm'>
         <CardContent className='p-4'>
           <h4 className='font-semibold text-gray-900 mb-3'>Saved Items</h4>
           <div className='space-y-2'>
@@ -522,7 +522,7 @@ export function LinkedInSidebar({ user, onLogout }: LinkedInSidebarProps) {
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }
