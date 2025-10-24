@@ -125,10 +125,10 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className='max-w-7xl mx-auto px-4 pb-6'>
-      <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
+    <div className='max-w-8xl mx-auto'>
+      <div className='grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6'>
         {/* Main Content Area */}
-        <div className='lg:col-span-8 space-y-4'>
+        <div className='lg:col-span-8 space-y-3 sm:space-y-4'>
           <ErrorBoundary>
             <FeedList
               showCreatePost={true}
@@ -141,15 +141,15 @@ const StudentDashboard = () => {
         </div>
 
         {/* Right Sidebar */}
-        <div className='lg:col-span-4 space-y-4'>
+        <div className='lg:col-span-4 space-y-3 sm:space-y-4'>
           {/* Recent Connections */}
           <Card className='bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden'>
-            <CardHeader className='pb-3'>
-              <CardTitle className='text-lg font-semibold text-gray-900'>
+            <CardHeader className='pb-2 sm:pb-3'>
+              <CardTitle className='text-base sm:text-lg font-semibold text-gray-900'>
                 Recent Connections
               </CardTitle>
             </CardHeader>
-            <CardContent className='space-y-3'>
+            <CardContent className='space-y-2 sm:space-y-3'>
               {connectionsLoading ? (
                 <div className='text-center py-4'>
                   <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto'></div>
@@ -167,10 +167,10 @@ const StudentDashboard = () => {
                   return (
                     <div
                       key={connection.id}
-                      className='border border-gray-200 rounded-lg p-3 hover:bg-gray-50'
+                      className='border border-gray-200 rounded-lg p-2 sm:p-3 hover:bg-gray-50'
                     >
-                      <div className='flex items-start gap-3'>
-                        <Avatar className='h-10 w-10 flex-shrink-0'>
+                      <div className='flex items-start gap-2 sm:gap-3'>
+                        <Avatar className='h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0'>
                           <AvatarImage
                             src={otherUser?.avatar || '/api/placeholder/40/40'}
                             alt={otherUser?.display_name || 'User'}
@@ -180,8 +180,8 @@ const StudentDashboard = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div className='flex-1 min-w-0'>
-                          <div className='flex items-center gap-2 mb-1'>
-                            <h4 className='font-semibold text-sm text-gray-900 truncate'>
+                          <div className='flex items-center gap-1 sm:gap-2 mb-1'>
+                            <h4 className='font-semibold text-xs sm:text-sm text-gray-900 truncate'>
                               {otherUser?.display_name || 'Unknown User'}
                             </h4>
                             <Badge className='text-xs bg-green-100 text-green-800 flex-shrink-0'>
@@ -201,7 +201,7 @@ const StudentDashboard = () => {
                           <Button
                             size='sm'
                             variant='outline'
-                            className='w-full text-xs mt-2'
+                            className='w-full text-xs mt-1 sm:mt-2'
                             onClick={() =>
                               navigate('/profile/' + otherUser?.id)
                             }
@@ -577,12 +577,12 @@ const StudentDashboard = () => {
         </div>
 
         {/* Floating Messaging Button */}
-        <div className='fixed bottom-6 right-6 z-50'>
+        <div className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50'>
           <Button
-            className='h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+            className='h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
             onClick={() => navigate('/dashboard/chat')}
           >
-            <MessageSquare className='h-5 w-5' />
+            <MessageSquare className='h-4 w-4 sm:h-5 sm:w-5' />
           </Button>
         </div>
       </div>

@@ -15,6 +15,7 @@ import {
   GraduationCap,
   Settings,
   LogOut,
+  Menu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -111,15 +112,15 @@ export function DashboardHeader({
         <div className='max-w-8xl mx-auto px-4'>
           <div className='flex items-center justify-between h-14'>
             {/* Left Section - Logo and Search */}
-            <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-2 sm:gap-4'>
               {/* Logo */}
               <div className='flex items-center gap-2'>
                 <img
                   src='/logo.png'
                   alt='Edfellow'
-                  className='w-12 rounded-full'
+                  className='w-8 sm:w-12 rounded-full'
                 />
-                <span className='text-xl font-bold text-gray-900'>
+                <span className='text-lg sm:text-xl font-bold text-gray-900'>
                   Edfellow
                 </span>
               </div>
@@ -137,67 +138,171 @@ export function DashboardHeader({
             </div>
 
             {/* Center Section - Main Navigation */}
-            <nav className='hidden lg:flex items-center justify-center space-x-2 gap-1'>
-              <Button
-                variant='ghost'
-                className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                onClick={() => navigate('/dashboard')}
-              >
-                <Home className='h-5 w-5' />
-                <span className='text-xs'>Home</span>
-              </Button>
+            <nav className='flex items-center justify-center space-x-0.5 sm:space-x-2 gap-0.5 sm:gap-1'>
+              {/* Desktop Navigation - Hidden on Mobile */}
+              <div className='hidden lg:flex items-center space-x-2 gap-1'>
+                <Button
+                  variant='ghost'
+                  className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <Home className='h-5 w-5' />
+                  <span className='text-xs'>Home</span>
+                </Button>
 
-              <Button
-                variant='ghost'
-                className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                onClick={handleNetworkClick}
-              >
-                <Users className='h-5 w-5' />
-                <span className='text-xs'>My Network</span>
-              </Button>
+                <Button
+                  variant='ghost'
+                  className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  onClick={handleNetworkClick}
+                >
+                  <Users className='h-5 w-5' />
+                  <span className='text-xs'>My Network</span>
+                </Button>
 
-              <Button
-                variant='ghost'
-                className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                onClick={handleOpportunitiesClick}
-              >
-                <Briefcase className='h-5 w-5' />
-                <span className='text-xs'>Opportunities</span>
-              </Button>
+                <Button
+                  variant='ghost'
+                  className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  onClick={handleOpportunitiesClick}
+                >
+                  <Briefcase className='h-5 w-5' />
+                  <span className='text-xs'>Opportunities</span>
+                </Button>
 
-              <Button
-                variant='ghost'
-                className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 relative'
-                onClick={handleMessagingClick}
-              >
-                <MessageSquare className='h-5 w-5' />
-                <span className='text-xs'>Messaging</span>
-                {totalUnreadMessages > 0 && (
-                  <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
-                    {totalUnreadMessages > 99 ? '99+' : totalUnreadMessages}
-                  </span>
-                )}
-              </Button>
+                <Button
+                  variant='ghost'
+                  className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 relative'
+                  onClick={handleMessagingClick}
+                >
+                  <MessageSquare className='h-5 w-5' />
+                  <span className='text-xs'>Messaging</span>
+                  {totalUnreadMessages > 0 && (
+                    <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
+                      {totalUnreadMessages > 99 ? '99+' : totalUnreadMessages}
+                    </span>
+                  )}
+                </Button>
 
-              <Button
-                variant='ghost'
-                className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 relative'
-                onClick={handleNotificationClick}
-              >
-                <Bell className='h-5 w-5' />
-                <span className='text-xs'>Notifications</span>
-                {unreadCounts.notifications > 0 && (
-                  <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
-                    {unreadCounts.notifications > 99
-                      ? '99+'
-                      : unreadCounts.notifications}
-                  </span>
-                )}
-              </Button>
+                <Button
+                  variant='ghost'
+                  className='flex flex-col items-center gap-1 h-14 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 relative'
+                  onClick={handleNotificationClick}
+                >
+                  <Bell className='h-5 w-5' />
+                  <span className='text-xs'>Notifications</span>
+                  {unreadCounts.notifications > 0 && (
+                    <span className='absolute top-0.5 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
+                      {unreadCounts.notifications > 99
+                        ? '99+'
+                        : unreadCounts.notifications}
+                    </span>
+                  )}
+                </Button>
+              </div>
+
+              {/* Mobile Navigation - Dropdown Menu */}
+              <div className='lg:hidden'>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant='ghost'
+                      className='flex flex-col items-center gap-1 h-12 px-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    >
+                      <Menu className='h-4 w-4' />
+                      <span className='text-xs'>Menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='center' className='w-56'>
+                    <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => navigate('/dashboard')}
+                      className='flex items-center gap-3 p-3'
+                    >
+                      <Home className='h-4 w-4 text-blue-600' />
+                      <div>
+                        <div className='font-medium'>Home</div>
+                        <div className='text-sm text-gray-500'>Dashboard</div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleNetworkClick}
+                      className='flex items-center gap-3 p-3'
+                    >
+                      <Users className='h-4 w-4 text-green-600' />
+                      <div>
+                        <div className='font-medium'>My Network</div>
+                        <div className='text-sm text-gray-500'>
+                          Connections & People
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleOpportunitiesClick}
+                      className='flex items-center gap-3 p-3'
+                    >
+                      <Briefcase className='h-4 w-4 text-orange-600' />
+                      <div>
+                        <div className='font-medium'>Opportunities</div>
+                        <div className='text-sm text-gray-500'>
+                          Jobs & Programs
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleMessagingClick}
+                      className='flex items-center gap-3 p-3 relative'
+                    >
+                      <MessageSquare className='h-4 w-4 text-purple-600' />
+                      <div className='flex-1'>
+                        <div className='font-medium'>Messaging</div>
+                        <div className='text-sm text-gray-500'>
+                          Chat & Messages
+                        </div>
+                      </div>
+                      {totalUnreadMessages > 0 && (
+                        <span className='h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
+                          {totalUnreadMessages > 99
+                            ? '99+'
+                            : totalUnreadMessages}
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleNotificationClick}
+                      className='flex items-center gap-3 p-3 relative'
+                    >
+                      <Bell className='h-4 w-4 text-yellow-600' />
+                      <div className='flex-1'>
+                        <div className='font-medium'>Notifications</div>
+                        <div className='text-sm text-gray-500'>
+                          Alerts & Updates
+                        </div>
+                      </div>
+                      {unreadCounts.notifications > 0 && (
+                        <span className='h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium'>
+                          {unreadCounts.notifications > 99
+                            ? '99+'
+                            : unreadCounts.notifications}
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </nav>
 
             {/* Right Section - Profile and Actions */}
-            <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-1 sm:gap-2'>
+              {/* Mobile Search Button */}
+              <Button
+                variant='ghost'
+                size='sm'
+                className='md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                onClick={() => setIsSearchOpen(true)}
+              >
+                <Search className='h-4 w-4' />
+              </Button>
+
               {/* Me Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

@@ -42,6 +42,8 @@ export interface Database {
           connections?: number;
           endorsements?: number;
           avatar?: string;
+          cv_url?: string;
+          cv_file_name?: string;
           social_links?: {
             linkedin?: string;
             github?: string;
@@ -167,6 +169,8 @@ export interface Database {
           connections?: number;
           endorsements?: number;
           avatar?: string;
+          cv_url?: string;
+          cv_file_name?: string;
           social_links?: any;
           work_experience?: any;
           education?: any;
@@ -215,6 +219,8 @@ export interface Database {
           connections?: number;
           endorsements?: number;
           avatar?: string;
+          cv_url?: string;
+          cv_file_name?: string;
           social_links?: any;
           work_experience?: any;
           education?: any;

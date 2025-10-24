@@ -240,9 +240,9 @@ const Chat = () => {
 
   return (
     <>
-      <div className='h-full flex bg-white overflow-hidden'>
+      <div className='h-full flex flex-col lg:flex-row bg-white overflow-hidden'>
         {/* Conversations Sidebar */}
-        <div className='w-80 border-r border-gray-200 flex flex-col'>
+        <div className='w-full lg:w-80 border-r border-gray-200 flex flex-col flex-shrink-0'>
           <ConversationList
             conversations={conversations}
             currentConversation={currentConversation}
@@ -254,7 +254,7 @@ const Chat = () => {
         </div>
 
         {/* Chat Area */}
-        <div className='flex-1 flex flex-col bg-white'>
+        <div className='flex-1 flex flex-col bg-white min-w-0'>
           {currentConversation ? (
             <>
               {/* Chat Header */}

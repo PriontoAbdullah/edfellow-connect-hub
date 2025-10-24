@@ -104,6 +104,8 @@ interface ExtendedUserData extends UserData {
     twitter?: string;
     website?: string;
   };
+  cvUrl?: string;
+  cvFileName?: string;
   // Portfolio sections
   workExperience?: Array<{
     id: string;
@@ -179,6 +181,7 @@ const Profile = () => {
   const [showInterestsModal, setShowInterestsModal] = useState(false);
   const [showLanguagesModal, setShowLanguagesModal] = useState(false);
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
+  const [showCVModal, setShowCVModal] = useState(false);
 
   // Editing states for different sections
   const [editingWorkExperience, setEditingWorkExperience] = useState<any>(null);
@@ -227,6 +230,8 @@ const Profile = () => {
     projects: [],
     socialLinks: {},
     portfolio: [],
+    cvUrl: '',
+    cvFileName: '',
     privacySettings: {
       profileVisibility: 'public',
       contactInfoVisibility: 'public',
@@ -251,6 +256,7 @@ const Profile = () => {
 
     try {
       setIsLoading(true);
+
       setProfileData({
         ...userData,
         // Portfolio data
@@ -267,6 +273,8 @@ const Profile = () => {
         projects: userData.projects || [],
         socialLinks: userData.socialLinks || {},
         portfolio: userData.portfolio || [],
+        cvUrl: userData.cvUrl || '',
+        cvFileName: userData.cvFileName || '',
         privacySettings: userData.privacySettings || {
           profileVisibility: 'public',
           contactInfoVisibility: 'public',
@@ -875,6 +883,123 @@ const Profile = () => {
     }
   };
 
+  // CV Upload and Download functions
+  const uploadCV = async (file: File) => {
+    if (!user) return;
+
+    try {
+      // Create a unique filename with user ID folder structure
+      const fileExt = file.name.split('.').pop();
+      const fileName = `cv-${Date.now()}.${fileExt}`;
+      const filePath = `cvs/${user.id}/${fileName}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('edfellow')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('edfellow').getPublicUrl(filePath);
+
+      // Update user data with CV URL
+      const { error: updateError } = await updateUserData(user.id, {
+        cvUrl: publicUrl,
+        cvFileName: file.name,
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Update local state immediately
+      setProfileData((prev) => ({
+        ...prev,
+        cvUrl: publicUrl,
+        cvFileName: file.name,
+      }));
+
+      // Refresh user data in context
+      await refreshUserData();
+
+      toast({
+        title: 'Success',
+        description: 'CV uploaded successfully!',
+      });
+    } catch (error) {
+      console.error('Error uploading CV:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload CV. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const downloadCV = () => {
+    if (profileData.cvUrl) {
+      // Open CV in a new tab
+      window.open(profileData.cvUrl, '_blank');
+    }
+  };
+
+  const deleteCV = async () => {
+    if (!user || !profileData.cvUrl) return;
+
+    try {
+      // Extract file path from URL
+      const urlParts = profileData.cvUrl.split('/');
+      const filePath = urlParts.slice(urlParts.indexOf('cvs')).join('/');
+
+      // Delete from Supabase storage
+      const { error } = await supabase.storage
+        .from('edfellow')
+        .remove([filePath]);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update user data
+      const { error: updateError } = await updateUserData(user.id, {
+        cvUrl: '',
+        cvFileName: '',
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Update local state
+      setProfileData((prev) => ({
+        ...prev,
+        cvUrl: '',
+        cvFileName: '',
+      }));
+
+      await refreshUserData();
+      toast({
+        title: 'Success',
+        description: 'CV deleted successfully!',
+      });
+    } catch (error) {
+      console.error('Error deleting CV:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete CV. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // CRUD operations for Profile Information
   const saveProfileInfo = async (profileInfo: any) => {
     setSavingSection('profile');
@@ -926,6 +1051,8 @@ const Profile = () => {
         projects: userData.projects || [],
         socialLinks: userData.socialLinks || {},
         portfolio: userData.portfolio || [],
+        cvUrl: userData.cvUrl || '',
+        cvFileName: userData.cvFileName || '',
         privacySettings: userData.privacySettings || {
           profileVisibility: 'public',
           contactInfoVisibility: 'public',
@@ -1117,7 +1244,7 @@ const Profile = () => {
   }
 
   return (
-    <div className='p-6 space-y-6 max-w-6xl mx-auto'>
+    <div className='space-y-6 max-w-8xl mx-auto'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
@@ -1360,6 +1487,72 @@ const Profile = () => {
                       No social links added yet
                     </p>
                   )}
+              </div>
+
+              {/* CV Section */}
+              <div className='space-y-2'>
+                <div className='flex items-center justify-between'>
+                  <h4 className='font-semibold text-sm'>CV/Resume</h4>
+                  {isEditing && (
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      onClick={() => setShowCVModal(true)}
+                      className='h-6 w-6 p-0'
+                    >
+                      <Edit className='h-3 w-3' />
+                    </Button>
+                  )}
+                </div>
+                {profileData.cvUrl ? (
+                  <div className='space-y-2'>
+                    <div className='flex items-center gap-2 p-2 bg-gray-50 rounded border'>
+                      <FileText className='h-4 w-4 text-blue-600' />
+                      <span className='text-sm font-medium text-gray-700 flex-1'>
+                        {profileData.cvFileName}
+                      </span>
+                      <div className='flex gap-1'>
+                        <Button
+                          size='sm'
+                          variant='ghost'
+                          onClick={downloadCV}
+                          className='h-6 w-6 p-0'
+                          title='Open CV'
+                        >
+                          <ExternalLink className='h-3 w-3' />
+                        </Button>
+                        {isEditing && (
+                          <Button
+                            size='sm'
+                            variant='ghost'
+                            onClick={deleteCV}
+                            className='h-6 w-6 p-0 text-red-600 hover:text-red-700'
+                            title='Delete CV'
+                          >
+                            <Trash2 className='h-3 w-3' />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className='text-center py-4 border-2 border-dashed border-gray-300 rounded'>
+                    <FileText className='h-8 w-8 mx-auto mb-2 text-gray-400' />
+                    <p className='text-sm text-gray-500 mb-2'>
+                      No CV uploaded yet
+                    </p>
+                    {isEditing && (
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => setShowCVModal(true)}
+                      >
+                        <Upload className='h-4 w-4 mr-2' />
+                        Upload CV
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Stats */}
@@ -2487,6 +2680,15 @@ const Profile = () => {
           onSave={saveProfileInfo}
           onCancel={() => setShowProfileEditModal(false)}
           savingSection={savingSection}
+        />
+      )}
+
+      {/* CV Upload Modal */}
+      {showCVModal && (
+        <CVUploadModal
+          onUpload={uploadCV}
+          onCancel={() => setShowCVModal(false)}
+          currentCV={profileData.cvUrl ? profileData.cvFileName : null}
         />
       )}
     </div>
@@ -4126,6 +4328,152 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               </Button>
             </div>
           </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// CV Upload Modal Component
+interface CVUploadModalProps {
+  onUpload: (file: File) => void;
+  onCancel: () => void;
+  currentCV: string | null;
+}
+
+const CVUploadModal: React.FC<CVUploadModalProps> = ({
+  onUpload,
+  onCancel,
+  currentCV,
+}) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: 'File too large',
+          description: 'Please select a file smaller than 10MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: 'Invalid file type',
+          description: 'Please select a PDF, DOC, DOCX, or TXT file.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    try {
+      setUploading(true);
+      await onUpload(selectedFile);
+      onCancel();
+    } catch (error) {
+      console.error('Error uploading CV:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <Card className='w-full max-w-md'>
+        <CardHeader>
+          <CardTitle className='flex items-center gap-2'>
+            <FileText className='h-5 w-5' />
+            {currentCV ? 'Replace CV' : 'Upload CV'}
+          </CardTitle>
+          <CardDescription>
+            Upload your CV/Resume (PDF, DOC, DOCX, or TXT)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='space-y-4'>
+          {currentCV && (
+            <div className='p-3 bg-blue-50 border border-blue-200 rounded'>
+              <p className='text-sm text-blue-800'>
+                <span className='font-semibold'>Current CV:</span> {currentCV}
+              </p>
+            </div>
+          )}
+
+          <div>
+            <Label htmlFor='cvFile'>Select CV File</Label>
+            <Input
+              id='cvFile'
+              type='file'
+              accept='.pdf,.doc,.docx,.txt'
+              onChange={handleFileChange}
+              className='mt-1'
+              disabled={uploading}
+            />
+            <p className='text-xs text-gray-500 mt-1'>
+              Maximum file size: 10MB
+            </p>
+          </div>
+
+          {selectedFile && (
+            <div className='p-3 bg-green-50 border border-green-200 rounded'>
+              <div className='flex items-center gap-2'>
+                <FileText className='h-4 w-4 text-green-600' />
+                <span className='text-sm font-medium text-green-800'>
+                  {selectedFile.name}
+                </span>
+                <span className='text-xs text-green-600'>
+                  ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className='flex justify-end gap-2 pt-4 border-t'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={onCancel}
+              disabled={uploading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpload}
+              disabled={!selectedFile || uploading}
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className='h-4 w-4 mr-2' />
+                  {currentCV ? 'Replace CV' : 'Upload CV'}
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

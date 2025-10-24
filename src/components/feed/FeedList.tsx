@@ -87,7 +87,7 @@ export const FeedList: React.FC<FeedListProps> = ({
   }, [refresh]);
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-3 sm:space-y-4 ${className}`}>
       {/* Create Post */}
       {showCreatePost && <CreatePost onPostCreated={handleRefresh} />}
 
@@ -117,7 +117,7 @@ export const FeedList: React.FC<FeedListProps> = ({
         empty={!loading && posts.length === 0 && !error}
         onRetry={handleRefresh}
       >
-        <div className='space-y-4'>
+        <div className='space-y-3 sm:space-y-4'>
           {posts.map((post) => (
             <FeedPost
               key={post.id}

@@ -79,6 +79,8 @@ export interface UserData {
     twitter?: string;
     website?: string;
   };
+  cvUrl?: string;
+  cvFileName?: string;
   // Extended portfolio sections
   workExperience?: Array<{
     id: string;
@@ -173,6 +175,8 @@ const convertSupabaseUserToUserData = (supabaseUser: any): UserData => {
     endorsements: supabaseUser.endorsements,
     avatar: supabaseUser.avatar,
     socialLinks: supabaseUser.social_links,
+    cvUrl: supabaseUser.cv_url,
+    cvFileName: supabaseUser.cv_file_name,
     workExperience: supabaseUser.work_experience,
     education: supabaseUser.education,
     certifications: supabaseUser.certifications,
@@ -225,6 +229,8 @@ const convertUserDataToSupabase = (userData: Partial<UserData>): any => {
     endorsements: userData.endorsements,
     avatar: userData.avatar,
     social_links: userData.socialLinks,
+    cv_url: userData.cvUrl,
+    cv_file_name: userData.cvFileName,
     work_experience: userData.workExperience,
     education: userData.education,
     certifications: userData.certifications,

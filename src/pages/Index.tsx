@@ -542,7 +542,7 @@ const Index = () => {
 
       {/* Hero Section */}
       <motion.section
-        className='relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[500px] sm:min-h-[600px] flex items-center justify-center'
+        className='relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[400px] sm:min-h-[500px] lg:min-h-[600px] flex items-center justify-center'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.3 }}
@@ -570,19 +570,19 @@ const Index = () => {
             </Badge>
           </motion.div>
           <motion.h2
-            className='text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2'
+            className='text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 leading-tight px-2'
             variants={fadeInUp}
           >
             Welcome to <span className='text-[#0A66C2]'>Edfellow</span>
           </motion.h2>
           <motion.h3
-            className='text-lg sm:text-xl lg:text-2xl font-semibold text-gray-700 mb-4 sm:mb-6 px-2'
+            className='text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-gray-700 mb-3 sm:mb-4 lg:mb-6 px-2'
             variants={fadeInUp}
           >
             Your Global Hub for Learning, Connecting, and Limitless Opportunity
           </motion.h3>
           <motion.p
-            className='text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto px-2'
+            className='text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto px-2'
             variants={fadeInUp}
           >
             Connect with a worldwide academic community built for collaboration,
@@ -593,7 +593,7 @@ const Index = () => {
 
       {/* Role Teaser Section */}
       <motion.section
-        className='py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white'
+        className='py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 bg-white'
         initial='initial'
         whileInView='animate'
         viewport={{ once: true, amount: 0.2 }}
@@ -601,17 +601,17 @@ const Index = () => {
       >
         <div className='max-w-6xl mx-auto'>
           <motion.div
-            className='text-center mb-12 sm:mb-16'
+            className='text-center mb-8 sm:mb-12 lg:mb-16'
             variants={staggerContainer}
           >
             <motion.h3
-              className='text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4'
+              className='text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 mb-3 sm:mb-4'
               variants={fadeInUp}
             >
               How Edfellow Empowers You
             </motion.h3>
             <motion.p
-              className='text-sm sm:text-base text-gray-600 max-w-3xl mx-auto mb-3 sm:mb-4 px-4'
+              className='text-xs sm:text-sm lg:text-base text-gray-600 max-w-3xl mx-auto mb-3 sm:mb-4 px-4'
               variants={fadeInUp}
             >
               Choose your path and unlock a world of knowledge, mentorship, and
@@ -632,7 +632,7 @@ const Index = () => {
           </motion.div>
 
           <motion.div
-            className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8'
+            className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'
             variants={staggerContainer}
           >
             {roles.map((role, index) => {

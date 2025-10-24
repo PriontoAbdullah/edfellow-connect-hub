@@ -31,6 +31,7 @@ import RecentPosts from './pages/RecentPosts';
 import Chat from './pages/Chat';
 import Connections from './pages/Connections';
 import GroupDetail from './pages/GroupDetail';
+import UserProfile from './components/profile/UserProfile';
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,14 @@ const App = () => (
                   <Route path='/features' element={<Features />} />
                   <Route path='/community' element={<Community />} />
                   <Route path='/groups/:groupId' element={<GroupDetail />} />
+                  <Route
+                    path='/profile/:userId'
+                    element={
+                      <ProtectedRoute requireAuth={true}>
+                        <UserProfile />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route
                     path='/signup'
                     element={

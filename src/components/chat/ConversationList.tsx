@@ -126,18 +126,19 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
   return (
     <div className='h-full flex flex-col bg-gray-50'>
-      <div className='p-4 border-b border-gray-200'>
-        <h2 className='text-lg font-semibold text-gray-900 flex items-center gap-2'>
-          <MessageSquare className='h-5 w-5 text-blue-600' />
-          Messages
+      <div className='p-3 sm:p-4 border-b border-gray-200'>
+        <h2 className='text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2'>
+          <MessageSquare className='h-4 w-4 sm:h-5 sm:w-5 text-blue-600' />
+          <span className='hidden sm:inline'>Messages</span>
+          <span className='sm:hidden'>Chat</span>
         </h2>
-        <div className='relative mt-3'>
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+        <div className='relative mt-2 sm:mt-3'>
+          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3 sm:h-4 sm:w-4' />
           <Input
             placeholder='Search conversations...'
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            className='pl-10'
+            className='pl-8 sm:pl-10 text-sm'
           />
         </div>
       </div>
@@ -164,18 +165,18 @@ export const ConversationList: React.FC<ConversationListProps> = ({
               return (
                 <div
                   key={conversation.id}
-                  className={`p-3 rounded-lg cursor-pointer transition-colors border border-transparent group ${
+                  className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-colors border border-transparent group ${
                     isSelected
                       ? 'bg-blue-50 border-blue-200 shadow-sm'
                       : 'hover:bg-white hover:border-gray-200'
                   }`}
                   onClick={() => onSelectConversation(conversation)}
                 >
-                  <div className='flex items-center gap-3'>
+                  <div className='flex items-center gap-2 sm:gap-3'>
                     <div className='relative'>
                       {conversation.type === 'group' ? (
-                        <div className='h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center'>
-                          <Icon className='h-5 w-5 text-gray-600' />
+                        <div className='h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-200 flex items-center justify-center'>
+                          <Icon className='h-4 w-4 sm:h-5 sm:w-5 text-gray-600' />
                         </div>
                       ) : (
                         <UserAvatar
@@ -192,10 +193,10 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
                     <div className='flex-1 min-w-0'>
                       <div className='flex items-center justify-between'>
-                        <h4 className='font-medium text-gray-900 truncate'>
+                        <h4 className='font-medium text-sm sm:text-base text-gray-900 truncate'>
                           {getConversationName(conversation)}
                         </h4>
-                        <div className='flex items-center gap-2 flex-shrink-0 ml-2'>
+                        <div className='flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-1 sm:ml-2'>
                           {conversation.last_message && (
                             <span className='text-xs text-gray-500'>
                               {formatLastMessageTime(
@@ -207,7 +208,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                             ? conversation.unread_count > 0 && (
                                 <Badge
                                   variant='default'
-                                  className='h-5 w-5 p-0 flex items-center justify-center text-xs'
+                                  className='h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center text-xs'
                                 >
                                   {conversation.unread_count > 99
                                     ? '99+'
@@ -218,7 +219,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                         </div>
                       </div>
 
-                      <div className='flex items-center gap-2'>
+                      <div className='flex items-center gap-1 sm:gap-2'>
                         <Icon className='h-3 w-3 text-gray-500' />
                         <span className='text-xs text-gray-500'>
                           {getConversationRole(conversation)}
@@ -226,7 +227,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                       </div>
 
                       {conversation.last_message && (
-                        <p className='text-sm text-gray-600 truncate max-w-full mt-1'>
+                        <p className='text-xs sm:text-sm text-gray-600 truncate max-w-full mt-1'>
                           {conversation.last_message.sender_id ===
                           currentUser.id
                             ? 'You: '

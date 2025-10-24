@@ -56,16 +56,16 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
   return (
     <header className='sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm'>
       <div className='max-w-8xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex justify-between items-center h-16'>
+        <div className='flex justify-between items-center h-14 sm:h-16'>
           {/* Logo */}
-          <div className='flex items-center space-x-3'>
+          <div className='flex items-center space-x-2 sm:space-x-3'>
             <img
               src='/logo.png'
               alt='Edfellow'
-              className='w-14 h-14 rounded-full'
+              className='w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-full'
             />
             <div>
-              <h1 className='text-2xl font-bold text-gray-900'>Edfellow</h1>
+              <h1 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-900'>Edfellow</h1>
             </div>
           </div>
 
@@ -91,17 +91,18 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
           </nav>
 
           {/* Auth Buttons */}
-          <div className='flex items-center space-x-4'>
+          <div className='flex items-center space-x-2 sm:space-x-4'>
             {isAuthenticated ? (
-              <div className='flex items-center space-x-4'>
-                <span className='text-sm text-gray-500'>
+              <div className='flex items-center space-x-2 sm:space-x-4'>
+                <span className='text-xs sm:text-sm text-gray-500 hidden sm:block'>
                   Welcome, {user?.name}
                 </span>
                 <Button
                   onClick={() => navigate('/dashboard')}
-                  className='bg-[#0A66C2] hover:bg-[#084482] text-white'
+                  className='bg-[#0A66C2] hover:bg-[#084482] text-white text-xs sm:text-sm px-3 sm:px-4'
                 >
-                  Dashboard
+                  <span className='hidden sm:inline'>Dashboard</span>
+                  <span className='sm:hidden'>Home</span>
                 </Button>
               </div>
             ) : (
@@ -109,18 +110,20 @@ const GlobalNavbar = ({ isAuthenticated = false, user }: GlobalNavbarProps) => {
                 <Button
                   variant='outline'
                   onClick={() => navigate('/login')}
-                  className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white transition-colors'
+                  className='border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white transition-colors text-xs sm:text-sm px-3 sm:px-4'
                 >
-                  Log In
+                  <span className='hidden sm:inline'>Log In</span>
+                  <span className='sm:hidden'>Login</span>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       onClick={() => handleSignUp()}
-                      className='bg-[#0A66C2] hover:bg-[#084482] text-white transition-colors'
+                      className='bg-[#0A66C2] hover:bg-[#084482] text-white transition-colors text-xs sm:text-sm px-3 sm:px-4'
                     >
-                      Sign Up
-                      <ArrowRight className='ml-2 h-4 w-4' />
+                      <span className='hidden sm:inline'>Sign Up</span>
+                      <span className='sm:hidden'>Signup</span>
+                      <ArrowRight className='ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4' />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end' className='w-64'>

@@ -251,11 +251,11 @@ const Dashboard = () => {
       />
       {isChatRoute ? (
         // Full screen layout for chat with LinkedIn sidebar
-        <div className='h-[calc(100vh-80px)] flex'>
-          <div className='w-80 border-r border-gray-200 overflow-y-auto'>
+        <div className='h-[calc(100vh-80px)] flex flex-col lg:flex-row'>
+          <div className='w-full lg:w-1/4 border-r border-gray-200 overflow-y-auto flex-shrink-0 pt-6'>
             <LinkedInSidebar user={user} onLogout={handleLogout} />
           </div>
-          <div className='flex-1'>
+          <div className='flex-1 min-w-0'>
             <Routes>
               <Route path='/chat' element={<Chat />} />
             </Routes>
